@@ -964,8 +964,78 @@ function quizRoom(app){
 }
 
 /* ---------- Projectile Lab ---------- */
+/* Canvas sim. vx arrow stays the same length; vy arrow shrinks, hits zero at the apex, then grows downward. */
+S.lab=Object.assign({v:12,th:40,h:0,predict:false},S.lab);
+let LB={run:null,res:null,guess:""};
+function labPhys(){const L=S.lab,r=L.th*Math.PI/180,vx=L.v*Math.cos(r),vy=L.v*Math.sin(r),T=(vy+Math.sqrt(vy*vy+19.6*L.h))/9.8;
+  return {vx,vy,T,R:vx*T,top:L.h+(vy>0?vy*vy/19.6:0),tTop:vy>0?vy/9.8:0}}
 function labRoom(app){
-  app.innerHTML=`<section class="hero"><h1 style="font-size:2.2rem">Projectile Lab</h1><p>The launch simulator is being set up. Use the GUESS Coach and Practice Test for now.</p></section>`;
+  const L=S.lab;
+  app.innerHTML=`<section class="hero" style="padding-bottom:0"><h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">Projectile Lab</h1>
+    <p>Set the launch, then watch the two velocity arrows. The yellow ${md("[[v_x|]]")} arrow never changes. The red ${md("[[v_y|]]")} arrow shrinks, vanishes at the top, then grows pointing down.</p></section>
+  <div class="qbox">
+    <div class="gin">
+      <label style="display:grid;gap:4px">Launch speed <b class="mono" id="lv">${L.v} m/s</b><input type="range" id="sv" min="1" max="30" step="0.5" value="${L.v}"></label>
+      <label style="display:grid;gap:4px">Launch angle <b class="mono" id="lth">${L.th}°</b><input type="range" id="sth" min="0" max="85" step="1" value="${L.th}"></label>
+      <label style="display:grid;gap:4px">Launch height <b class="mono" id="lh">${L.h} m</b><input type="range" id="sh" min="0" max="30" step="0.5" value="${L.h}"></label>
+    </div>
+    <div class="ctrl">
+      <label class="tts" style="margin:0"><input type="checkbox" id="pm" ${L.predict?"checked":""}> Predict mode: guess the range first</label>
+      ${L.predict?`<label class="tts" style="margin:0">My guess: <input class="numin" id="pg" inputmode="decimal" value="${esc(LB.guess)}"> m</label>`:""}
+    </div>
+    <div class="ctrl"><button class="btn y" id="go">🚀 Launch</button><button class="btn ghost" id="rs">Reset</button>
+      <button class="btn ghost" id="preset1">Marble off a 1.60 m bench</button><button class="btn ghost" id="preset2">14.0 m/s at 30°</button></div>
+    <div style="border:8px solid var(--wood);border-radius:6px;background:var(--board);box-shadow:inset 0 0 30px rgba(0,0,0,.35)"><canvas id="cv" style="display:block;width:100%;height:auto" aria-label="Projectile simulation"></canvas></div>
+    <div class="score" id="live"></div>
+    <div id="res"></div>
+  </div>`;
+  const cv=$("#cv"), ctx=cv.getContext("2d");
+  const size=()=>{const w=cv.parentElement.clientWidth-16, h=Math.max(280,Math.round(w*.55)), d=devicePixelRatio||1;cv.width=w*d;cv.height=h*d;cv.style.height=h+"px";ctx.setTransform(d,0,0,d,0,0);return {W:w,H:h}};
+  let dim=size();
+  const draw=(t,trail)=>{
+    const {W,H}=dim, ph=labPhys(), pad=28, padR=56, padB=Math.round(H*.2)+22;
+    const xmax=Math.max(ph.R,2,+LB.guess||0)*1.1, ymax=Math.max(ph.top,1)*1.18;
+    const s=Math.min((W-pad-padR)/xmax,(H-pad-padB)/ymax), X=x=>pad+x*s, Y=y=>H-padB-y*s;
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle="rgba(238,240,230,.5)";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,Y(0));ctx.lineTo(W,Y(0));ctx.stroke();
+    ctx.fillStyle="#b4c2b8";ctx.font="12px IBM Plex Mono, monospace";
+    const step=[1,2,5,10,20,50,100].find(k=>xmax/k<=8)||100;
+    for(let x=0;x<=xmax;x+=step){ctx.fillRect(X(x),Y(0),1,5);ctx.fillText(x+" m",X(x)-8,Y(0)+17)}
+    if(S.lab.h>0){ctx.fillStyle="#6b4a2f";ctx.fillRect(X(0)-pad+4,Y(S.lab.h),pad-4,S.lab.h*s)}
+    if(S.lab.predict&&+LB.guess>0){ctx.setLineDash([6,5]);ctx.strokeStyle="#f2d675";ctx.beginPath();ctx.moveTo(X(+LB.guess),Y(0));ctx.lineTo(X(+LB.guess),Y(ymax*.8));ctx.stroke();ctx.setLineDash([]);ctx.fillStyle="#f2d675";ctx.fillText("your guess",X(+LB.guess)+4,Y(ymax*.8)+4)}
+    const pos=t=>[ph.vx*t,S.lab.h+ph.vy*t-4.9*t*t];
+    if(!S.lab.predict&&t==null){ctx.setLineDash([4,6]);ctx.strokeStyle="rgba(238,240,230,.35)";ctx.beginPath();for(let i=0;i<=60;i++){const [x,y]=pos(ph.T*i/60);i?ctx.lineTo(X(x),Y(y)):ctx.moveTo(X(x),Y(y))}ctx.stroke();ctx.setLineDash([])}
+    const tt=t==null?0:t;
+    if(trail){ctx.strokeStyle="#eef0e6";ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<=60;i++){const [x,y]=pos(tt*i/60);i?ctx.lineTo(X(x),Y(y)):ctx.moveTo(X(x),Y(y))}ctx.stroke()}
+    if(t!=null&&tt>=ph.tTop&&ph.tTop>0){const [ax,ay]=pos(ph.tTop);ctx.fillStyle="#f2d675";ctx.fillText(`top: ${f3(ph.top)} m`,X(ax)-30,Y(ay)-10)}
+    const [bx,by]=pos(tt), vy=ph.vy-9.8*tt, k=(H*.2)/Math.max(S.lab.v,Math.abs(ph.vy-9.8*ph.T),1);
+    const arrow=(x0,y0,dx,dy,c,lab)=>{if(Math.hypot(dx,dy)<2)return;ctx.strokeStyle=ctx.fillStyle=c;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x0+dx,y0+dy);ctx.stroke();
+      const a=Math.atan2(dy,dx);ctx.beginPath();ctx.moveTo(x0+dx,y0+dy);ctx.lineTo(x0+dx-9*Math.cos(a-.4),y0+dy-9*Math.sin(a-.4));ctx.lineTo(x0+dx-9*Math.cos(a+.4),y0+dy-9*Math.sin(a+.4));ctx.fill();
+      ctx.font="bold 13px Atkinson Hyperlegible, sans-serif";ctx.fillText(lab,x0+dx+(dx?6:8),y0+dy+(dy>0?14:dy<0?-4:4))};
+    arrow(X(bx),Y(by),ph.vx*k,0,"#f2d675","vₓ");
+    arrow(X(bx),Y(by),0,-vy*k,"#f2a3a0","vᵧ");
+    ctx.fillStyle="#eef0e6";ctx.beginPath();ctx.arc(X(bx),Y(by),7,0,7);ctx.fill();
+    $("#live").innerHTML=`<span>t <b>${tt.toFixed(2)}</b> s</span><span>vₓ <b>${sgn(ph.vx)}</b> m/s</span><span>vᵧ <b>${Math.abs(vy)<0.05?"0":sgn(vy)}</b> m/s</span><span>x <b>${bx.toFixed(1)}</b> m</span><span>y <b>${Math.max(0,by).toFixed(1)}</b> m</span>`;
+  };
+  const showRes=()=>{const ph=labPhys(),g=+LB.guess;
+    $("#res").innerHTML=LB.res?`<div class="mix" style="margin-top:0"><div><b>Time in the air</b>${f3(ph.T)} s</div><div><b>Range</b>${f3(ph.R)} m</div><div><b>Max height above the floor</b>${f3(ph.top)} m${ph.tTop>0?` (reached at ${f3(ph.tTop)} s)`:""}</div>
+      ${S.lab.predict&&g>0?`<div><b>Your guess</b>${f3(g)} m · ${Math.abs(g-ph.R)/ph.R<=.1?"within 10%. Nice!":`${Math.round(100*Math.abs(g-ph.R)/ph.R)}% off. Find t from the vertical, then use d<sub>x</sub> = v<sub>x</sub>t.`}</div>`:""}</div>`:""};
+  const stop=()=>{if(LB.run){cancelAnimationFrame(LB.run);LB.run=null}};
+  labStop=stop;
+  const launch=()=>{stop();LB.res=null;showRes();const ph=labPhys(),dur=Math.min(4,Math.max(1.8,ph.T));let t0=null;
+    const f=now=>{if(t0==null)t0=now;const t=Math.min(ph.T,(now-t0)/1000*ph.T/dur);draw(t,true);
+      if(t<ph.T)LB.run=requestAnimationFrame(f);else{LB.run=null;LB.res=1;showRes();if(S.lab.predict&&Math.abs(+LB.guess-ph.R)/ph.R<=.1)confetti()}};
+    LB.run=requestAnimationFrame(f)};
+  const setv=(id,key,lab,u)=>{$(id).oninput=e=>{stop();S.lab[key]=+e.target.value;save();$(lab).textContent=S.lab[key]+u;LB.res=null;showRes();draw(null)}};
+  setv("#sv","v","#lv"," m/s");setv("#sth","th","#lth","°");setv("#sh","h","#lh"," m");
+  $("#pm").onchange=e=>{S.lab.predict=e.target.checked;save();stop();LB.res=null;labRoom(app)};
+  const pg=$("#pg"); if(pg) pg.oninput=()=>{LB.guess=pg.value.replace(/[^\d.]/g,"");if(!LB.run)draw(null)};
+  $("#go").onclick=()=>{if(S.lab.predict&&!(+LB.guess>0)){pg.focus();pg.placeholder="guess!";return}launch()};
+  $("#rs").onclick=()=>{stop();LB.res=null;showRes();draw(null)};
+  const preset=(v,th,h)=>{Object.assign(S.lab,{v,th,h});save();stop();LB.res=null;labRoom(app)};
+  $("#preset1").onclick=()=>preset(3.5,0,1.6); $("#preset2").onclick=()=>preset(14,30,0);
+  window.onresize=()=>{if(room!=="lab"||LB.run)return;dim=size();draw(LB.res?labPhys().T:null,!!LB.res)};
+  draw(null);
 }
 
 function confetti(){
