@@ -14,6 +14,10 @@ wrap "$SRC/early-republic-classroom.html" "$OUT/early-republic-unit3/index.html"
 rsync -a "$SRC/katex/" "$OUT/physics/katex/"
 rsync -a "$SRC/audio/" "$OUT/early-republic-unit3/audio/"
 
+# Share copy for classmates: history guide only, no hub link (one source, two outputs).
+SHARE="$HOME/MondayCincyTest"; mkdir -p "$SHARE"
+wrap "$SRC/history-classroom.html" "$SHARE/index.html"; sed -i '' -E 's#<!--HUB-->.*<!--/HUB-->##' "$SHARE/index.html"
+[ -d "$SRC/history-audio" ] && rsync -a --delete "$SRC/history-audio/" "$SHARE/audio/"
 # Keep the editable sources in the repo too (Jekyll skips folders starting with _).
 mkdir -p "$OUT/_src/tools"; cp "$SRC"/physics-classroom.html "$SRC"/history-classroom.html "$SRC"/hub.html "$SRC"/build.sh "$OUT/_src/"; cp "$SRC"/tools/*.js "$SRC"/tools/*.py "$OUT/_src/tools/"
 echo built

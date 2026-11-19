@@ -1,4 +1,4 @@
-<title>Road to Civil War Classroom</title>
+<title>Monday Cincy Test</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
@@ -27,6 +27,13 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{ou
 header.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--wood);border-bottom:4px solid #4f361f;box-shadow:0 4px 12px rgba(0,0,0,.35)}
 .rail .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
 .brand{font-family:var(--f-display);font-size:1.35rem;color:#fff4dc;margin-right:auto;white-space:nowrap}
+.brandbox{display:grid;gap:0;margin-right:auto}.brandbox .brand{margin-right:0}
+.hub{font:700 .7rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:#fff4dc;opacity:.75;text-decoration:none}.hub:hover{opacity:1;text-decoration:underline}
+.wbox{width:100%;font:inherit;line-height:1.6;padding:10px 12px;border:1.5px solid #b9b19a;border-radius:6px;background:#fff;color:#23312b;resize:vertical}
+.wbox.dark{background:var(--board);color:var(--chalk);border-color:var(--line)}
+.pb{display:grid;gap:8px;margin-top:8px}.pb label{display:grid;gap:3px;font-weight:700;font-size:.9rem}.pb textarea{font:inherit;font-weight:400;padding:6px 8px;border:1.5px solid #d9d2bc;border-radius:6px;background:#fff;color:#23312b;resize:vertical}
+.model{margin:6px 0 0;background:#fff;border-left:4px solid #1d7a3a;padding:10px 14px;border-radius:4px}
+.aibox{display:grid;gap:6px;background:#fff;border:1.5px solid #c9a93a;border-radius:8px;padding:10px 14px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap}
 .tab{background:transparent;border:1.5px solid rgba(255,244,220,.35);color:#fff4dc;border-radius:999px;padding:5px 12px;font-size:.92rem}
 .tab[aria-selected="true"]{background:#fff4dc;color:#3b2716;border-color:#fff4dc;font-weight:700}
@@ -167,11 +174,11 @@ header.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;backgroun
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
 
 @media (prefers-reduced-motion:reduce){.flash .in{transition:none}}
-@media (max-width:560px){.brand{width:100%}.dots{margin-left:0;width:100%}}
+@media (max-width:560px){.brandbox{width:100%}.dots{margin-left:0;width:100%}}
 </style>
 
 <header class="rail"><div class="wrap">
-  <div class="brand">Room 1860 · Road to War</div>
+  <div class="brandbox"><!--HUB--><a class="hub" href="https://mcgee2262.github.io/blazes-study-guides/" target="_blank" rel="noopener">← Blaze's Study Guides</a><!--/HUB--><div class="brand">Monday Cincy Test</div></div>
   <nav class="tabs" role="tablist" id="tabs"></nav>
   <div class="clockbox" id="clockbox" hidden aria-live="off">
     <span id="clabel">Lesson 1</span><span class="t" id="ctime">0:00</span>
@@ -187,10 +194,10 @@ header.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;backgroun
 const T = [
 {id:"jackson",title:"Andrew Jackson & the Common Man",when:"1828–1837",
  slides:[
-  {h:"The Election of 1828",p:["Andrew Jackson, hero of the Battle of New Orleans, beat John Quincy Adams in 1828.","His supporters became the Democratic Party.","Many states had dropped the rule that you had to own property to vote, so far more white men could vote. People called this the rise of the common man.","Jackson was the first president from the West (Tennessee) who was not from a wealthy East Coast family."]},
-  {h:"Jackson in office",p:["Spoils system: he fired government workers and gave the jobs to his loyal supporters. To the victor belong the spoils.","Kitchen Cabinet: an informal group of friends who advised him instead of his official cabinet.","He used the veto more than all earlier presidents combined. Opponents called him King Andrew."]},
-  {h:"The Bank War",p:["Jackson hated the Second Bank of the United States. He said it helped rich Easterners and hurt farmers and workers.","In 1832 he vetoed the bill to renew the bank's charter.","He moved government money into state banks, nicknamed pet banks.","Easy loans and wild land buying led to the Panic of 1837, a depression that hit just after Jackson left office, under Martin Van Buren."]},
-  {h:"Indian Removal & the Trail of Tears",p:["The Indian Removal Act of 1830 let Jackson move Native nations in the Southeast to land west of the Mississippi River (Indian Territory, now Oklahoma).","In Worcester v. Georgia (1832), the Supreme Court said Georgia had no power over Cherokee land. Jackson refused to enforce the ruling.","In 1838 the U.S. Army forced the Cherokee to march west. About 4,000 died. This is the Trail of Tears."],tip:"Memory trick: Jackson ignored the Court. Marshall ruled for the Cherokee, but nobody enforced it."}],
+  {h:"The Election of 1828",p:["Andrew Jackson, hero of the Battle of New Orleans, beat John Quincy Adams in 1828.","His supporters became the Democratic Party.","Universal white manhood suffrage: between the 1824 and 1828 elections, states dropped the rule that you had to own property to vote. About three times as many people voted in 1828. People called this the Age of the Common Man.","Jackson was the first president from the West (Tennessee) who was not from a wealthy East Coast family."]},
+  {h:"Jackson in office",p:["Spoils system: he fired government workers and gave the jobs to his loyal supporters. To the victor belong the spoils.","Kitchen Cabinet: an informal group of friends who advised him instead of his official cabinet.","He vetoed 12 bills, more than all six earlier presidents combined (10). Opponents called him King Andrew."]},
+  {h:"The Bank War",p:["Jackson hated the Second Bank of the United States. He said it helped rich Easterners and hurt farmers and workers.","In 1832 he vetoed the bill to renew the bank's charter.","He moved government money into state banks, nicknamed pet banks.","Pet banks printed paper money not backed by gold or silver, so it lost its value. This led to the Panic of 1837, a depression under Martin Van Buren: banks closed, savings were lost, and many people were out of work.","People unhappy with Jackson formed the Whig Party, led by Henry Clay. Whigs wanted a national bank, protective tariffs, federal money for roads and canals, and temperance."]},
+  {h:"Indian Removal & the Trail of Tears",p:["The Indian Removal Act of 1830 let Jackson move Native nations in the Southeast to land west of the Mississippi River (Indian Territory, now Oklahoma).","In Cherokee Nation v. Georgia (1831), Chief Justice John Marshall called the Cherokee a dependent nation. In Worcester v. Georgia (1832), the Court said Georgia had no power over Cherokee land. Jackson refused to enforce that ruling.","In 1838 the U.S. Army forced the Cherokee to march west. About 4,000 died, up to one-third of those moved. This is the Trail of Tears."],tip:"Memory trick: Jackson ignored the Court. Marshall ruled for the Cherokee, but nobody enforced it."}],
  terms:[["Andrew Jackson","Seventh President (1829–1837). Democrat, champion of the common man, spoils system, Bank War, Indian Removal."],["Spoils system","Giving government jobs to loyal supporters."],["Bank War","Jackson's fight to kill the Second Bank of the United States; he vetoed its recharter in 1832."],["Indian Removal Act","1830 law that forced Native nations in the Southeast to move west of the Mississippi."],["Trail of Tears","1838 forced march of the Cherokee to Indian Territory. About 4,000 died."]],
  quiz:[["The spoils system means…",["giving government jobs to loyal supporters","a tax on imported goods","moving Native Americans west","a state cancelling a federal law"],"To the victor belong the spoils."],
   ["Jackson was called a champion of the…",["common man","wealthy bankers","Federalist Party","Whig Party"],"More ordinary white men could vote by 1828."],
@@ -236,7 +243,7 @@ const T = [
 {id:"expand",title:"Territorial Expansion",when:"1836–1853",
  slides:[
   {h:"Texas",p:["Mexico invited American settlers into Texas. Stephen F. Austin led many of them, and many brought enslaved people.","Mexico banned slavery and tightened control, so the Texans rebelled in 1835.","At the Alamo (1836), Mexican General Santa Anna's army killed all the defenders.","At San Jacinto, Sam Houston's army won and captured Santa Anna. Texas became the independent Lone Star Republic.","The U.S. annexed Texas in 1845 as a slave state."]},
-  {h:"Oregon",p:["Britain and the U.S. both claimed Oregon Country.","Expansionists shouted Fifty-four forty or fight! (wanting the border at 54°40′).","President James K. Polk compromised with Britain in 1846 and set the border at the 49th parallel."]},
+  {h:"Oregon",p:["Britain and the U.S. both claimed Oregon Country.","Expansionists shouted Fifty-four forty or fight! (wanting the border at 54°40′).","President James K. Polk, elected on Manifest Destiny, risked war but compromised. The Treaty of Oregon (1846) set the U.S.–Canada border at the 49th parallel."]},
   {h:"The Mexican-American War (1846–1848)",p:["President Polk wanted California and the Southwest.","The U.S. said the Texas border was the Rio Grande; Mexico said it was the Nueces River. Fighting broke out in the disputed land.","The U.S. won and captured Mexico City.","The Treaty of Guadalupe Hidalgo (1848) gave the U.S. the Mexican Cession (California, Nevada, Utah, and parts of Arizona, New Mexico, Colorado and Wyoming) for 15 million dollars. The Rio Grande became the border."]},
   {h:"Finishing the map",p:["The Wilmot Proviso (1846) tried to ban slavery in all land won from Mexico. It passed the House but failed in the Senate, and it made the slavery fight much hotter.","The California Gold Rush (1848–1849) brought the forty-niners and filled California fast.","The Gadsden Purchase (1853) bought a strip of southern Arizona and New Mexico from Mexico for a southern railroad route."],tip:"Order: Texas (1845), Oregon (1846), Mexican Cession (1848), Gadsden Purchase (1853)."}],
  terms:[["Texas annexation","Texas won independence from Mexico in 1836 and joined the U.S. as a slave state in 1845."],["Mexican-American War","1846–1848 war over Texas's border and Polk's wish for the Southwest. The U.S. won."],["Treaty of Guadalupe Hidalgo","1848 treaty giving the U.S. the Mexican Cession for 15 million dollars."],["Mexican Cession","Land from Mexico: California, Nevada, Utah, and parts of four other states."],["Wilmot Proviso","1846 plan to ban slavery in land from Mexico. Never passed the Senate."],["Gadsden Purchase","1853 purchase of southern Arizona and New Mexico for a railroad."]],
@@ -298,11 +305,11 @@ const T = [
 
 {id:"abol",title:"Abolitionists",when:"1830s–1859",
  slides:[
-  {h:"What abolitionists wanted",p:["Abolitionists worked to abolish (end) slavery.","Many were inspired by the religious ideas of the Second Great Awakening and by the Declaration of Independence's promise that all men are created equal.","Some wanted gradual change. Others demanded immediate emancipation (freedom)."]},
+  {h:"What abolitionists wanted",p:["Abolitionists worked to abolish (end) slavery. They were only about 2 percent of Northerners, but they drew huge attention and anger in both North and South.","Many were inspired by the religious ideas of the Second Great Awakening and by the Declaration of Independence's promise that all men are created equal.","Some wanted gradual change. Others demanded immediate emancipation (freedom)."]},
   {h:"Speaking and writing",p:["William Lloyd Garrison published The Liberator newspaper starting in 1831 and demanded immediate emancipation.","Frederick Douglass escaped slavery, became a powerful speaker, wrote his autobiography (1845), and published the North Star newspaper.","Sojourner Truth, who had been enslaved in New York, spoke for abolition and women's rights. Her famous speech is Ain't I a Woman? (1851).","The Grimké sisters, from a Southern slaveholding family, spoke out against slavery."]},
   {h:"The Underground Railroad",p:["A secret network of people and safe houses that helped enslaved people escape to the North and Canada.","Guides were called conductors and hiding places were called stations.","Harriet Tubman escaped slavery, then returned about 13 times and led about 70 people to freedom. She never lost a passenger."]},
-  {h:"Resistance and violence",p:["Nat Turner led a rebellion of enslaved people in Virginia in 1831. About 60 white people were killed. Southern states then passed harsher slave codes.","In 1859 John Brown raided the federal arsenal at Harpers Ferry, Virginia, hoping to arm enslaved people for a revolt.","He was captured and hanged. Many Northerners called him a martyr; Southerners saw him as proof the North wanted to destroy them."]}],
- terms:[["Abolitionist","Someone who worked to end slavery."],["William Lloyd Garrison","Published The Liberator (1831); demanded immediate emancipation."],["Frederick Douglass","Escaped slavery; famous speaker, author, and publisher of the North Star."],["Harriet Tubman","Escaped slavery and led about 70 people to freedom on the Underground Railroad."],["Underground Railroad","Secret network that helped enslaved people escape to the North and Canada."],["Nat Turner's Rebellion","1831 revolt in Virginia; led to harsher slave codes."],["Harpers Ferry","1859 raid by John Brown on a federal arsenal to start a slave revolt."]],
+  {h:"Resistance and violence",p:["Gabriel Prosser organized a large revolt of enslaved people near Richmond, Virginia, in 1800. It was discovered before it could start, and he was executed.","Nat Turner led a rebellion of enslaved people in Virginia in 1831. About 60 white people were killed. Southern states then passed harsher slave codes.","In 1859 John Brown raided the federal arsenal at Harpers Ferry, Virginia, hoping to arm enslaved people for a revolt.","He was captured and hanged. Many Northerners called him a martyr; Southerners saw him as proof the North wanted to destroy them."]}],
+ terms:[["Abolitionist","Someone who worked to end slavery."],["William Lloyd Garrison","Published The Liberator (1831); demanded immediate emancipation."],["Frederick Douglass","Escaped slavery; famous speaker, author, and publisher of the North Star."],["Harriet Tubman","Escaped slavery and led about 70 people to freedom on the Underground Railroad."],["Underground Railroad","Secret network that helped enslaved people escape to the North and Canada."],["Gabriel Prosser","Planned a large slave revolt near Richmond, Virginia, in 1800. Discovered before it started."],["Nat Turner's Rebellion","1831 revolt in Virginia that actually happened; led to harsher slave codes."],["Harpers Ferry","1859 raid by John Brown on a federal arsenal to start a slave revolt."]],
  quiz:[["An abolitionist wanted to…",["end slavery","expand slavery","end tariffs","move Native Americans west"],"Abolish = end."],
   ["Who published The Liberator?",["William Lloyd Garrison","Frederick Douglass","Harriet Beecher Stowe","John Brown"],"Starting in 1831."],
   ["Which famous abolitionist escaped slavery and published the North Star?",["Frederick Douglass","William Lloyd Garrison","Henry Clay","Stephen Douglas"],"Don't mix him up with Stephen Douglas!"],
@@ -316,7 +323,7 @@ const T = [
  slides:[
   {h:"A religious revival",p:["The Second Great Awakening was a wave of religious excitement in the early 1800s.","Huge outdoor revival meetings (camp meetings) drew thousands.","Preachers like Charles Finney taught that people could choose to be saved and could make themselves and society better.","Methodist and Baptist churches grew fast."]},
   {h:"It sparked reform",p:["If people could improve, so could society. Reformers started movements to fix problems.","Abolition: ending slavery.","Temperance: limiting or banning alcohol, which reformers blamed for poverty and abuse.","Education: Horace Mann pushed for free public schools paid for by taxes and for training teachers.","Prisons and asylums: Dorothea Dix fought for better care for the mentally ill and for prisoners."],tip:"Memory trick: Awakening woke up reform. Religion → reform movements."},
-  {h:"Women's rights",p:["Women who worked in the abolition movement noticed they lacked rights too: they could not vote, and married women often could not own property.","The Seneca Falls Convention (1848) in New York was the first women's rights convention.","Elizabeth Cady Stanton and Lucretia Mott organized it.","Its Declaration of Sentiments copied the Declaration of Independence: all men and women are created equal. It called for the right to vote."]}],
+  {h:"Women's rights",p:["Women who worked in the abolition movement noticed they lacked rights too: they could not vote, and married women often could not own property.","The Seneca Falls Convention (1848) in New York was the first women's rights convention.","Elizabeth Cady Stanton and Lucretia Mott organized it.","Its Declaration of Sentiments copied the Declaration of Independence: all men and women are created equal. It called for the right to vote. Susan B. Anthony later joined Stanton as a leader of the suffrage movement."]}],
  terms:[["Second Great Awakening","Religious revival of the early 1800s that inspired reform movements."],["Temperance movement","Reform movement to limit or ban alcohol."],["Horace Mann","Education reformer who pushed for free public schools."],["Dorothea Dix","Reformer who fought for better care of the mentally ill and prisoners."],["Seneca Falls Convention","1848 women's rights meeting led by Elizabeth Cady Stanton and Lucretia Mott; Declaration of Sentiments."]],
  quiz:[["The Second Great Awakening was a…",["religious revival","war with Britain","factory boom","gold rush"],"Camp meetings and revivals."],
   ["The Second Great Awakening led directly to…",["many reform movements","the Louisiana Purchase","the end of all churches","the Mexican War"],"Abolition, temperance, education, women's rights."],
@@ -329,11 +336,11 @@ const T = [
 
 {id:"e1860",title:"Republicans & the Election of 1860",when:"1854–1860",
  slides:[
-  {h:"The Republican Party",p:["Formed in 1854, right after the Kansas-Nebraska Act.","Brought together anti-slavery Whigs, Free-Soilers, and Northern Democrats.","Its main goal: stop slavery from spreading into the western territories. Most Republicans did not plan to end slavery where it already existed.","It was a Northern party with almost no support in the South."]},
+  {h:"The Republican Party",p:["Formed in 1854, right after the Kansas-Nebraska Act.","Brought together anti-slavery Whigs, Free-Soilers, and Northern Democrats.","Its main goal: stop slavery from spreading into the western territories. Most Republicans did not plan to end slavery where it already existed.","Leaders included Abraham Lincoln and William H. Seward. It supported free labor, railroads, and higher tariffs, and it had almost no support in the South.","Other parties of the time: the Know-Nothings (American Party) were against immigrants and Catholics; the Free Soil and Liberty parties opposed slavery's spread."]},
   {h:"Dred Scott v. Sandford (1857)",p:["Dred Scott, an enslaved man, sued for freedom because he had lived in a free state and a free territory.","Chief Justice Roger Taney ruled that Black Americans were not citizens and could not sue.","He also ruled that Congress could not ban slavery in the territories, so the Missouri Compromise was unconstitutional.","The South cheered. The North was furious, and the Republican Party grew."]},
   {h:"The Lincoln-Douglas Debates (1858)",p:["Abraham Lincoln (Republican) ran against Stephen Douglas (Democrat) for senator from Illinois.","In his House Divided speech, Lincoln said the nation could not stay half slave and half free.","Douglas defended popular sovereignty. He won the Senate seat, but the debates made Lincoln famous across the country."]},
-  {h:"The Election of 1860",p:["The Democrats split: Northern Democrats ran Stephen Douglas and Southern Democrats ran John C. Breckinridge.","The Constitutional Union Party ran John Bell.","Lincoln won with about 40 percent of the popular vote and not one Southern electoral vote. He was not even on the ballot in most Southern states.","Southerners feared Lincoln would end slavery. South Carolina seceded on December 20, 1860, and other states followed, forming the Confederate States of America in 1861."],tip:"Four candidates: Lincoln (Republican), Douglas (Northern Democrat), Breckinridge (Southern Democrat), Bell (Constitutional Union)."}],
- terms:[["Republican Party","Formed 1854 to stop the spread of slavery into the territories."],["Dred Scott v. Sandford","1857: Black Americans not citizens; Congress cannot ban slavery in territories; Missouri Compromise unconstitutional."],["Lincoln-Douglas Debates","1858 Illinois Senate debates that made Lincoln nationally known."],["Election of 1860","Lincoln won a four-way race with no Southern electoral votes; Democrats had split."],["Secession","Leaving the Union. South Carolina seceded first, in December 1860."]],
+  {h:"The Election of 1860",p:["The Democrats split: Northern Democrats ran Stephen Douglas and Southern Democrats ran John C. Breckinridge.","The Constitutional Union Party ran John Bell.","Electoral votes: Lincoln 180, Breckinridge 72, Bell 39, Douglas 12 (152 needed). Lincoln won with about 40 percent of the popular vote and not one Southern electoral vote; he was not even on the ballot in most Southern states. Turnout was 81 percent.","Southerners feared Lincoln would end slavery. South Carolina seceded on December 20, 1860, and six more states followed, forming the Confederate States of America in 1861."],tip:"Four candidates: Lincoln (Republican), Douglas (Northern Democrat), Breckinridge (Southern Democrat), Bell (Constitutional Union)."}],
+ terms:[["Republican Party","Formed 1854 from Northern Whigs and antislavery Democrats to stop the spread of slavery into the territories."],["Know-Nothings","The American Party of the 1850s: against immigrants and Catholics."],["Dred Scott v. Sandford","1857: Black Americans not citizens; Congress cannot ban slavery in territories; Missouri Compromise unconstitutional."],["Lincoln-Douglas Debates","1858 Illinois Senate debates that made Lincoln nationally known."],["Election of 1860","Lincoln won a four-way race with no Southern electoral votes; Democrats had split."],["Secession","Leaving the Union. South Carolina seceded first, in December 1860."]],
  quiz:[["The Republican Party was formed mainly to…",["stop the spread of slavery into the territories","end all tariffs","support the Fugitive Slave Act","expand slavery west"],"Formed in 1854."],
   ["In Dred Scott v. Sandford, the Supreme Court ruled that…",["Congress could not ban slavery in the territories","slavery was illegal everywhere","Dred Scott was free","popular sovereignty was required"],"It struck down the Missouri Compromise."],
   ["Who wrote the Dred Scott decision?",["Chief Justice Roger Taney","John Marshall","Abraham Lincoln","Stephen Douglas"],"Taney was Chief Justice in 1857."],
@@ -387,6 +394,7 @@ const QUIZ2 = {
  abol:[["About how many people did Harriet Tubman lead to freedom?",["About 70","About 7","About 7,000","About 70,000"],"Over about 13 trips."],
   ["Where did the Underground Railroad lead many freedom seekers after 1850?",["Canada","Mexico City","Cuba","Georgia"],"The Fugitive Slave Act made the North unsafe."],
   ["In what state did Nat Turner's Rebellion take place?",["Virginia","South Carolina","Kansas","Massachusetts"],"In 1831."],
+  ["Gabriel Prosser's planned revolt in 1800…",["was discovered before it could start","freed thousands of people","started the Civil War","happened in Kansas"],"Nat Turner's 1831 revolt actually happened; Prosser's was stopped."],
   ["What was the name of Frederick Douglass's newspaper?",["The North Star","The Liberator","The Crisis","Common Sense"],"The Liberator was Garrison's."]],
  sga:[["Which preacher was a leader of the Second Great Awakening?",["Charles Finney","Horace Mann","Brigham Young","John O'Sullivan"],"He led big revivals."],
   ["Large outdoor religious gatherings during the Awakening were called…",["camp meetings","conventions","town halls","debates"],"Thousands attended."],
@@ -395,6 +403,8 @@ const QUIZ2 = {
  e1860:[["Who was the Constitutional Union candidate in 1860?",["John Bell","John C. Breckinridge","Stephen Douglas","Abraham Lincoln"],"He wanted to save the Union by avoiding slavery talk."],
   ["About what share of the popular vote did Lincoln win in 1860?",["About 40 percent","About 90 percent","About 10 percent","About 60 percent"],"Enough electoral votes with a split field."],
   ["The Dred Scott decision said Black Americans…",["were not citizens and could not sue","could vote in every state","were free in the territories","could become senators"],"Chief Justice Taney's ruling."],
+  ["The Know-Nothings (American Party) were mainly against…",["immigrants and Catholics","the national bank","tariffs","the Mexican War"],"An anti-immigrant party of the 1850s."],
+  ["How many electoral votes did Lincoln win in 1860?",["180","72","39","12"],"Breckinridge 72, Bell 39, Douglas 12."],
   ["The states that seceded formed the…",["Confederate States of America","Republic of Texas","Free Soil Party","Union"],"In 1861, with Jefferson Davis as president."]]
 };
 
@@ -416,7 +426,7 @@ const byId = id => T.find(t=>t.id===id);
 const mkQ = (t,q) => ({tid:t.id,t:t.title,q:q[0],opts:shuffle(q[1].map((o,i)=>({o,right:i===0}))),why:q[2]});
 
 /* ---------- tabs ---------- */
-const ROOMS = [["home","Classroom"],["lessons","Lessons"],["flash","Flashcards"],["quiz","Quiz Show"],["lineup","Timeline Lineup"],["test","40-Question Test"],["retake","Test Retake"]];
+const ROOMS = [["home","Classroom"],["lessons","Lessons"],["flash","Flashcards"],["quiz","Quiz Show"],["lineup","Timeline Lineup"],["test","Writing Test"],["retake","Test Retake"]];
 let room = (location.hash||"").slice(1);
 if(!ROOMS.some(r=>r[0]===room)) room="home";
 function renderTabs(){
@@ -492,7 +502,7 @@ function render(opt={}){
     const nTerms=T.reduce((n,t)=>n+t.terms.length,0);
     app.innerHTML=`<section class="hero">
       <h1>History Test: Jackson to the Civil War</h1>
-      <p>Monday's test covers these 10 topics, from Andrew Jackson to the Election of 1860. These lessons cover ${nTerms} key terms. Work through the lessons, drill with Flashcards and the Quiz Show, then take the 40-question practice test until you score 90% or better.</p>
+      <p>Monday's test covers these 10 topics, from Andrew Jackson to the Election of 1860. These lessons cover ${nTerms} key terms. Work through the lessons, drill with Flashcards and the Quiz Show, then practice the Writing Test: five honors-paragraph prompts, graded for key ideas, with a model paragraph to compare. The Quiz Show has 120+ multiple-choice questions for the multiple-choice part.</p>
       <p class="mono" style="color:var(--yellow);margin:0">Checked off: ${Object.keys(S.known).length} / 10 lessons</p>
       <p class="muted" style="margin:0;font-size:.9rem">Tap the box on a lesson when you've got it down.</p>
     </section>
@@ -503,7 +513,7 @@ function render(opt={}){
     <ol class="muted" style="max-width:65ch;display:grid;gap:6px;padding-left:1.2em">
       <li><b style="color:var(--chalk)">Friday:</b> Lessons 1–4 (Jackson, Nullification, Manifest Destiny, Expansion), then Flashcards for those.</li>
       <li><b style="color:var(--chalk)">Saturday:</b> Lessons 5–10, then Flashcards and one Quiz Show round.</li>
-      <li><b style="color:var(--chalk)">Sunday:</b> Take the 40-question practice test (tap "? Unsure" on any you guess), then run Test Retake. Do a Timeline Lineup round.</li>
+      <li><b style="color:var(--chalk)">Sunday:</b> Take a Writing Test (5 prompts, 45-minute timer), then rewrite anything under 80% in Test Retake. Do a Timeline Lineup round.</li>
       <li><b style="color:var(--chalk)">Monday morning:</b> The mix-ups above and one Quiz Show round.</li>
     </ol>`;
     app.querySelectorAll("[data-lesson]").forEach(b=>b.onclick=()=>go("lessons",{topic:b.dataset.lesson}));
@@ -601,14 +611,14 @@ function flashRoom(app){
 
 /* Quiz Show */
 let Q=null;
-function newQuiz(){Q={items:shuffle(T.flatMap(t=>t.quiz.map(q=>mkQ(t,q)))).slice(0,12),i:0,pts:0,streak:0,best:0,right:0,pick:null}}
+function newQuiz(){Q={items:shuffle(T.flatMap(t=>[...t.quiz,...(t.quiz2||[])].map(q=>mkQ(t,q)))).slice(0,12),i:0,pts:0,streak:0,best:0,right:0,pick:null}}
 function quizRoom(app){
   if(!Q) newQuiz();
   if(Q.i>=Q.items.length){
     app.innerHTML=`<div class="qbox" style="text-align:center"><h2 style="font-family:var(--f-display);font-size:2rem">Final score: ${Q.pts}</h2>
     <p class="score" style="justify-content:center"><span>Correct <b>${Q.right}/${Q.items.length}</b></span><span>Best streak <b>${Q.best}</b></span></p>
-    <p class="muted">${Q.right>=10?"Excellent. Try the 40-question test.":"Go back over the lessons you missed, then play again."}</p>
-    <div class="ctrl" style="justify-content:center"><button class="btn y" id="again">Play again</button><button class="btn ghost" id="totest">40-Question Test →</button></div></div>`;
+    <p class="muted">${Q.right>=10?"Excellent. Now try the Writing Test.":"Go back over the lessons you missed, then play again."}</p>
+    <div class="ctrl" style="justify-content:center"><button class="btn y" id="again">Play again</button><button class="btn ghost" id="totest">Writing Test →</button></div></div>`;
     $("#again").onclick=()=>{newQuiz();quizRoom(app)}; $("#totest").onclick=()=>go("test"); return;
   }
   const it=Q.items[Q.i];
@@ -721,132 +731,197 @@ function confetti(){
   })(t0);
 }
 
-/* 40-question practice test: 4 random questions from each of the 10 lessons, graded at the end like the real thing. */
-/* The test in progress is saved per viewer so a refresh or page update doesn't wipe answers. */
-let P=(()=>{try{const p=JSON.parse(localStorage.getItem("hist-test"));return p&&p.qs?p:null}catch(e){return null}})(), timerId=null;
-const saveP=()=>{try{localStorage.setItem("hist-test",JSON.stringify(P))}catch(e){}};
-/* One-time seed: the questions the student said they were unsure about on the test they turned in before the Unsure flag existed. */
-/* mode "new" = all 40 second-set questions; "mix" = 4 random per lesson from both sets (120 total). */
-function newTest(mode="mix"){
-  const pick=t=>mode==="new"?t.quiz2:shuffle([...t.quiz,...t.quiz2]).slice(0,4);
-  P={set:mode,qs:shuffle(T.flatMap(t=>pick(t).map(q=>mkQ(t,q)))),ans:{},unsure:[],graded:false,warned:false,end:null};saveP();if(typeof R!=="undefined")R=null}
-const isRight=i=>P.ans[i]!=null&&P.qs[i].opts[P.ans[i]].right;
+/* ---------- Writing Test: 5 random prompts from the bank, honors-paragraph style ---------- */
+/* Each prompt: tid (lesson it draws on), q, ev (evidence bank), keys [idea, [keywords]] for the key-idea checker, model (an honors paragraph to compare). */
+const PROMPTS=[
+{id:"scfear",tid:"e1860",q:"Why did South Carolina fear that Lincoln would try to abolish slavery?",
+ ev:["Election of 1860: Lincoln 180 electoral votes, Breckinridge 72, Bell 39, Douglas 12","Lincoln won with no Southern electoral votes","Republican Party (1854): stop slavery spreading into the territories","\"A House Divided\" speech (1858): all one thing or all the other","John Brown's raid on Harpers Ferry (1859)","South Carolina secedes Dec. 20, 1860; six more states follow"],
+ keys:[["Lincoln was a Republican",["republican"]],["Republicans opposed spreading slavery west",["spread","expan","territor","west"]],["Lincoln won without the South",["no southern","without the south","without southern","not on the ballot","180","electoral"]],["House Divided: all one thing or the other",["house divided","all one thing","half slave"]],["Fear made worse by abolitionists / John Brown",["john brown","harpers","abolition"]],["South Carolina seceded",["secede","secession","left the union","leave the union"]]],
+ model:"South Carolina feared that Abraham Lincoln would end slavery because his Republican Party had been built to stop slavery from spreading. The Republicans formed in 1854 after the Kansas-Nebraska Act, and their platform opposed slavery in the western territories. Lincoln won the Election of 1860 with 180 electoral votes and not a single Southern state, so Southerners felt they had no voice in the new government. Two years earlier, in his \"House Divided\" speech, Lincoln had warned that the nation would become \"all one thing or all the other,\" which planters read as a promise that slavery would eventually die. John Brown's 1859 raid on Harpers Ferry made Southerners believe Northerners wanted to start slave revolts. Because they believed that limiting slavery's growth was the first step toward ending it, South Carolina seceded on December 20, 1860, and six more states followed."},
+{id:"house",tid:"e1860",q:"Analyze Lincoln's \"A House Divided\" speech. What did he mean, and why did it matter?",
+ ev:["1858 Illinois Senate race: Lincoln (Republican) vs. Stephen Douglas (Democrat)","\"A house divided against itself cannot stand.\"","\"…cannot endure, permanently, half slave and half free.\"","\"It will become all one thing or all the other.\"","Douglas defended popular sovereignty","Lincoln lost the seat but became nationally known"],
+ keys:[["1858 / Lincoln-Douglas Senate race",["1858","douglas","senate"]],["The house = the nation / Union",["nation","union","country"]],["Half slave and half free can't last",["half slave","half free","cannot stand","can't stand","cannot endure"]],["It will become all one or the other",["all one thing","one or the other","all the other"]],["Opposed popular sovereignty / spread of slavery",["popular sovereignty","spread","territor"]],["Made Lincoln famous / scared the South",["famous","national","south","feared","fear"]]],
+ model:"In his 1858 \"House Divided\" speech, Abraham Lincoln argued that the United States could not survive forever as half slave and half free. He gave the speech when he accepted the Republican nomination to run against Stephen Douglas for the Senate in Illinois. The \"house\" was the nation, and Lincoln warned that \"a house divided against itself cannot stand\" and that the country would \"become all one thing or all the other.\" This was an attack on Douglas's idea of popular sovereignty, which Lincoln believed was letting slavery spread into the territories. The speech mattered because it made Lincoln known across the country, even though he lost the Senate race. It also frightened Southerners, who took his words as proof that Republicans meant to end slavery, which helped push the South toward secession after he was elected in 1860."},
+{id:"comps",tid:"c1850",q:"How did the Missouri Compromise, the Compromise of 1850 and the Kansas-Nebraska Act fail to settle sectional tension?",
+ ev:["Missouri Compromise (1820): Missouri slave, Maine free, 36°30′ line","Compromise of 1850: California free, popular sovereignty in New Mexico and Utah, Fugitive Slave Act","Kansas-Nebraska Act (1854): popular sovereignty, repealed the 36°30′ line","Bleeding Kansas (1854–1856)","Republican Party forms in 1854","Henry Clay and Stephen Douglas"],
+ keys:[["Missouri Compromise: Maine/Missouri, 36°30′ line",["missouri compromise","36","maine"]],["1850: California free",["california"]],["1850: Fugitive Slave Act angered the North",["fugitive"]],["Popular sovereignty",["popular sovereignty"]],["Kansas-Nebraska repealed the Missouri line",["repeal","erase","cancel","undid","overturn"]],["Bleeding Kansas / violence",["bleeding","violence","fighting","killed"]],["Each one only delayed the conflict",["delay","temporar","short","postpone","didn't solve","did not solve","failed"]]],
+ model:"Each of the three great compromises only postponed the fight over slavery, and each one made the next crisis worse. The Missouri Compromise of 1820 kept the balance in the Senate by admitting Missouri as a slave state and Maine as a free state, and it banned slavery north of the 36°30′ line. When California asked to join as a free state, the Compromise of 1850 admitted it but gave the South a harsh Fugitive Slave Act, which forced Northerners to help capture people escaping slavery and turned many of them against the South. In 1854 the Kansas-Nebraska Act let settlers decide by popular sovereignty and repealed the Missouri Compromise line, so slavery could spread into land that had been closed to it. Pro- and anti-slavery settlers rushed into Kansas and fought, creating \"Bleeding Kansas.\" Instead of settling the question, these laws taught both sides that the other could not be trusted, which pushed the nation closer to civil war."},
+{id:"jdem",tid:"jackson",q:"How did Jacksonian Democracy change American politics?",
+ ev:["Universal white male suffrage: property rules dropped","About three times as many people voted in 1828","Democratic Party","Spoils system","12 vetoes, more than all earlier presidents combined","Whig Party forms to oppose \"King Andrew\""],
+ keys:[["More white men could vote (property rules dropped)",["property","suffrage","more people","more men","common man","three times","3 times"]],["New Democratic Party",["democrat"]],["Spoils system",["spoils"]],["Strong use of the veto / presidential power",["veto","king andrew","power"]],["Bank War",["bank"]],["Opposition: Whig Party",["whig"]]],
+ model:"Jacksonian Democracy changed American politics by giving ordinary white men a much bigger voice and by making the president more powerful. Between the elections of 1824 and 1828, most states dropped property requirements for voting, so about three times as many people voted when Andrew Jackson won in 1828. Jackson's supporters built the Democratic Party and ran a new kind of campaign that painted him as a humble man of the people. Once in office he used the spoils system to reward supporters with government jobs, and he vetoed 12 bills, more than all six earlier presidents combined, including the bill to recharter the Bank of the United States. His enemies called him \"King Andrew\" and formed the Whig Party to oppose him. As a result, American politics became more democratic for white men, more organized into parties, and more focused on the power of the president."},
+{id:"common",tid:"jackson",q:"Was Andrew Jackson really a champion of the common man? Take a side and support it.",
+ ev:["White male suffrage expands; turnout triples in 1828","Bank War: veto of the Second Bank's recharter (1832)","Spoils system","Indian Removal Act (1830)","Trail of Tears (1838): up to one-third of those moved died","Jackson was a wealthy plantation owner who enslaved people"],
+ keys:[["Clear claim (yes, no, or partly)",["champion","common man"]],["Voting expanded for white men",["vote","suffrage","property"]],["Bank War against the rich",["bank"]],["Indian Removal / Trail of Tears",["indian removal","trail of tears","cherokee","native"]],["He was wealthy / enslaved people",["wealthy","rich","plantation","enslav","slave"]],["Explains who counted as 'common'",["white men","only white","not everyone","excluded","women"]]],
+ model:"Andrew Jackson was a champion of the common man only if the \"common man\" meant a white man. Jackson presented himself as a humble frontiersman, and during his rise most states dropped property requirements, so voter turnout tripled in 1828. He fought the Second Bank of the United States, which he said served rich Easterners, and vetoed its recharter in 1832. However, Jackson was himself a wealthy plantation owner who enslaved people. He signed the Indian Removal Act of 1830, which forced Native nations off their land and led to the Trail of Tears, where up to one-third of the Cherokee who were moved died. Therefore, Jackson expanded power for ordinary white men while taking land, lives, and rights from Native Americans and enslaved people, so he was a champion for some Americans but not for all."},
+{id:"manifest",tid:"manifest",q:"How did westward expansion and Manifest Destiny push the nation toward war?",
+ ev:["Manifest Destiny: Atlantic to Pacific (John O'Sullivan, 1845)","Polk elected on Manifest Destiny","Texas annexed as a slave state (1845)","Mexican-American War (1846–1848), Treaty of Guadalupe Hidalgo","Wilmot Proviso (1846)","Each new state upset the free/slave balance"],
+ keys:[["Manifest Destiny defined",["manifest destiny","atlantic","pacific","coast"]],["New land: Texas / Mexican Cession",["texas","mexic","cession","california"]],["Question: slave or free?",["slave or free","free or slave","allow slavery","spread of slavery","slavery spread","slavery could spread","slave state"]],["Balance in the Senate",["balance","senate"]],["Wilmot Proviso or compromises",["wilmot","compromise","kansas"]],["Led toward the Civil War",["civil war","war","secession"]]],
+ model:"Manifest Destiny pushed the nation toward civil war because every piece of new land reopened the question of whether slavery could spread. Americans believed they were destined to stretch from the Atlantic to the Pacific, and President James K. Polk was elected on that promise. The United States annexed Texas as a slave state in 1845 and then won the Mexican-American War, gaining the Mexican Cession in the Treaty of Guadalupe Hidalgo in 1848. The Wilmot Proviso tried to ban slavery in that land, and although it failed in the Senate, it showed how bitterly the North and South disagreed. Because each new state could upset the balance of free and slave states in the Senate, Congress had to keep making compromises that satisfied no one. In this way, the drive to expand turned the slavery debate into a national crisis that led to secession and war."},
+{id:"nulli",tid:"nulli",q:"How did the Nullification Crisis show the conflict between federal power and states' rights?",
+ ev:["Tariff of 1828: \"Tariff of Abominations\"","John C. Calhoun, Jackson's vice president","South Carolina's Ordinance of Nullification (1832)","Force Bill (1833)","Henry Clay's Compromise Tariff (1833)","Webster: \"Liberty and Union, now and forever\""],
+ keys:[["Tariff of 1828 / Abominations",["tariff","abomination"]],["Hurt the South, helped Northern factories",["south","north","factor"]],["Calhoun: states can nullify",["calhoun","nullif"]],["South Carolina threatened secession",["south carolina","secede","secession"]],["Jackson / Force Bill defends federal power",["force bill","jackson","army","military","federal"]],["Clay's compromise tariff ended it",["clay","compromise"]]],
+ model:"The Nullification Crisis showed the clash between federal power and states' rights when South Carolina claimed it could cancel a national law. The Tariff of 1828, which Southerners called the Tariff of Abominations, protected Northern factories but forced the South to pay more for manufactured goods. Vice President John C. Calhoun argued that a state could nullify any federal law it considered unconstitutional, and in 1832 South Carolina declared the tariffs void and threatened to secede. President Jackson, who wanted to preserve the Union, called this treason and got Congress to pass the Force Bill, allowing him to use the army to collect the tariff. Henry Clay's Compromise Tariff of 1833 lowered rates and ended the standoff. The crisis was settled for the moment, but it showed that some Southern states believed they could leave the Union, the same argument South Carolina used when it seceded in 1860."},
+{id:"abol",tid:"abol",q:"How did abolitionists increase tension between the North and the South?",
+ ev:["Abolitionists were only about 2% of Northerners","William Lloyd Garrison, The Liberator (1831)","Frederick Douglass: speeches, autobiography, the North Star","Harriet Tubman and the Underground Railroad","Uncle Tom's Cabin (1852)","John Brown: Bleeding Kansas and Harpers Ferry (1859)"],
+ keys:[["Abolitionists wanted to end slavery",["end slavery","abolish","emancipation","against slavery"]],["Writers/speakers: Garrison or Douglass",["garrison","liberator","douglass"]],["Uncle Tom's Cabin",["uncle tom","stowe"]],["Underground Railroad / Tubman",["underground","tubman"]],["John Brown / Harpers Ferry",["john brown","harpers"]],["Southern fear and anger",["fear","angry","anger","furious","threat","infuriat"]]],
+ model:"Although abolitionists were only about two percent of Northerners, they greatly increased tension because they made slavery impossible to ignore. William Lloyd Garrison's newspaper The Liberator demanded immediate emancipation and called slavery a sin, and Frederick Douglass used his own escape from slavery in speeches and books that convinced many Northerners. Harriet Beecher Stowe's Uncle Tom's Cabin showed the cruelty of slavery to hundreds of thousands of readers and infuriated Southerners, who called it a lie. Harriet Tubman and the Underground Railroad helped enslaved people escape, which set Northerners who refused to return them against Southern slaveholders. Finally, John Brown's 1859 raid on Harpers Ferry convinced many Southerners that Northerners wanted to start violent slave revolts. As a result, the South grew more fearful and defensive, while the North grew more opposed to slavery, widening the divide that led to war."},
+{id:"sga",tid:"sga",q:"How did the Second Great Awakening lead to reform movements?",
+ ev:["Religious revival, early 1800s; camp meetings; Charles Finney","Belief that people could improve themselves and society","Temperance movement","Abolition","Seneca Falls Convention (1848): Stanton, Mott; Susan B. Anthony","Horace Mann (schools), Dorothea Dix (prisons and asylums)"],
+ keys:[["Religious revival",["revival","religio","camp meeting","finney"]],["People could improve society",["improve","perfect","better","reform"]],["Temperance",["temperance","alcohol"]],["Abolition",["abolition","slavery"]],["Women's rights / Seneca Falls",["seneca","women","stanton","mott","anthony"]],["Education or asylum reform",["mann","school","education","dix","prison","asylum"]]],
+ model:"The Second Great Awakening led to reform movements because it taught Americans that they could improve both themselves and their society. During this religious revival of the early 1800s, preachers like Charles Finney held huge camp meetings and preached that people could choose to be saved and live better lives. Inspired by that optimism, reformers formed volunteer groups to fix what they saw as society's sins. The temperance movement fought alcohol, which reformers blamed for poverty and broken families. Abolitionists attacked slavery as a moral evil, and women who worked in that movement, led by Elizabeth Cady Stanton and Lucretia Mott, held the Seneca Falls Convention in 1848 to demand equal rights. Other reformers, such as Horace Mann and Dorothea Dix, worked for public schools and better care for prisoners and the mentally ill. In this way a religious movement became the starting point for many of the biggest reform efforts of the 1800s."},
+{id:"repub",tid:"e1860",q:"Why did the Republican Party form, and how did it win the presidency in 1860?",
+ ev:["Formed in 1854 after the Kansas-Nebraska Act","Northern Whigs + antislavery Democrats (+ Free-Soilers)","Goal: stop slavery's spread, not end it where it existed","Supported free labor, railroads, higher tariffs","Democrats split: Douglas (North) and Breckinridge (South)","Lincoln 180 electoral votes, about 40% of the popular vote"],
+ keys:[["Formed 1854 / after Kansas-Nebraska",["1854","kansas"]],["Opposed the spread of slavery",["spread","expan","territor","extension"]],["Made of Whigs / antislavery Democrats",["whig","free soil","free-soil","democrats"]],["Democrats split",["split","divided","breckinridge"]],["Lincoln won the North / electoral votes",["electoral","180","north"]],["Won without the South",["south","40","no southern","without"]]],
+ model:"The Republican Party formed to stop the spread of slavery, and it won the presidency in 1860 because the North had more electoral votes and its opponents were divided. The party was created in 1854 by Northern Whigs, antislavery Democrats, and Free-Soilers who were angry about the Kansas-Nebraska Act. Republicans did not promise to end slavery where it already existed, but they opposed letting it spread into the territories, and they supported free labor, railroads, and higher tariffs. In 1860 the Democratic Party split, with Northern Democrats choosing Stephen Douglas and Southern Democrats choosing John C. Breckinridge, while John Bell ran for the Constitutional Union Party. Abraham Lincoln won almost every Northern state and 180 electoral votes, even though he received only about 40 percent of the popular vote and no Southern electoral votes. His victory showed that the North could now control the government without the South, which led Southern states to secede."},
+{id:"dred",tid:"kn",q:"How did the Dred Scott decision and the caning of Charles Sumner deepen the divide between North and South?",
+ ev:["Dred Scott v. Sandford (1857), Chief Justice Roger Taney","Black Americans not citizens; Congress can't ban slavery in territories","Missouri Compromise declared unconstitutional","Charles Sumner's speech on Kansas (1856)","Preston Brooks beat Sumner with a cane in the Senate","Southerners sent Brooks new canes; Northerners were outraged"],
+ keys:[["Dred Scott sued for freedom",["dred scott","sued","freedom"]],["Taney: not citizens",["taney","citizen"]],["Congress can't ban slavery in territories / Missouri Compromise struck down",["territor","missouri compromise","unconstitutional"]],["Sumner attacked by Preston Brooks",["sumner","brooks","cane","caning"]],["Northern outrage",["north","outrage","angry","anger"]],["Southern celebration / divide grew",["south","celebrat","cheer","praised","divide"]]],
+ model:"The Dred Scott decision and the caning of Charles Sumner deepened the divide because they showed each side that the other would use any power, from the courts to violence, to win the fight over slavery. In 1857 Dred Scott, an enslaved man who had lived in free territory, sued for his freedom, but Chief Justice Roger Taney ruled that Black Americans were not citizens and that Congress could not ban slavery in the territories. This made the Missouri Compromise unconstitutional and convinced many Northerners that slaveholders controlled the government. A year earlier, after Senator Charles Sumner gave a speech attacking slavery in Kansas, Representative Preston Brooks of South Carolina beat him unconscious with a cane on the Senate floor. Northerners were outraged, while many Southerners praised Brooks and sent him new canes. Because each side cheered what the other saw as a terrible wrong, these events made compromise almost impossible."},
+{id:"removal",tid:"jackson",q:"What were the effects of the Indian Removal Act?",
+ ev:["Indian Removal Act (1830), signed by Andrew Jackson","Tribes forced to sign treaties and move west of the Mississippi","Cherokee Nation v. Georgia (1831): a \"dependent nation\"","Worcester v. Georgia (1832): Jackson ignored the ruling","Trail of Tears (1838)","Up to one-third of those moved died"],
+ keys:[["Jackson / 1830",["jackson","1830"]],["Forced west of the Mississippi",["west","mississippi","oklahoma","indian territory"]],["Cherokee went to court",["court","worcester","dependent nation","marshall"]],["Trail of Tears",["trail of tears"]],["Many deaths",["died","death","one-third","one third","4,000","thousands"]],["Lost land, culture, homes",["land","home","culture","reservation"]]],
+ model:"The Indian Removal Act of 1830 forced Native nations in the Southeast off their homelands and caused enormous suffering and death. President Andrew Jackson signed the law because he wanted the land for white settlers and did not believe Native Americans could live alongside them. Tribes were pressured into treaties that required them to move west of the Mississippi River to Indian Territory. The Cherokee fought back in court, and in Worcester v. Georgia the Supreme Court ruled that Georgia had no power over their land, but Jackson refused to enforce the decision. In 1838 the army forced the Cherokee west on the Trail of Tears, where up to one-third of the people moved died from disease, hunger, and cold. As a result, Native nations lost their land, homes, and much of their way of life, and the removal remains one of the most tragic outcomes of the Jacksonian era."}
+];
+const BUILD=[["claim","Claim (topic sentence)","Answer the question in one sentence."],["ev1","Evidence 1","A specific name, date, law or event."],["ev2","Evidence 2","Another specific."],["ev3","Evidence 3 (optional)","One more."],["an","Analysis","Explain WHY or HOW the evidence proves your claim."],["close","Closing","Wrap up: tie it back to the question."]];
+const pById=id=>PROMPTS.find(p=>p.id===id);
+function gradeOne(p,txt){
+  txt=(txt||"").toLowerCase().replace(/[’‘]/g,"'");
+  const res=p.keys.map(([idea,words])=>({idea,hit:words.some(w=>txt.includes(w))}));
+  return {res,pct:Math.round(100*res.filter(r=>r.hit).length/res.length)};
+}
+const words=s=>((s||"").trim().match(/\S+/g)||[]).length;
+let W=(()=>{try{const w=JSON.parse(localStorage.getItem("hist-writing"));return w&&w.ids?w:null}catch(e){return null}})(), timerId=null;
+const saveW=()=>{try{localStorage.setItem("hist-writing",JSON.stringify(W))}catch(e){}};
+function newTest(ids){W={ids:ids||shuffle(PROMPTS.map(p=>p.id)).slice(0,5),graded:false,answers:{},build:{},open:{},ai:{},end:null};saveW();if(typeof R!=="undefined")R=null}
+let sampleFn=null;
+(async()=>{try{if(window.claude&&claude.use){sampleFn=await claude.use("sample");if(sampleFn&&room==="test")render()}}catch(e){}})();
+async function claudeGrade(p,txt){
+  return sampleFn.json(`You are grading a high school U.S. History honors paragraph. Be encouraging but honest.
+Prompt: ${p.q}
+Key facts a strong answer could use: ${p.ev.join("; ")}
+Student paragraph:
+"""${txt}"""
+Score each category 0-4: claim (clear arguable topic sentence that answers the prompt), evidence (specific names, dates, laws, events; accurate), analysis (explains why/how evidence proves the claim), organization (logical order, transitions, closing sentence), conventions (grammar, spelling, complete sentences).
+Return ONLY JSON: {"claim":n,"evidence":n,"analysis":n,"organization":n,"conventions":n,"strength":"one sentence","fixes":["up to 3 short, specific fixes"],"factErrors":["any historically wrong statements, else empty"]}`,{modelTier:"default"});
+}
 function testRoom(app){
-  if(!P) newTest("new");
+  if(!W) newTest();
   clearInterval(timerId);
-  const N=P.qs.length, answered=Object.keys(P.ans).length, uns=new Set(P.unsure||[]);
-  let summary="";
-  if(P.graded){
-    const right=P.qs.filter((q,i)=>P.ans[i]!=null&&q.opts[P.ans[i]].right).length, pct=Math.round(100*right/N);
-    const letter=pct>=90?"A":pct>=80?"B":pct>=70?"C":pct>=60?"D":"F";
-    const by=T.map(t=>{const qs=P.qs.map((q,i)=>[q,i]).filter(([q])=>q.tid===t.id);const r=qs.filter(([q,i])=>P.ans[i]!=null&&q.opts[P.ans[i]].right).length;return {t,r,n:qs.length}});
-    summary=`<div style="display:grid;gap:10px"><div><span class="grade">${letter} · ${right}/${N} (${pct}%)</span></div>
-      <p style="margin:0">${pct>=90?"Test-ready! Take a fresh one tomorrow to make sure it sticks.":"Review the lessons marked in red below, then take a new test."}</p>
-      <div class="breakdown">${by.map(b=>`<span class="${b.r/b.n>=.75?"hi":"lo"}">${T.indexOf(b.t)+1}. ${esc(b.t.title)}: ${b.r}/${b.n}</span>`).join("")}</div></div>`;
+  let total="";
+  if(W.graded){
+    const avg=Math.round(W.ids.reduce((s,id)=>s+gradeOne(pById(id),W.answers[id]).pct,0)/W.ids.length);
+    total=`<div style="display:grid;gap:8px"><span class="grade">${avg>=90?"A":avg>=80?"B":avg>=70?"C":avg>=60?"D":"Redo"} · ${avg}%</span>
+      <p style="margin:0">The checker looks for the key ideas a strong paragraph would include. Compare yours with the model paragraph under each prompt${sampleFn?", or ask Claude to grade it with the rubric":""}. Anything under 80% goes to Test Retake.</p></div>`;
   }
   app.innerHTML=`<div class="topic-pick" style="align-items:center">
-    <button id="newall" aria-pressed="${P.set==="new"}">★ All-new 40 questions</button>
-    <button id="newset" aria-pressed="${P.set==="mix"}">Mixed test (from all 120)</button>
-    ${P.graded?"":`<button id="tmr" aria-pressed="${!!P.end}">${P.end?"Timer on":"Start 45-min timer"}</button>`}
+    <button id="newset" aria-pressed="false">New random 5 prompts</button>
+    ${W.graded?"":`<button id="tmr" aria-pressed="${!!W.end}">${W.end?"Timer on":"Start 45-min timer"}</button>`}
     <span class="timer" id="clock"></span>
   </div>
-  <form class="paper ${P.graded?"graded":""}" id="paper">
-    <div><h2 style="font-size:1.9rem">Unit Test · Jackson to 1860</h2>
-    <p style="margin:6px 0 0">${N} multiple-choice questions${P.set==="new"?" · all-new question set":P.set==="mix"?" · mixed from both question sets":""}. Choose the best answer. You'll see your score when you turn it in.</p></div>
-    ${summary}
-    <div style="display:grid;gap:6px"><span style="font-size:.85rem;color:#55625b">${P.graded?"Green = right, red = missed. Tap a number to jump to it.":"Dark = answered. Tap a number to jump to that question."}</span>
-    <div class="qnav" id="qnav">${P.qs.map((q,i)=>`<button type="button" data-jump="${i}" class="${P.graded?(isRight(i)?"ok":"no"):P.ans[i]!=null?"done":""} ${uns.has(i)?"un":""}" aria-label="Question ${i+1}">${i+1}</button>`).join("")}</div></div>
-    ${P.qs.map((q,i)=>{const a=P.ans[i];return `<fieldset class="mcq ${a!=null?"answered":""}" id="q-${i}"><legend>${i+1}. ${esc(q.q)}${P.graded?`<span class="src">Lesson ${T.findIndex(t=>t.id===q.tid)+1}${uns.has(i)?" · marked unsure":""}</span>`:`<button type="button" class="flag" data-flag="${i}" aria-pressed="${uns.has(i)}">? Unsure</button>`}</legend>
-      <div class="mopts">${q.opts.map((o,j)=>{const cls=(P.graded?(o.right?"is-right ":a===j?"is-wrong ":""):"")+(a===j?"sel":"");
-        return `<label class="${cls}"><input type="radio" name="q${i}" value="${j}" ${a===j?"checked":""} ${P.graded?"disabled":""}> <span>${String.fromCharCode(65+j)}. ${esc(o.o)}</span></label>`}).join("")}</div>
-      ${P.graded&&(a==null||!q.opts[a].right)?`<div class="expl"><b>${a==null?"Left blank.":"Missed."}</b> ${esc(q.why)}</div>`:""}
+  <form class="paper ${W.graded?"graded":""}" id="paper">
+    <div><h2 style="font-size:1.9rem">Writing Test · Jackson to 1860</h2>
+    <p style="margin:6px 0 0">Write one honors paragraph for each prompt: a clear claim, specific evidence (names, dates, laws), analysis that explains why, and a closing sentence. Use the paragraph builder if you want help organizing. Your writing saves as you type.</p></div>
+    ${total}
+    ${W.ids.map((id,n)=>{const p=pById(id),a=W.answers[id]||"",b=W.build[id]||{},g=W.graded&&gradeOne(p,a),ai=W.ai[id];
+      return `<fieldset class="mcq" id="w-${id}" style="gap:10px"><legend style="font-size:1.08rem">${n+1}. ${esc(p.q)}<span class="src">Lesson ${T.findIndex(t=>t.id===p.tid)+1}</span></legend>
+      <details ${W.open[id+"ev"]?"open":""} data-det="${id}ev"><summary style="cursor:pointer;font-weight:700">Evidence bank</summary><ul style="margin:6px 0 0;padding-left:1.2em">${p.ev.map(e=>`<li>${esc(e)}</li>`).join("")}</ul></details>
+      ${W.graded?"":`<details ${W.open[id+"pb"]?"open":""} data-det="${id}pb"><summary style="cursor:pointer;font-weight:700">Paragraph builder</summary><div class="pb">${BUILD.map(([k,l,h])=>`<label>${l}<textarea rows="2" data-b="${id}" data-k="${k}" placeholder="${esc(h)}">${esc(b[k]||"")}</textarea></label>`).join("")}
+        <div class="ctrl"><button type="button" class="btn" style="background:#23312b;color:#f6f1df" data-drop="${id}">Put it in my answer ↓</button><span class="muted" style="color:#55625b;font-size:.85rem">Replaces what's in the box.</span></div></div></details>`}
+      <textarea class="wbox" rows="8" data-w="${id}" ${W.graded?"readonly":""} placeholder="Write your paragraph here…">${esc(a)}</textarea>
+      <div class="mono" style="font-size:.78rem;color:#55625b" id="wc-${id}">${words(a)} words</div>
+      ${g?`<div style="display:grid;gap:6px"><b style="color:${g.pct>=80?"#1d7a3a":"#a2312b"}">Key ideas: ${g.pct}%</b><div class="breakdown">${g.res.map(r=>`<span class="${r.hit?"hi":"lo"}">${r.hit?"✓":"✗"} ${esc(r.idea)}</span>`).join("")}</div>
+        <details><summary style="cursor:pointer;font-weight:700;color:#a2312b">Model honors paragraph</summary><p class="model">${esc(p.model)}</p></details>
+        ${sampleFn?`<div class="ctrl"><button type="button" class="btn" style="background:#f2d675;color:#2b2410" data-ai="${id}" ${ai&&ai.busy?"disabled":""}>${ai&&ai.busy?"Claude is grading…":ai&&ai.r?"Grade again with Claude":"✨ Grade with Claude"}</button></div>`:""}
+        ${ai&&ai.r?aiHTML(ai.r):ai&&ai.err?`<p class="warn-line" style="margin:0">${esc(ai.err)}</p>`:""}</div>`:""}
     </fieldset>`}).join("")}
-    <div class="ctrl">${P.graded?`<button class="btn" type="button" id="retake" style="background:#23312b;color:#f6f1df">Take a new test</button>`
-      :`<button class="btn" type="submit" style="background:#23312b;color:#f6f1df">${P.warned?"Turn it in anyway":"Turn it in"}</button>
-        ${P.warned?`<span class="warn-line">You left ${N-answered} blank.</span>`:""}`}</div>
-    ${P.graded?"":`<div class="sticky-count" id="count">Answered ${answered}/${N}</div>`}
+    <div class="ctrl">${W.graded?`<button class="btn" type="button" id="again" style="background:#23312b;color:#f6f1df">New random 5 prompts</button><button class="btn" type="button" id="tort" style="background:#f2d675;color:#2b2410">Test Retake →</button>`
+      :`<button class="btn" type="submit" style="background:#23312b;color:#f6f1df">Turn it in</button><span class="warn-line" id="warn"></span>`}</div>
   </form>`;
-  $("#newset").onclick=()=>{newTest("mix");testRoom(app);scrollTo(0,0)};
-  $("#newall").onclick=()=>{newTest("new");testRoom(app);scrollTo(0,0)};
-  $("#qnav").onclick=e=>{const b=e.target.closest("[data-jump]");if(!b)return;const f=$("#q-"+b.dataset.jump);
-    f.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});const r=f.querySelector("input:checked")||f.querySelector("input");if(r&&!r.disabled)r.focus({preventScroll:true})};
-  if(P.graded){$("#retake").onclick=()=>{newTest();testRoom(app);scrollTo(0,0)};return}
-  $("#tmr").onclick=()=>{P.end=P.end?null:Date.now()+45*60*1000;saveP();testRoom(app)};
-  $("#paper").addEventListener("click",e=>{const b=e.target.closest("[data-flag]");if(!b)return;const i=+b.dataset.flag;
-    uns.has(i)?uns.delete(i):uns.add(i);P.unsure=[...uns];saveP();
-    b.setAttribute("aria-pressed",uns.has(i));$(`#qnav [data-jump="${i}"]`).classList.toggle("un",uns.has(i))});
-  const tick=()=>{const c=$("#clock");if(!c||!P.end){if(c)c.textContent="";return}
-    const ms=Math.max(0,P.end-Date.now());c.textContent=ms?`${fmt(ms)} left`:"Time's up! Turn it in.";};
+  const rr=()=>{const y=scrollY;testRoom(app);scrollTo(0,y)};
+  $("#newset").onclick=()=>{if(!W.graded&&Object.values(W.answers).some(x=>x&&x.trim())&&!confirm("Start over with 5 new prompts? Your current paragraphs will be cleared."))return;newTest();testRoom(app);scrollTo(0,0)};
+  app.querySelectorAll("[data-det]").forEach(d=>d.ontoggle=()=>{W.open[d.dataset.det]=d.open;saveW()});
+  if(W.graded){
+    $("#again").onclick=()=>{newTest();testRoom(app);scrollTo(0,0)};
+    $("#tort").onclick=()=>go("retake");
+    app.querySelectorAll("[data-ai]").forEach(b=>b.onclick=async()=>{const id=b.dataset.ai,p=pById(id);
+      W.ai[id]={busy:true};rr();
+      try{const r=await claudeGrade(p,W.answers[id]||"");W.ai[id]={r}}catch(e){W.ai[id]={err:e&&e.code==="not_granted"?"Claude grading wasn't allowed.":e&&e.code==="rate_limited"?"Too many requests. Try again in a minute.":"Claude couldn't grade that one. Try again."}}
+      saveW();if(room==="test")rr()});
+    return;
+  }
+  $("#tmr").onclick=()=>{W.end=W.end?null:Date.now()+45*60*1000;saveW();testRoom(app)};
+  const tick=()=>{const c=$("#clock");if(!c||!W.end){if(c)c.textContent="";return}
+    const ms=Math.max(0,W.end-Date.now());c.textContent=ms?`${fmt(ms)} left`:"Time's up! Turn it in.";};
   tick(); timerId=setInterval(tick,1000);
-  $("#paper").onchange=e=>{const m=(e.target.name||"").match(/^q(\d+)$/);if(!m)return;const i=+m[1];
-    P.ans[i]=+e.target.value;saveP();
-    const f=$("#q-"+i);f.classList.add("answered");f.querySelectorAll("label").forEach(l=>l.classList.toggle("sel",l.contains(e.target)));
-    $(`#qnav [data-jump="${i}"]`).classList.add("done");
-    $("#count").textContent=`Answered ${Object.keys(P.ans).length}/${N}`};
+  $("#paper").oninput=e=>{const t=e.target;
+    if(t.dataset.w){W.answers[t.dataset.w]=t.value;$("#wc-"+t.dataset.w).textContent=words(t.value)+" words";saveW()}
+    if(t.dataset.b){const b=W.build[t.dataset.b]=W.build[t.dataset.b]||{};b[t.dataset.k]=t.value;saveW()}};
+  app.querySelectorAll("[data-drop]").forEach(b=>b.onclick=()=>{const id=b.dataset.drop,x=W.build[id]||{};
+    const fix=s=>{s=(s||"").trim();return s&&!/[.!?"]$/.test(s)?s+".":s};
+    const txt=["claim","ev1","ev2","ev3","an","close"].map(k=>fix(x[k])).filter(Boolean).join(" ");
+    if(!txt)return;W.answers[id]=txt;saveW();const box=app.querySelector(`[data-w="${id}"]`);box.value=txt;$("#wc-"+id).textContent=words(txt)+" words";box.focus()});
   $("#paper").onsubmit=e=>{e.preventDefault();
-    if(Object.keys(P.ans).length<N&&!P.warned){P.warned=true;saveP();testRoom(app);return}
-    P.graded=true;P.end=null;R=null;saveP();
-    T.forEach(t=>{const qs=P.qs.map((q,i)=>[q,i]).filter(([q])=>q.tid===t.id);if(!qs.length)return;
-      const pct=Math.round(100*qs.filter(([q,i])=>P.ans[i]!=null&&q.opts[P.ans[i]].right).length/qs.length);
-      S.test[t.id]=Math.max(S.test[t.id]??0,pct)});
-    save();testRoom(app);scrollTo(0,0);
-    const right=P.qs.filter((q,i)=>P.ans[i]!=null&&q.opts[P.ans[i]].right).length;
-    if(right/N>=.9) confetti();
+    const blank=W.ids.filter(id=>words(W.answers[id])<15).length;
+    if(blank&&!W.warned){W.warned=true;saveW();$("#warn").textContent=`${blank} paragraph${blank>1?"s are":" is"} empty or very short. Tap Turn it in again to submit anyway.`;return}
+    W.graded=true;W.end=null;R=null;
+    W.ids.forEach(id=>{const p=pById(id),pct=gradeOne(p,W.answers[id]).pct;S.test[p.tid]=Math.max(S.test[p.tid]??0,pct)});
+    saveW();save();testRoom(app);scrollTo(0,0);
+    const avg=W.ids.reduce((s,id)=>s+gradeOne(pById(id),W.answers[id]).pct,0)/W.ids.length;if(avg>=90)confetti();
   };
 }
+function aiHTML(r){
+  const cats=[["claim","Claim"],["evidence","Evidence"],["analysis","Analysis"],["organization","Organization"],["conventions","Conventions"]];
+  const tot=cats.reduce((s,[k])=>s+(+r[k]||0),0);
+  return `<div class="aibox"><b>Claude's rubric score: ${tot}/20</b><div class="breakdown">${cats.map(([k,l])=>`<span class="${(+r[k]||0)>=3?"hi":"lo"}">${l} ${+r[k]||0}/4</span>`).join("")}</div>
+    ${r.strength?`<p style="margin:0"><b>Strength:</b> ${esc(r.strength)}</p>`:""}
+    ${(r.fixes||[]).length?`<p style="margin:0"><b>Fix:</b></p><ul style="margin:0;padding-left:1.2em">${r.fixes.map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`:""}
+    ${(r.factErrors||[]).length?`<p class="warn-line" style="margin:0">Check these facts: ${r.factErrors.map(esc).join(" · ")}</p>`:""}</div>`;
+}
 
-/* Test Retake: questions missed on the last graded test plus any marked unsure, one at a time with reshuffled answers and instant feedback. */
+/* Test Retake: prompts that scored under 80% on the last graded Writing Test, one at a time, with the key-idea checker. */
 let R=null;
-function retakePool(){if(!P||!P.graded)return [];const u=new Set(P.unsure||[]);return P.qs.map((q,i)=>i).filter(i=>!isRight(i)||u.has(i))}
-function startRetake(list){R={list:shuffle(list),i:0,right:0,missed:[],pick:null,cur:null}}
+const retakePool=()=>W&&W.graded?W.ids.filter(id=>gradeOne(pById(id),W.answers[id]).pct<80):[];
 function retakeRoom(app){
-  if(!P||!P.graded){
-    app.innerHTML=`<section class="hero"><h1 style="font-size:2.2rem">Test Retake</h1><p>Take and turn in the 40-Question Test first. Then this tab gives you another shot at the questions you missed or marked unsure.</p><div><button class="btn y" id="totest">Go to the 40-Question Test →</button></div></section>`;
+  if(!W||!W.graded){
+    app.innerHTML=`<section class="hero"><h1 style="font-size:2.2rem">Test Retake</h1><p>Take and turn in the Writing Test first. Then this tab brings back every prompt that scored under 80% so you can rewrite it.</p><div><button class="btn y" id="totest">Go to the Writing Test →</button></div></section>`;
     $("#totest").onclick=()=>go("test");return;
   }
-  const u=new Set(P.unsure||[]);
+  const pool=retakePool();
   if(!R){
-    const pool=retakePool(), missed=P.qs.filter((q,i)=>!isRight(i)).length;
     app.innerHTML=`<section class="hero" style="padding-bottom:0"><h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">Test Retake</h1>
-      <p>The questions you missed on your last test, plus the ones you weren't sure about. The answer choices are reshuffled, and you'll see the right answer after each one.</p></section>
+      <p>Rewrite the prompts that scored under 80% on your last Writing Test. Your first try stays below the box so you can see what to add.</p></section>
       <div class="qbox">
-        <div class="muted" style="font-size:.9rem">Red = missed (always included). Yellow = unsure. Tap a green number to add it, or a yellow one to take it out.</div>
-        <div class="qnav rt" id="rgrid">${P.qs.map((q,i)=>`<button type="button" data-r="${i}" class="${!isRight(i)?"no":u.has(i)?"un":"ok"}" ${!isRight(i)?"disabled":""} aria-label="Question ${i+1}">${i+1}</button>`).join("")}</div>
-        <div class="score"><span>Missed <b>${missed}</b></span><span>Unsure <b>${pool.length-missed}</b></span><span>Retake <b>${pool.length}</b> questions</span></div>
-        <div class="ctrl"><button class="btn y" id="rstart" ${pool.length?"":"disabled"}>Start retake →</button></div>
+        <div class="score"><span>Under 80% <b>${pool.length}</b></span><span>of <b>${W.ids.length}</b> prompts</span></div>
+        ${pool.map(id=>`<div class="muted">• ${esc(pById(id).q)} <span class="mono">(${gradeOne(pById(id),W.answers[id]).pct}%)</span></div>`).join("")}
+        <div class="ctrl"><button class="btn y" id="rstart" ${pool.length?"":"disabled"}>${pool.length?"Start retake →":"Nothing under 80%. Nice!"}</button></div>
       </div>`;
-    $("#rgrid").onclick=e=>{const b=e.target.closest("[data-r]");if(!b||b.disabled)return;const i=+b.dataset.r;
-      u.has(i)?u.delete(i):u.add(i);P.unsure=[...u];saveP();retakeRoom(app)};
-    $("#rstart").onclick=()=>{startRetake(pool);retakeRoom(app)};
+    if(pool.length) $("#rstart").onclick=()=>{R={list:pool,i:0,txt:{},checked:{}};retakeRoom(app)};
     return;
   }
   if(R.i>=R.list.length){
-    const n=R.list.length;
-    app.innerHTML=`<div class="qbox" style="text-align:center"><h2 style="font-family:var(--f-display);font-size:2rem">Retake score: ${R.right}/${n}</h2>
-      <p class="muted">${R.missed.length?`Still missing ${R.missed.length}. Run just those again, or review their lessons.`:"Every one right this time!"}</p>
-      <div class="ctrl" style="justify-content:center">${R.missed.length?`<button class="btn y" id="again">Retake the ${R.missed.length} I missed</button>`:""}<button class="btn ghost" id="back">Back to the list</button></div></div>`;
-    if(R.missed.length) $("#again").onclick=()=>{startRetake(R.missed);retakeRoom(app)}; else confetti();
-    $("#back").onclick=()=>{R=null;retakeRoom(app)};
+    const res=R.list.map(id=>({id,pct:gradeOne(pById(id),R.txt[id]).pct}));
+    app.innerHTML=`<div class="qbox" style="text-align:center"><h2 style="font-family:var(--f-display);font-size:2rem">Retake done</h2>
+      ${res.map(r=>`<p style="margin:0">${esc(pById(r.id).q)} <b style="color:${r.pct>=80?"var(--good)":"var(--bad)"}">${r.pct}%</b></p>`).join("")}
+      <div class="ctrl" style="justify-content:center"><button class="btn y" id="back">Back to the list</button><button class="btn ghost" id="nt">New Writing Test →</button></div></div>`;
+    if(res.every(r=>r.pct>=80)) confetti();
+    $("#back").onclick=()=>{R=null;retakeRoom(app)}; $("#nt").onclick=()=>{newTest();go("test")};
     return;
   }
-  const idx=R.list[R.i], q=P.qs[idx], ln=T.findIndex(t=>t.id===q.tid);
-  if(!R.cur) R.cur=shuffle(q.opts);
+  const id=R.list[R.i], p=pById(id), done=R.checked[id], g=done&&gradeOne(p,R.txt[id]);
   app.innerHTML=`<div class="qbox">
-    <div class="score"><span>Question <b>${R.i+1}</b>/${R.list.length}</span><span>Right <b>${R.right}</b></span></div>
-    <div class="chips" style="align-items:center">${!isRight(idx)?`<span class="chip" style="border-color:var(--bad);color:var(--bad)">Missed</span>`:`<span class="chip warn">Unsure</span>`}<span class="mono muted" style="font-size:.8rem">#${idx+1} on your test · Lesson ${ln+1}</span></div>
-    <h2>${esc(q.q)}</h2>
-    ${mcView(R.cur,R.pick,q.why,R.i+1<R.list.length?"Next question →":"See my score →",o=>o.right?"":`<button class="btn ghost" id="rv">Review Lesson ${ln+1}</button>`)}
+    <div class="score"><span>Prompt <b>${R.i+1}</b>/${R.list.length}</span><span>First try <b>${gradeOne(p,W.answers[id]).pct}%</b></span></div>
+    <h2>${esc(p.q)}</h2>
+    <details><summary style="cursor:pointer;font-weight:700">Evidence bank</summary><ul>${p.ev.map(e=>`<li>${esc(e)}</li>`).join("")}</ul></details>
+    <textarea class="wbox dark" rows="8" id="rt" placeholder="Rewrite your paragraph…">${esc(R.txt[id]||"")}</textarea>
+    ${g?`<b style="color:${g.pct>=80?"var(--good)":"var(--bad)"}">Key ideas: ${g.pct}%</b><div class="chips">${g.res.map(r=>`<span class="chip ${r.hit?"ok":""}" style="${r.hit?"":"border-color:var(--bad);color:var(--bad)"}">${r.hit?"✓":"✗"} ${esc(r.idea)}</span>`).join("")}</div>
+      <details><summary style="cursor:pointer;font-weight:700;color:var(--yellow)">Model honors paragraph</summary><p class="why">${esc(p.model)}</p></details>`:""}
+    <div class="ctrl"><button class="btn y" id="rc">Check it</button>${g?`<button class="btn" id="nq">${R.i+1<R.list.length?"Next prompt →":"Finish →"}</button>`:""}</div>
+    <details><summary style="cursor:pointer" class="muted">My first try</summary><p class="why">${esc(W.answers[id]||"(blank)")}</p></details>
   </div>`;
-  if(R.pick!=null){
-    $("#nq").onclick=()=>{R.i++;R.pick=null;R.cur=null;retakeRoom(app)};
-    const rv=$("#rv"); if(rv) rv.onclick=()=>go("lessons",{topic:q.tid});
-    return;
-  }
-  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
-    R.pick=+b.dataset.i;
-    if(R.cur[R.pick].right)R.right++;else R.missed.push(idx);
-    retakeRoom(app); $("#nq").focus();
-  });
+  $("#rt").oninput=e=>{R.txt[id]=e.target.value};
+  $("#rc").onclick=()=>{R.checked[id]=true;retakeRoom(app)};
+  const nq=$("#nq"); if(nq) nq.onclick=()=>{R.i++;retakeRoom(app);scrollTo(0,0)};
 }
 
 renderTabs(); render();

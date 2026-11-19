@@ -32,6 +32,8 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{ou
 header.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--wood);border-bottom:4px solid #4f361f;box-shadow:0 4px 12px rgba(0,0,0,.35)}
 .rail .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
 .brand{font-family:var(--f-display);font-size:1.35rem;color:#fff4dc;margin-right:auto;white-space:nowrap}
+.brandbox{display:grid;gap:0;margin-right:auto}.brandbox .brand{margin-right:0}
+.hub{font:700 .7rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:#fff4dc;opacity:.75;text-decoration:none}.hub:hover{opacity:1;text-decoration:underline}
 .tabs{display:flex;gap:6px;flex-wrap:wrap}
 .tab{background:transparent;border:1.5px solid rgba(255,244,220,.35);color:#fff4dc;border-radius:999px;padding:5px 12px;font-size:.92rem}
 .tab[aria-selected="true"]{background:#fff4dc;color:#3b2716;border-color:#fff4dc;font-weight:700}
@@ -205,11 +207,11 @@ table.sym{border-collapse:collapse;width:100%;font-size:.95rem;min-width:560px}
 .paper .work{background:#fff;border:1.5px solid #d9d2bc}
 
 @media (prefers-reduced-motion:reduce){.flash .in{transition:none}}
-@media (max-width:560px){.brand{width:100%}.dots{margin-left:0;width:100%}.work>div{grid-template-columns:1fr;gap:2px}}
+@media (max-width:560px){.brandbox{width:100%}.dots{margin-left:0;width:100%}.work>div{grid-template-columns:1fr;gap:2px}}
 </style>
 
 <header class="rail"><div class="wrap">
-  <div class="brand">Room −9.8 · Projectiles</div>
+  <div class="brandbox"><!--HUB--><a class="hub" href="https://mcgee2262.github.io/blazes-study-guides/" target="_blank" rel="noopener">← Blaze's Study Guides</a><!--/HUB--><div class="brand">Room −9.8 · Projectiles</div></div>
   <nav class="tabs" role="tablist" id="tabs"></nav>
   <div class="clockbox" id="clockbox" hidden aria-live="off">
     <span id="clabel">Lesson 1</span><span class="t" id="ctime">0:00</span>
