@@ -1,0 +1,858 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}</style>
+<title>Road to Civil War Classroom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a classroom chalkboard. Sticky tab rail of "rooms", one room visible at a time. Deliberately single-theme (dark board). */
+:root{
+  --board:#1d362f; --board-2:#25443b; --board-3:#2d5146;
+  --chalk:#eef0e6; --chalk-dim:#b4c2b8; --line:rgba(238,240,230,.16);
+  --yellow:#f2d675; --good:#9fe0a8; --bad:#f2a3a0; --wood:#6b4a2f;
+  --f-display:"Cabin Sketch","Comic Sans MS",cursive;
+  --f-body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--board);color:var(--chalk);font:16px/1.55 var(--f-body);
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(255,255,255,.05),transparent 60%),radial-gradient(ellipse at 90% 100%,rgba(0,0,0,.25),transparent 60%);min-height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--wood)}
+.wrap{max-width:1000px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;text-wrap:balance;margin:0;line-height:1.15}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:2px dashed var(--yellow);outline-offset:3px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--chalk-dim)}
+
+/* top rail */
+header.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--wood);border-bottom:4px solid #4f361f;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.rail .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+.brand{font-family:var(--f-display);font-size:1.35rem;color:#fff4dc;margin-right:auto;white-space:nowrap}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{background:transparent;border:1.5px solid rgba(255,244,220,.35);color:#fff4dc;border-radius:999px;padding:5px 12px;font-size:.92rem}
+.tab[aria-selected="true"]{background:#fff4dc;color:#3b2716;border-color:#fff4dc;font-weight:700}
+
+/* hero */
+.hero{padding-block:36px 20px;display:grid;gap:14px}
+.hero h1{font-size:clamp(2.1rem,6vw,3.4rem)}
+.hero p{max-width:62ch;margin:0;color:var(--chalk-dim)}
+.note{border:1.5px dashed var(--yellow);border-radius:10px;padding:12px 16px;color:var(--yellow);max-width:76ch}
+.note b{color:var(--chalk)}
+
+/* topic grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:18px}
+.topic{position:relative;background:var(--board-2);border:1px solid var(--line);border-radius:12px}
+.topic:hover{border-color:var(--yellow)}
+.topic.known{border-color:var(--good);background:var(--board-3)}
+.topic .open{all:unset;cursor:pointer;display:grid;gap:6px;padding:14px 52px 14px 14px;width:100%;box-sizing:border-box;border-radius:12px}
+.topic .open:focus-visible{outline:2px dashed var(--yellow);outline-offset:-4px}
+.check{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:8px;border:2px solid var(--chalk-dim);background:transparent;color:var(--board);font-weight:700;font-size:1.05rem;display:grid;place-items:center;padding:0}
+.check[aria-pressed="true"]{background:var(--good);border-color:var(--good)}
+.knowbtn[aria-pressed="true"]{background:var(--good);color:var(--board);border-color:var(--good)}
+.clockbox{display:flex;align-items:center;gap:6px;background:#3b2716;color:#fff4dc;border-radius:999px;padding:4px 6px 4px 12px;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.9rem}
+.clockbox[hidden]{display:none}
+.clockbox .t{font-size:1.05rem;min-width:4.2ch;text-align:right}
+.clockbox button{background:rgba(255,244,220,.15);border:0;color:#fff4dc;border-radius:999px;padding:3px 9px;font-size:.8rem}
+.topic .num{font-family:var(--f-mono);font-size:.78rem;color:var(--chalk-dim);letter-spacing:.06em}
+.topic h3{font-size:1.25rem}
+.topic .tl{font-size:.85rem;color:var(--chalk-dim)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:.75rem;border-radius:999px;padding:1px 8px;border:1px solid var(--line);color:var(--chalk-dim)}
+.chip.ok{border-color:var(--good);color:var(--good)}
+.chip.warn{border-color:var(--yellow);color:var(--yellow)}
+.section-h{font-size:1.7rem;margin-top:28px}
+.mix{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:12px}
+.mix div{border:1.5px dashed var(--line);border-radius:10px;padding:10px 14px;color:var(--chalk-dim);font-size:.95rem}
+.mix b{color:var(--yellow);display:block}
+
+/* slides */
+.stage{margin-top:24px;background:var(--board-2);border:10px solid var(--wood);border-radius:6px;box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 10px 30px rgba(0,0,0,.35);padding:clamp(18px,4vw,40px);min-height:380px;display:grid;grid-template-rows:auto 1fr auto;gap:16px}
+.stage .eyebrow{font-family:var(--f-mono);font-size:.8rem;color:var(--yellow);letter-spacing:.08em;text-transform:uppercase}
+.stage h2{font-size:clamp(1.7rem,4.5vw,2.6rem)}
+.stage ul{margin:0;padding-left:1.2em;display:grid;gap:10px;font-size:1.08rem;max-width:68ch}
+.stage li::marker{color:var(--yellow)}
+.stage dl{margin:0;display:grid;gap:10px;max-width:72ch}
+.stage dt{color:var(--yellow);font-weight:700}
+.stage dd{margin:0 0 0 1em}
+.ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--chalk);color:var(--board);border:0;border-radius:8px;padding:9px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--chalk);border:1.5px solid var(--line)}
+.btn.y{background:var(--yellow);color:#2b2410}
+.btn:disabled{opacity:.4;cursor:default}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--yellow)}
+.btn.reading{background:var(--yellow);color:#2b2410;border-color:var(--yellow)}
+.tts{display:flex;gap:10px 18px;flex-wrap:wrap;align-items:center;margin-top:14px;color:var(--chalk-dim);font-size:.92rem}
+.tts select{font:inherit;background:var(--board-2);color:var(--chalk);border:1px solid var(--line);border-radius:6px;padding:4px 6px;max-width:220px}
+.tts label{display:flex;gap:6px;align-items:center}
+.topic-pick{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+.topic-pick button{background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:.85rem;color:var(--chalk-dim)}
+.topic-pick button[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow)}
+
+/* flashcards */
+.card-area{display:grid;place-items:center;margin-top:24px;gap:16px}
+.flash{width:min(560px,100%);aspect-ratio:3/2;max-width:100%;perspective:1200px;background:none;border:0;padding:0}
+.flash .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flash.flipped .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:grid;place-items:center;padding:24px;text-align:center;font-size:1.2rem;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.face.front{background:#f6f1df;color:#23312b;font-family:var(--f-display);font-size:clamp(1.4rem,4.5vw,2rem)}
+.face.back{background:var(--board-3);border:1px solid var(--yellow);transform:rotateY(180deg)}
+.face small{position:absolute;top:10px;left:14px;font-family:var(--f-mono);font-size:.72rem;opacity:.6}
+
+/* quiz */
+.qbox{margin-top:24px;background:var(--board-2);border:1px solid var(--line);border-radius:12px;padding:clamp(16px,4vw,28px);display:grid;gap:14px}
+.qbox h2{font-family:var(--f-body);font-size:1.3rem;font-weight:700}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;background:var(--board);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px}
+.opt:hover:not(:disabled){border-color:var(--chalk-dim)}
+.opt.right{border-color:var(--good);color:var(--good)}
+.opt.wrong{border-color:var(--bad);color:var(--bad)}
+.score{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--f-mono)}
+.score b{color:var(--yellow);font-size:1.3rem}
+.why{color:var(--chalk-dim)}
+
+/* practice test (paper) */
+.paper{color-scheme:light;margin-top:24px;background:#f6f1df;color:#23312b;border-radius:6px;padding:clamp(18px,4vw,40px);box-shadow:0 10px 30px rgba(0,0,0,.4);display:grid;gap:18px}
+.paper h2{font-family:var(--f-display);color:#23312b}
+.mcq{border:0;margin:0;padding:0 0 14px;border-bottom:1px solid #d9d2bc;display:grid;gap:8px;min-width:0}
+.mcq legend{font-weight:700;padding:0;margin-bottom:8px}
+.mcq .src{font-family:var(--f-mono);font-size:.72rem;color:#7a8580;font-weight:400;margin-left:6px}
+.mopts{display:grid;gap:6px}
+.mopts label{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border-radius:6px;border:1.5px solid #d9d2bc;background:rgba(255,255,255,.6);cursor:pointer}
+.mopts input{appearance:none;-webkit-appearance:none;flex:none;width:18px;height:18px;margin:3px 0 0;border:2px solid #7a8580;border-radius:50%;background:#fff;cursor:pointer}
+.mopts input:checked{border-color:#f2d675;background:radial-gradient(circle,#f2d675 0 42%,#23312b 48%)}
+.mopts label.sel{background:#23312b;color:#f6f1df;border-color:#23312b;font-weight:700;box-shadow:0 0 0 3px rgba(35,49,43,.25)}
+.mopts label.sel::after{content:"✓ Selected";margin-left:auto;align-self:center;white-space:nowrap;font-family:var(--f-mono);font-size:.75rem;color:#f2d675}
+.paper.graded .mopts label.sel::after{content:"Your answer";color:inherit}
+.mopts label.is-right{background:#d6f0d9;border-color:#1d7a3a;color:#23312b;box-shadow:none}
+.mopts label.is-wrong{background:#f8d7d5;border-color:#a2312b;color:#23312b;box-shadow:none}
+.mcq.answered{border-left:4px solid #23312b;padding-left:12px}
+.qnav{display:flex;flex-wrap:wrap;gap:5px}
+.qnav button{width:32px;height:32px;padding:0;border-radius:6px;border:1.5px solid #b9b19a;background:rgba(255,255,255,.6);color:#23312b;font-family:var(--f-mono);font-size:.8rem}
+.qnav button.done{background:#23312b;color:#f6f1df;border-color:#23312b}
+.qnav button.ok{background:#1d7a3a;color:#fff;border-color:#1d7a3a}
+.qnav button.no{background:#a2312b;color:#fff;border-color:#a2312b}
+.qnav button.un{box-shadow:inset 0 0 0 3px #f2d675}
+.qnav.rt button.un{background:#f2d675;color:#2b2410;border-color:#f2d675;box-shadow:none}
+.qnav button:disabled{cursor:default;opacity:1}
+.flag{margin-left:10px;font:700 .75rem var(--f-mono);border:1.5px solid #b9b19a;background:transparent;color:#55625b;border-radius:999px;padding:1px 9px;vertical-align:middle}
+.flag[aria-pressed="true"]{background:#f2d675;border-color:#c9a93a;color:#2b2410}
+.mcq .expl{font-size:.92rem;color:#38453f}
+.mcq .expl b{color:#a2312b}
+.grade{font-family:var(--f-display);font-size:2.6rem;color:#a2312b;transform:rotate(-5deg);display:inline-block}
+.breakdown{display:flex;flex-wrap:wrap;gap:6px}
+.breakdown span{font-size:.82rem;border-radius:999px;padding:2px 10px;border:1.5px solid #d9d2bc;background:#fff}
+.breakdown span.lo{border-color:#a2312b;color:#a2312b}
+.breakdown span.hi{border-color:#1d7a3a;color:#1d7a3a}
+.warn-line{color:#a2312b;font-weight:700}
+.timer{font-family:var(--f-mono);color:var(--yellow)}
+.sticky-count{position:sticky;bottom:max(12px,env(safe-area-inset-bottom,0px));justify-self:end;background:#23312b;color:#f6f1df;border-radius:999px;padding:6px 14px;font-family:var(--f-mono);font-size:.85rem;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+
+/* president lineup */
+.lineup{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:10px;max-width:640px;position:relative}
+.pcard{position:relative;display:flex;align-items:center;gap:14px;background:#f6f1df;color:#23312b;border-radius:10px;padding:12px 14px;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:background .3s}
+.pcard.drag{cursor:grabbing;outline:3px dashed var(--yellow);z-index:2;box-shadow:0 10px 24px rgba(0,0,0,.45);transition:none}
+.pcard .slot{font-family:var(--f-display);font-size:1.9rem;min-width:1.4ch;color:#a2312b}
+.pcard .who{min-width:0;display:grid;gap:2px}
+.pcard b{font-size:1.15rem}
+.pcard small{color:#55625b;font-size:.88rem}
+.pcard .yrs{font-family:var(--f-mono);color:#1d7a3a}
+.pcard .arrows{margin-left:auto;display:flex;flex-direction:column;gap:4px}
+.pcard .arrows button{background:#e6dfc8;border:0;border-radius:6px;width:32px;height:26px;color:#23312b;font-size:.85rem;padding:0}
+.pcard .arrows button:disabled{opacity:.3}
+.lineup.solved .pcard{background:#d6f0d9}
+.lstat{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lstat b{color:var(--yellow)}
+.win{font-family:var(--f-display);font-size:2rem;color:var(--yellow);margin:14px 0 0}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+
+@media (prefers-reduced-motion:reduce){.flash .in{transition:none}}
+@media (max-width:560px){.brand{width:100%}.dots{margin-left:0;width:100%}}
+</style>
+
+</head><body>
+<header class="rail"><div class="wrap">
+  <div class="brand">Room 1860 · Road to War</div>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <div class="clockbox" id="clockbox" hidden aria-live="off">
+    <span id="clabel">Lesson 1</span><span class="t" id="ctime">0:00</span>
+    <button id="cpause">Pause</button><button id="creset">Reset</button>
+  </div>
+</div></header>
+
+<main class="wrap" id="app"></main>
+
+<script>
+/* Each lesson: slides (h, p bullets, optional tip), terms [term, definition] for the recap slide and flashcards,
+   quiz [question, [correct, wrong, wrong, wrong], explanation]. Answer order is shuffled at runtime. */
+const T = [
+{id:"jackson",title:"Andrew Jackson & the Common Man",when:"1828–1837",
+ slides:[
+  {h:"The Election of 1828",p:["Andrew Jackson, hero of the Battle of New Orleans, beat John Quincy Adams in 1828.","His supporters became the Democratic Party.","Many states had dropped the rule that you had to own property to vote, so far more white men could vote. People called this the rise of the common man.","Jackson was the first president from the West (Tennessee) who was not from a wealthy East Coast family."]},
+  {h:"Jackson in office",p:["Spoils system: he fired government workers and gave the jobs to his loyal supporters. To the victor belong the spoils.","Kitchen Cabinet: an informal group of friends who advised him instead of his official cabinet.","He used the veto more than all earlier presidents combined. Opponents called him King Andrew."]},
+  {h:"The Bank War",p:["Jackson hated the Second Bank of the United States. He said it helped rich Easterners and hurt farmers and workers.","In 1832 he vetoed the bill to renew the bank's charter.","He moved government money into state banks, nicknamed pet banks.","Easy loans and wild land buying led to the Panic of 1837, a depression that hit just after Jackson left office, under Martin Van Buren."]},
+  {h:"Indian Removal & the Trail of Tears",p:["The Indian Removal Act of 1830 let Jackson move Native nations in the Southeast to land west of the Mississippi River (Indian Territory, now Oklahoma).","In Worcester v. Georgia (1832), the Supreme Court said Georgia had no power over Cherokee land. Jackson refused to enforce the ruling.","In 1838 the U.S. Army forced the Cherokee to march west. About 4,000 died. This is the Trail of Tears."],tip:"Memory trick: Jackson ignored the Court. Marshall ruled for the Cherokee, but nobody enforced it."}],
+ terms:[["Andrew Jackson","Seventh President (1829–1837). Democrat, champion of the common man, spoils system, Bank War, Indian Removal."],["Spoils system","Giving government jobs to loyal supporters."],["Bank War","Jackson's fight to kill the Second Bank of the United States; he vetoed its recharter in 1832."],["Indian Removal Act","1830 law that forced Native nations in the Southeast to move west of the Mississippi."],["Trail of Tears","1838 forced march of the Cherokee to Indian Territory. About 4,000 died."]],
+ quiz:[["The spoils system means…",["giving government jobs to loyal supporters","a tax on imported goods","moving Native Americans west","a state cancelling a federal law"],"To the victor belong the spoils."],
+  ["Jackson was called a champion of the…",["common man","wealthy bankers","Federalist Party","Whig Party"],"More ordinary white men could vote by 1828."],
+  ["What did Jackson do to the Second Bank of the United States?",["Vetoed the bill to renew its charter","Made it bigger","Moved it to Tennessee","Gave it to the states as a gift"],"The Bank War, 1832."],
+  ["The Indian Removal Act of 1830 forced Native nations to move…",["west of the Mississippi River","to Canada","to Florida","to the Northwest Territory"],"To Indian Territory, today's Oklahoma."],
+  ["The Trail of Tears was the forced march of the…",["Cherokee","Shawnee","Sioux","Iroquois"],"In 1838; about 4,000 died."],
+  ["In Worcester v. Georgia, the Supreme Court ruled for the Cherokee. What did Jackson do?",["Refused to enforce the ruling","Sent troops to protect the Cherokee","Resigned","Asked Congress to impeach the judges"],"He ignored the Court."],
+  ["Jackson's informal group of advisers was called the…",["Kitchen Cabinet","War Hawks","Whigs","Federalist Papers"],"Friends he trusted more than his official cabinet."],
+  ["Whom did Jackson defeat in the Election of 1828?",["John Quincy Adams","Henry Clay","Thomas Jefferson","Abraham Lincoln"],"Jackson had lost to Adams in 1824."]]},
+
+{id:"nulli",title:"The Nullification Crisis",when:"1828–1833",
+ slides:[
+  {h:"The Tariff of Abominations",p:["A tariff is a tax on imported goods.","The Tariff of 1828 was very high. It protected Northern factories from foreign competition.","Southerners hated it. They paid more for manufactured goods, and Britain bought less Southern cotton.","Southerners nicknamed it the Tariff of Abominations."]},
+  {h:"Calhoun and nullification",p:["John C. Calhoun of South Carolina was Jackson's own vice president.","He argued in the South Carolina Exposition and Protest that a state could nullify, or cancel, a federal law it thought was unconstitutional.","This is the idea of states' rights: states should have the final say, not the national government."]},
+  {h:"The Webster–Hayne debate (1830)",p:["Senator Robert Hayne of South Carolina defended states' rights and nullification in the Senate.","Daniel Webster of Massachusetts answered that the Union came first.","He ended: Liberty and Union, now and forever, one and inseparable!"]},
+  {h:"The crisis and the compromise",p:["In 1832 South Carolina passed the Ordinance of Nullification, declaring the tariffs void in the state, and threatened to secede (leave the Union).","Jackson, even though he was a Southerner, said nullification was treason. Congress passed the Force Bill (1833), letting him use the army to collect the tariff.","Henry Clay worked out the Compromise Tariff of 1833, which lowered rates slowly. South Carolina backed down.","Calhoun resigned as vice president. The fight over states' rights would return in 1860."],tip:"Memory trick: Nullify = Null = zero. A state tried to make a federal law count for zero."}],
+ terms:[["Tariff of Abominations","Tariff of 1828. Helped Northern factories, hurt the South."],["Nullification","The idea that a state can cancel a federal law inside its borders."],["John C. Calhoun","South Carolina leader and Jackson's vice president who argued for nullification and states' rights."],["Force Bill","1833 law letting Jackson use the military to enforce the tariff in South Carolina."],["Compromise Tariff of 1833","Henry Clay's deal that slowly lowered the tariff and ended the crisis."]],
+ quiz:[["Nullification is the idea that…",["a state can cancel a federal law inside its borders","Congress can override a veto","the president can ignore the Supreme Court","the North can ban slavery in the South"],"Null means zero."],
+  ["The Nullification Crisis began over…",["a tariff","slavery in Kansas","the national bank","the Mexican War"],"The Tariff of 1828, the Tariff of Abominations."],
+  ["Which state tried to nullify the tariff?",["South Carolina","Virginia","Massachusetts","Georgia"],"It passed the Ordinance of Nullification in 1832."],
+  ["Who was the leading voice for nullification?",["John C. Calhoun","Daniel Webster","Henry Clay","Andrew Jackson"],"He was Jackson's vice president."],
+  ["Why did the South oppose high tariffs?",["They raised prices on goods the South bought and hurt cotton sales","They helped Southern factories too much","They banned slavery","They lowered cotton prices in the North"],"The South had few factories and depended on trade."],
+  ["How did Jackson respond to nullification?",["He got the Force Bill passed and threatened to use the army","He agreed with South Carolina","He resigned","He ignored it"],"He called nullification treason."],
+  ["Who ended the crisis with the Compromise Tariff of 1833?",["Henry Clay","John C. Calhoun","Martin Van Buren","Stephen Douglas"],"The Great Compromiser."],
+  ["Who said 'Liberty and Union, now and forever, one and inseparable'?",["Daniel Webster","Robert Hayne","John C. Calhoun","Andrew Jackson"],"In the Webster–Hayne debate, 1830."]]},
+
+{id:"manifest",title:"Manifest Destiny",when:"1840s",
+ slides:[
+  {h:"What Manifest Destiny means",p:["The belief that the United States was meant (destined) by God to spread across North America from the Atlantic to the Pacific.","The phrase was coined in 1845 by newspaper editor John O'Sullivan.","Manifest means obvious. Supporters thought expansion was obvious and unavoidable."]},
+  {h:"Why Americans moved west",p:["Cheap, fertile farmland.","Gold and other riches, especially after gold was found in California in 1848.","Religious freedom: the Mormons, led by Brigham Young, moved to Utah to escape persecution.","Spreading democracy and American ideas, and gaining Pacific ports for trade with Asia."]},
+  {h:"Getting there",p:["Settlers traveled in wagon trains on the Oregon Trail, the California Trail, and the Mormon Trail.","The trip took four to six months and was dangerous: disease, accidents, and weather.","The Santa Fe Trail was a trade route to Mexican lands in the Southwest."]},
+  {h:"Who paid the price",p:["Native Americans lost land, buffalo herds, and lives as settlers moved onto their lands.","Mexicans in the Southwest and California lost land after the United States took it over.","Expansion also reopened the big question: would the new lands allow slavery?"],tip:"Manifest Destiny is the BELIEF. Territorial expansion is what actually happened because of it."}],
+ terms:[["Manifest Destiny","Belief that the U.S. was destined to stretch from the Atlantic to the Pacific."],["John O'Sullivan","Newspaper editor who coined the phrase Manifest Destiny in 1845."],["Oregon Trail","Main wagon route west to Oregon Country."],["Mormons","Religious group led by Brigham Young that moved to Utah to escape persecution."]],
+ quiz:[["Manifest Destiny was the belief that the U.S. should…",["expand from the Atlantic to the Pacific","stay east of the Mississippi","free all enslaved people","stay out of Europe's affairs"],"Destined to spread across the continent."],
+  ["Who coined the phrase Manifest Destiny?",["John O'Sullivan","James K. Polk","Andrew Jackson","Brigham Young"],"A newspaper editor, in 1845."],
+  ["Which group moved to Utah to escape religious persecution?",["The Mormons","The Quakers","The Puritans","The Shakers"],"Led by Brigham Young."],
+  ["Which was a reason Americans moved west?",["Cheap farmland","Free trips on the railroad","Higher taxes in the West","To escape the gold rush"],"Land, gold, religious freedom, and ports."],
+  ["The main wagon route to the Pacific Northwest was the…",["Oregon Trail","Trail of Tears","National Road","Erie Canal"],"It ran about 2,000 miles."],
+  ["Who was hurt most by westward expansion?",["Native Americans","Northern factory owners","Southern planters","European immigrants"],"They lost land and lives."],
+  ["The word 'manifest' in Manifest Destiny means…",["obvious","western","holy","temporary"],"Supporters thought expansion was obvious."],
+  ["Manifest Destiny raised which big question about the new lands?",["Would they allow slavery?","Would they speak Spanish?","Would they have a president?","Would they pay tariffs to Britain?"],"Every new territory reopened the slavery debate."]]},
+
+{id:"expand",title:"Territorial Expansion",when:"1836–1853",
+ slides:[
+  {h:"Texas",p:["Mexico invited American settlers into Texas. Stephen F. Austin led many of them, and many brought enslaved people.","Mexico banned slavery and tightened control, so the Texans rebelled in 1835.","At the Alamo (1836), Mexican General Santa Anna's army killed all the defenders.","At San Jacinto, Sam Houston's army won and captured Santa Anna. Texas became the independent Lone Star Republic.","The U.S. annexed Texas in 1845 as a slave state."]},
+  {h:"Oregon",p:["Britain and the U.S. both claimed Oregon Country.","Expansionists shouted Fifty-four forty or fight! (wanting the border at 54°40′).","President James K. Polk compromised with Britain in 1846 and set the border at the 49th parallel."]},
+  {h:"The Mexican-American War (1846–1848)",p:["President Polk wanted California and the Southwest.","The U.S. said the Texas border was the Rio Grande; Mexico said it was the Nueces River. Fighting broke out in the disputed land.","The U.S. won and captured Mexico City.","The Treaty of Guadalupe Hidalgo (1848) gave the U.S. the Mexican Cession (California, Nevada, Utah, and parts of Arizona, New Mexico, Colorado and Wyoming) for 15 million dollars. The Rio Grande became the border."]},
+  {h:"Finishing the map",p:["The Wilmot Proviso (1846) tried to ban slavery in all land won from Mexico. It passed the House but failed in the Senate, and it made the slavery fight much hotter.","The California Gold Rush (1848–1849) brought the forty-niners and filled California fast.","The Gadsden Purchase (1853) bought a strip of southern Arizona and New Mexico from Mexico for a southern railroad route."],tip:"Order: Texas (1845), Oregon (1846), Mexican Cession (1848), Gadsden Purchase (1853)."}],
+ terms:[["Texas annexation","Texas won independence from Mexico in 1836 and joined the U.S. as a slave state in 1845."],["Mexican-American War","1846–1848 war over Texas's border and Polk's wish for the Southwest. The U.S. won."],["Treaty of Guadalupe Hidalgo","1848 treaty giving the U.S. the Mexican Cession for 15 million dollars."],["Mexican Cession","Land from Mexico: California, Nevada, Utah, and parts of four other states."],["Wilmot Proviso","1846 plan to ban slavery in land from Mexico. Never passed the Senate."],["Gadsden Purchase","1853 purchase of southern Arizona and New Mexico for a railroad."]],
+ quiz:[["Which president led the U.S. during the Mexican-American War?",["James K. Polk","Andrew Jackson","Abraham Lincoln","Zachary Taylor"],"Polk wanted California and the Southwest."],
+  ["The Treaty of Guadalupe Hidalgo…",["ended the Mexican-American War","ended the War of 1812","bought Louisiana","split Oregon with Britain"],"Signed in 1848."],
+  ["The land the U.S. got from Mexico in 1848 is called the…",["Mexican Cession","Gadsden Purchase","Louisiana Purchase","Oregon Country"],"California, Nevada, Utah, and more."],
+  ["Texas joined the United States in 1845 as…",["a slave state","a free state","a territory with no slavery rule","part of Mexico"],"This angered many Northerners."],
+  ["'Fifty-four forty or fight!' was about…",["the Oregon border","the Texas border","the Missouri Compromise line","the price of cotton"],"Polk settled on the 49th parallel."],
+  ["The Wilmot Proviso tried to…",["ban slavery in land won from Mexico","buy Cuba","end the Mexican War early","allow slavery in Oregon"],"It never passed the Senate."],
+  ["Where did Texans lose a famous battle in 1836?",["The Alamo","San Jacinto","Fort Sumter","New Orleans"],"Remember the Alamo! They won later at San Jacinto."],
+  ["Why did the U.S. make the Gadsden Purchase in 1853?",["For a southern railroad route","To get gold mines in California","To end the Mexican War","To get Oregon"],"A strip of southern Arizona and New Mexico."]]},
+
+{id:"nvs",title:"North vs. South",when:"1800s sectionalism",
+ slides:[
+  {h:"Sectionalism",p:["Sectionalism means loyalty to your own region (section) more than to the whole country.","By the 1840s and 1850s, the North and South had very different economies and ways of life.","They argued over tariffs, states' rights, and above all the spread of slavery."]},
+  {h:"The North",p:["Economy built on industry: factories, mills, and trade.","Many cities and a growing population, including immigrants from Ireland and Germany.","Most of the nation's railroads and canals.","Workers were paid wages. Slavery had been ended in the Northern states.","Wanted high tariffs to protect its factories."]},
+  {h:"The South",p:["Economy built on agriculture, especially cotton. Cotton was so important people said Cotton is King.","Eli Whitney's cotton gin (1793) made cotton very profitable, so slavery grew instead of dying out.","Large plantations depended on enslaved labor. Fewer cities, factories, and railroads.","Most white Southerners were small farmers who did not enslave anyone, but planters held the power.","Wanted low tariffs because it bought manufactured goods."]},
+  {h:"Balance in the Senate",p:["Each state gets two senators, so free states and slave states each wanted at least as many states as the other.","The Missouri Compromise (1820) had kept the balance and drawn the 36°30′ line.","Every new state from western land threatened that balance."]}],
+ terms:[["Sectionalism","Loyalty to one's own region over the whole nation."],["Northern economy","Industry, factories, cities, railroads, wage labor, immigrants. Favored high tariffs."],["Southern economy","Agriculture, cotton, plantations, enslaved labor. Favored low tariffs."],["Cotton gin","Eli Whitney's 1793 machine. Made cotton profitable and caused slavery to expand."],["Balance of free and slave states","Each side wanted equal power in the Senate."]],
+ quiz:[["Sectionalism means…",["loyalty to your region over the whole nation","dividing a state into counties","a tax on imports","separating church and state"],"North vs. South loyalty."],
+  ["The Northern economy was based mainly on…",["industry and factories","cotton plantations","tobacco farming only","fur trading"],"Mills, factories, trade, railroads."],
+  ["The Southern economy was based mainly on…",["agriculture, especially cotton","factories","fishing","railroads"],"Cotton is King."],
+  ["How did the cotton gin affect slavery?",["Slavery grew because cotton became more profitable","Slavery ended in the South","It replaced enslaved workers with machines","It had no effect"],"More cotton meant more demand for enslaved labor."],
+  ["Who invented the cotton gin?",["Eli Whitney","Samuel Morse","Robert Fulton","Cyrus McCormick"],"In 1793."],
+  ["Which region favored high tariffs?",["The North","The South","The West","Neither"],"Tariffs protected Northern factories."],
+  ["Why did each side care about the number of free and slave states?",["To keep equal power in the Senate","To get more presidents","To control the army","To set cotton prices"],"Two senators per state."],
+  ["Which region had more railroads, cities, and immigrants?",["The North","The South","Texas","Oregon"],"The North industrialized faster."]]},
+
+{id:"c1850",title:"The Compromise of 1850",when:"1850",
+ slides:[
+  {h:"The problem",p:["After the Gold Rush, California asked to join the Union as a free state.","That would give free states a 16 to 15 edge in the Senate.","Southern leaders threatened to leave the Union.","Leaders also had to decide about slavery in the rest of the Mexican Cession."]},
+  {h:"The deal",p:["Henry Clay, the Great Compromiser, proposed it. Stephen Douglas got it passed.","California joined as a free state.","The New Mexico and Utah territories would decide about slavery by popular sovereignty (a vote of the people living there).","The slave trade, but not slavery itself, was banned in Washington, D.C.","A much stricter Fugitive Slave Act."],tip:"North got: California free + no slave trade in D.C. South got: Fugitive Slave Act + popular sovereignty in the territories."},
+  {h:"The Fugitive Slave Act",p:["Required people in free states to help capture people who had escaped slavery.","Accused people got no jury trial and could not testify for themselves. Some free Black Northerners were kidnapped into slavery.","Many Northerners who never cared about slavery before became angry. Some states passed laws to resist it."]},
+  {h:"Uncle Tom's Cabin",p:["Harriet Beecher Stowe wrote Uncle Tom's Cabin (1852) in response to the Fugitive Slave Act.","It showed the cruelty of slavery and sold hundreds of thousands of copies.","It turned many Northerners against slavery. Southerners called it unfair."]}],
+ terms:[["Compromise of 1850","California free; popular sovereignty in New Mexico and Utah; no slave trade in D.C.; strict Fugitive Slave Act."],["Popular sovereignty","Letting the people of a territory vote on whether to allow slavery."],["Fugitive Slave Act","1850 law requiring Northerners to help return people who escaped slavery."],["Henry Clay","The Great Compromiser: Missouri Compromise, Compromise Tariff of 1833, Compromise of 1850."],["Uncle Tom's Cabin","1852 novel by Harriet Beecher Stowe that turned many Northerners against slavery."]],
+ quiz:[["Under the Compromise of 1850, California entered the Union as…",["a free state","a slave state","a territory","part of Mexico"],"This tipped the Senate to the free states."],
+  ["Popular sovereignty means…",["the people of a territory vote on slavery","Congress decides about slavery","the president decides about slavery","slavery is banned everywhere"],"Popular = the people; sovereignty = power."],
+  ["Which part of the Compromise of 1850 angered Northerners most?",["The Fugitive Slave Act","California joining as a free state","Ending the slave trade in D.C.","Settling the Texas border"],"It forced them to help capture freedom seekers."],
+  ["Who proposed the Compromise of 1850?",["Henry Clay","Abraham Lincoln","John Brown","James K. Polk"],"The Great Compromiser's last big deal."],
+  ["Which book turned many Northerners against slavery?",["Uncle Tom's Cabin","The Liberator","Common Sense","The Federalist Papers"],"By Harriet Beecher Stowe, 1852."],
+  ["Which was banned in Washington, D.C., by the Compromise of 1850?",["The slave trade","Slavery itself","All tariffs","Political parties"],"Slavery itself was still legal there."],
+  ["Under the Fugitive Slave Act, people accused of escaping slavery…",["got no jury trial","were always set free","could vote","were sent to Canada"],"They could not even speak in their own defense."],
+  ["Why did California's request to join the Union cause a crisis?",["It would upset the balance of free and slave states","It wanted to be a slave state","It wanted to stay part of Mexico","It refused to pay taxes"],"The free states would gain the edge in the Senate."]]},
+
+{id:"kn",title:"The Kansas-Nebraska Act",when:"1854–1856",
+ slides:[
+  {h:"Douglas's plan",p:["Senator Stephen Douglas of Illinois wanted a transcontinental railroad through the North, so the Kansas and Nebraska territories needed to be organized.","To win Southern votes, the Kansas-Nebraska Act (1854) let the settlers there decide on slavery by popular sovereignty.","Both territories were north of 36°30′, so this repealed (cancelled) the Missouri Compromise line."],tip:"Missouri Compromise line gone = slavery could now spread into land that had been closed to it since 1820."},
+  {h:"Bleeding Kansas",p:["Pro-slavery and anti-slavery settlers rushed into Kansas to win the vote.","Pro-slavery voters from Missouri crossed the border to vote illegally.","Kansas ended up with two rival governments.","Violence broke out: pro-slavery raiders sacked the town of Lawrence (1856), and abolitionist John Brown and his men killed five pro-slavery settlers at Pottawatomie Creek.","About 200 people died. Newspapers called it Bleeding Kansas."]},
+  {h:"Violence reaches Congress",p:["After Senator Charles Sumner of Massachusetts gave a speech attacking slavery in Kansas, Representative Preston Brooks of South Carolina beat him with a cane on the Senate floor (1856).","Northerners were outraged. Some Southerners sent Brooks new canes.","The Kansas-Nebraska Act also split the old parties and led directly to the new Republican Party."]}],
+ terms:[["Kansas-Nebraska Act","1854 law by Stephen Douglas letting Kansas and Nebraska decide slavery by popular sovereignty. Repealed the Missouri Compromise line."],["Stephen Douglas","Illinois senator, the Little Giant. Wrote the Kansas-Nebraska Act; backed popular sovereignty."],["Bleeding Kansas","Violence between pro- and anti-slavery settlers in Kansas, 1854–1856."],["John Brown","Abolitionist who used violence: Pottawatomie killings in Kansas, later the raid on Harpers Ferry."],["Caning of Charles Sumner","1856 attack on an anti-slavery senator by Preston Brooks inside the Senate."]],
+ quiz:[["Who wrote the Kansas-Nebraska Act?",["Stephen Douglas","Henry Clay","Abraham Lincoln","John C. Calhoun"],"He wanted a northern railroad route."],
+  ["The Kansas-Nebraska Act let the territories decide on slavery by…",["popular sovereignty","a Supreme Court ruling","the Missouri Compromise line","a vote of Congress"],"The settlers would vote."],
+  ["Which earlier law did the Kansas-Nebraska Act cancel?",["The Missouri Compromise","The Compromise of 1850","The Fugitive Slave Act","The Wilmot Proviso"],"Both territories were north of 36°30′."],
+  ["Bleeding Kansas refers to…",["violence between pro- and anti-slavery settlers","a Civil War battle","a cholera outbreak","the Trail of Tears"],"About 200 people died."],
+  ["Which abolitionist led killings at Pottawatomie Creek in Kansas?",["John Brown","Frederick Douglass","William Lloyd Garrison","Harriet Tubman"],"In revenge for the sack of Lawrence."],
+  ["Senator Charles Sumner was beaten with a cane after he…",["gave a speech against slavery in Kansas","voted for the Fugitive Slave Act","insulted President Lincoln","refused to pay a tariff"],"Preston Brooks attacked him in 1856."],
+  ["Which new political party formed because of the Kansas-Nebraska Act?",["The Republican Party","The Whig Party","The Democratic Party","The Federalist Party"],"Formed in 1854 to stop the spread of slavery."],
+  ["Why did Stephen Douglas want Kansas and Nebraska organized?",["To build a transcontinental railroad through the North","To start a war with Mexico","To free enslaved people","To move Native Americans east"],"The railroad needed organized territory."]]},
+
+{id:"abol",title:"Abolitionists",when:"1830s–1859",
+ slides:[
+  {h:"What abolitionists wanted",p:["Abolitionists worked to abolish (end) slavery.","Many were inspired by the religious ideas of the Second Great Awakening and by the Declaration of Independence's promise that all men are created equal.","Some wanted gradual change. Others demanded immediate emancipation (freedom)."]},
+  {h:"Speaking and writing",p:["William Lloyd Garrison published The Liberator newspaper starting in 1831 and demanded immediate emancipation.","Frederick Douglass escaped slavery, became a powerful speaker, wrote his autobiography (1845), and published the North Star newspaper.","Sojourner Truth, who had been enslaved in New York, spoke for abolition and women's rights. Her famous speech is Ain't I a Woman? (1851).","The Grimké sisters, from a Southern slaveholding family, spoke out against slavery."]},
+  {h:"The Underground Railroad",p:["A secret network of people and safe houses that helped enslaved people escape to the North and Canada.","Guides were called conductors and hiding places were called stations.","Harriet Tubman escaped slavery, then returned about 13 times and led about 70 people to freedom. She never lost a passenger."]},
+  {h:"Resistance and violence",p:["Nat Turner led a rebellion of enslaved people in Virginia in 1831. About 60 white people were killed. Southern states then passed harsher slave codes.","In 1859 John Brown raided the federal arsenal at Harpers Ferry, Virginia, hoping to arm enslaved people for a revolt.","He was captured and hanged. Many Northerners called him a martyr; Southerners saw him as proof the North wanted to destroy them."]}],
+ terms:[["Abolitionist","Someone who worked to end slavery."],["William Lloyd Garrison","Published The Liberator (1831); demanded immediate emancipation."],["Frederick Douglass","Escaped slavery; famous speaker, author, and publisher of the North Star."],["Harriet Tubman","Escaped slavery and led about 70 people to freedom on the Underground Railroad."],["Underground Railroad","Secret network that helped enslaved people escape to the North and Canada."],["Nat Turner's Rebellion","1831 revolt in Virginia; led to harsher slave codes."],["Harpers Ferry","1859 raid by John Brown on a federal arsenal to start a slave revolt."]],
+ quiz:[["An abolitionist wanted to…",["end slavery","expand slavery","end tariffs","move Native Americans west"],"Abolish = end."],
+  ["Who published The Liberator?",["William Lloyd Garrison","Frederick Douglass","Harriet Beecher Stowe","John Brown"],"Starting in 1831."],
+  ["Which famous abolitionist escaped slavery and published the North Star?",["Frederick Douglass","William Lloyd Garrison","Henry Clay","Stephen Douglas"],"Don't mix him up with Stephen Douglas!"],
+  ["Who was the most famous conductor on the Underground Railroad?",["Harriet Tubman","Sojourner Truth","Dorothea Dix","Lucretia Mott"],"About 13 trips, about 70 people."],
+  ["The Underground Railroad was…",["a secret network helping enslaved people escape","a train under the ground","a railroad built by enslaved workers","a Southern army unit"],"Conductors, stations, and safe houses."],
+  ["What happened after Nat Turner's Rebellion?",["Southern states passed harsher slave codes","Virginia ended slavery","Nat Turner became governor","The Missouri Compromise was passed"],"Fear led to stricter laws."],
+  ["John Brown's raid in 1859 targeted…",["the federal arsenal at Harpers Ferry","Fort Sumter","Lawrence, Kansas","the White House"],"He wanted to arm a slave revolt."],
+  ["Who gave the speech Ain't I a Woman?",["Sojourner Truth","Harriet Tubman","Elizabeth Cady Stanton","Harriet Beecher Stowe"],"In 1851."]]},
+
+{id:"sga",title:"Second Great Awakening & Reform",when:"1790s–1840s",
+ slides:[
+  {h:"A religious revival",p:["The Second Great Awakening was a wave of religious excitement in the early 1800s.","Huge outdoor revival meetings (camp meetings) drew thousands.","Preachers like Charles Finney taught that people could choose to be saved and could make themselves and society better.","Methodist and Baptist churches grew fast."]},
+  {h:"It sparked reform",p:["If people could improve, so could society. Reformers started movements to fix problems.","Abolition: ending slavery.","Temperance: limiting or banning alcohol, which reformers blamed for poverty and abuse.","Education: Horace Mann pushed for free public schools paid for by taxes and for training teachers.","Prisons and asylums: Dorothea Dix fought for better care for the mentally ill and for prisoners."],tip:"Memory trick: Awakening woke up reform. Religion → reform movements."},
+  {h:"Women's rights",p:["Women who worked in the abolition movement noticed they lacked rights too: they could not vote, and married women often could not own property.","The Seneca Falls Convention (1848) in New York was the first women's rights convention.","Elizabeth Cady Stanton and Lucretia Mott organized it.","Its Declaration of Sentiments copied the Declaration of Independence: all men and women are created equal. It called for the right to vote."]}],
+ terms:[["Second Great Awakening","Religious revival of the early 1800s that inspired reform movements."],["Temperance movement","Reform movement to limit or ban alcohol."],["Horace Mann","Education reformer who pushed for free public schools."],["Dorothea Dix","Reformer who fought for better care of the mentally ill and prisoners."],["Seneca Falls Convention","1848 women's rights meeting led by Elizabeth Cady Stanton and Lucretia Mott; Declaration of Sentiments."]],
+ quiz:[["The Second Great Awakening was a…",["religious revival","war with Britain","factory boom","gold rush"],"Camp meetings and revivals."],
+  ["The Second Great Awakening led directly to…",["many reform movements","the Louisiana Purchase","the end of all churches","the Mexican War"],"Abolition, temperance, education, women's rights."],
+  ["The temperance movement tried to…",["limit or ban alcohol","end slavery","build public schools","give women the vote"],"Reformers blamed alcohol for many problems."],
+  ["Who led the fight for better care of the mentally ill?",["Dorothea Dix","Horace Mann","Lucretia Mott","Charles Finney"],"She also worked for prison reform."],
+  ["Horace Mann is known for…",["free public schools","the Underground Railroad","the cotton gin","the Seneca Falls Convention"],"Education reform in Massachusetts."],
+  ["The Seneca Falls Convention (1848) was about…",["women's rights","abolition only","temperance","Indian removal"],"The first women's rights convention."],
+  ["Who organized the Seneca Falls Convention?",["Elizabeth Cady Stanton and Lucretia Mott","Harriet Tubman and Sojourner Truth","Dorothea Dix and Horace Mann","Frederick Douglass and John Brown"],"Douglass attended and supported it."],
+  ["The Declaration of Sentiments was modeled on…",["the Declaration of Independence","the Constitution","Uncle Tom's Cabin","the Bill of Rights"],"All men and women are created equal."]]},
+
+{id:"e1860",title:"Republicans & the Election of 1860",when:"1854–1860",
+ slides:[
+  {h:"The Republican Party",p:["Formed in 1854, right after the Kansas-Nebraska Act.","Brought together anti-slavery Whigs, Free-Soilers, and Northern Democrats.","Its main goal: stop slavery from spreading into the western territories. Most Republicans did not plan to end slavery where it already existed.","It was a Northern party with almost no support in the South."]},
+  {h:"Dred Scott v. Sandford (1857)",p:["Dred Scott, an enslaved man, sued for freedom because he had lived in a free state and a free territory.","Chief Justice Roger Taney ruled that Black Americans were not citizens and could not sue.","He also ruled that Congress could not ban slavery in the territories, so the Missouri Compromise was unconstitutional.","The South cheered. The North was furious, and the Republican Party grew."]},
+  {h:"The Lincoln-Douglas Debates (1858)",p:["Abraham Lincoln (Republican) ran against Stephen Douglas (Democrat) for senator from Illinois.","In his House Divided speech, Lincoln said the nation could not stay half slave and half free.","Douglas defended popular sovereignty. He won the Senate seat, but the debates made Lincoln famous across the country."]},
+  {h:"The Election of 1860",p:["The Democrats split: Northern Democrats ran Stephen Douglas and Southern Democrats ran John C. Breckinridge.","The Constitutional Union Party ran John Bell.","Lincoln won with about 40 percent of the popular vote and not one Southern electoral vote. He was not even on the ballot in most Southern states.","Southerners feared Lincoln would end slavery. South Carolina seceded on December 20, 1860, and other states followed, forming the Confederate States of America in 1861."],tip:"Four candidates: Lincoln (Republican), Douglas (Northern Democrat), Breckinridge (Southern Democrat), Bell (Constitutional Union)."}],
+ terms:[["Republican Party","Formed 1854 to stop the spread of slavery into the territories."],["Dred Scott v. Sandford","1857: Black Americans not citizens; Congress cannot ban slavery in territories; Missouri Compromise unconstitutional."],["Lincoln-Douglas Debates","1858 Illinois Senate debates that made Lincoln nationally known."],["Election of 1860","Lincoln won a four-way race with no Southern electoral votes; Democrats had split."],["Secession","Leaving the Union. South Carolina seceded first, in December 1860."]],
+ quiz:[["The Republican Party was formed mainly to…",["stop the spread of slavery into the territories","end all tariffs","support the Fugitive Slave Act","expand slavery west"],"Formed in 1854."],
+  ["In Dred Scott v. Sandford, the Supreme Court ruled that…",["Congress could not ban slavery in the territories","slavery was illegal everywhere","Dred Scott was free","popular sovereignty was required"],"It struck down the Missouri Compromise."],
+  ["Who wrote the Dred Scott decision?",["Chief Justice Roger Taney","John Marshall","Abraham Lincoln","Stephen Douglas"],"Taney was Chief Justice in 1857."],
+  ["The Lincoln-Douglas Debates were held during a race for…",["U.S. Senate from Illinois","President","Governor of Kansas","Speaker of the House"],"Douglas won the seat; Lincoln won fame."],
+  ["Why did Lincoln win the Election of 1860?",["The Democrats split their votes between two candidates","He won every Southern state","Only one candidate ran","The Supreme Court chose him"],"Douglas and Breckinridge divided the Democrats."],
+  ["What was the first state to secede after Lincoln's election?",["South Carolina","Virginia","Texas","Georgia"],"December 20, 1860."],
+  ["Lincoln said 'A house divided against itself cannot stand' about…",["a nation half slave and half free","the Democratic Party","the Supreme Court","Britain and France"],"His House Divided speech, 1858."],
+  ["Which candidate in 1860 was the Southern Democrat?",["John C. Breckinridge","Stephen Douglas","John Bell","Abraham Lincoln"],"Douglas was the Northern Democrat."]]}
+];
+
+const MIXUPS = [
+  ["Frederick Douglass vs. Stephen Douglas","Frederick Douglass escaped slavery and was an abolitionist. Stephen Douglas was a senator who wrote the Kansas-Nebraska Act and debated Lincoln."],
+  ["Compromise of 1850 vs. Kansas-Nebraska Act","1850: California free, popular sovereignty in New Mexico and Utah, Fugitive Slave Act. 1854: popular sovereignty in Kansas and Nebraska and the Missouri line erased."],
+  ["Manifest Destiny vs. territorial expansion","Manifest Destiny is the belief. Texas, Oregon, the Mexican Cession and the Gadsden Purchase are the land actually gained."],
+  ["Missouri Compromise vs. Compromise of 1850","Missouri (1820): Missouri slave, Maine free, 36°30′ line. 1850: California free, plus the Fugitive Slave Act."],
+  ["Nullification vs. secession","Nullification: a state cancels one federal law (South Carolina, 1832). Secession: a state leaves the Union entirely (South Carolina, 1860)."],
+  ["Harriet Tubman vs. Harriet Beecher Stowe","Tubman led people to freedom on the Underground Railroad. Stowe wrote Uncle Tom's Cabin."],
+  ["John Brown's two attacks","Pottawatomie Creek, Kansas (1856). Harpers Ferry, Virginia (1859)."],
+  ["Popular sovereignty vs. Dred Scott","Popular sovereignty: settlers vote on slavery. Dred Scott (1857): Congress can't ban slavery in territories at all."]
+];
+
+const QUIZ2 = {
+ jackson:[["What was the Panic of 1837?",["An economic depression after Jackson's bank policies","A slave rebellion","A war with Mexico","A panic over a cholera outbreak"],"It hit under Martin Van Buren."],
+  ["Jackson moved federal money out of the national bank and into…",["state pet banks","the Treasury in Britain","Native American nations","the Supreme Court"],"Pet banks were run by his allies."],
+  ["Opponents nicknamed Andrew Jackson…",["King Andrew","the Great Compromiser","the Little Giant","Honest Abe"],"For his heavy use of power and vetoes."],
+  ["Why could more men vote by the time of the Election of 1828?",["Many states dropped property requirements for white men","Women gained the vote","The 15th Amendment passed","Voting moved online"],"The rise of the common man."]],
+ nulli:[["A tariff is…",["a tax on imported goods","a type of bank","a state law cancelling a federal law","a treaty"],"It raises the price of foreign goods."],
+  ["What was the nickname of the Tariff of 1828?",["Tariff of Abominations","Tariff of Liberty","Great Compromise","Force Bill"],"Southerners hated it."],
+  ["The Force Bill allowed Jackson to…",["use the military to enforce the tariff","raise taxes on cotton","remove the Cherokee","close the national bank"],"Passed in 1833."],
+  ["Which idea did nullification support?",["States' rights","A strong national bank","Manifest Destiny","Abolition"],"States should have the final say."]],
+ manifest:[["In what year was the phrase Manifest Destiny coined?",["1845","1776","1803","1861"],"By John O'Sullivan."],
+  ["Who led the Mormons to Utah?",["Brigham Young","Joseph Smith","John O'Sullivan","Stephen Austin"],"Joseph Smith founded the church; Young led the move west."],
+  ["Manifest Destiny claimed the U.S. should reach from the Atlantic to the…",["Pacific Ocean","Mississippi River","Appalachian Mountains","Gulf of Mexico"],"Coast to coast."],
+  ["The trip west on the Oregon Trail usually took…",["four to six months","two weeks","two days","five years"],"By wagon train."]],
+ expand:[["Who led the Texans to victory at San Jacinto?",["Sam Houston","Stephen F. Austin","Santa Anna","James K. Polk"],"He captured Santa Anna."],
+  ["Where did the U.S. say the Texas–Mexico border was?",["The Rio Grande","The Nueces River","The Mississippi River","The Red River"],"Mexico said the Nueces."],
+  ["The Oregon dispute with Britain was settled at the…",["49th parallel","54°40′ line","36°30′ line","Rio Grande"],"Polk compromised in 1846."],
+  ["How much did the U.S. pay Mexico under the Treaty of Guadalupe Hidalgo?",["15 million dollars","1 million dollars","100 million dollars","Nothing"],"For the Mexican Cession."]],
+ nvs:[["Most immigrants in the 1840s and 1850s settled in the…",["North","South","Southwest","Oregon"],"They came for factory jobs; many were Irish and German."],
+  ["'Cotton is King' meant…",["cotton ruled the Southern economy","cotton was only grown by kings","the North made the most cotton","cotton was worthless"],"The South depended on it."],
+  ["Which region wanted LOW tariffs?",["The South","The North","Both","Neither"],"It bought manufactured goods from abroad."],
+  ["Most white Southerners in the 1850s…",["were small farmers who did not enslave anyone","owned large plantations","worked in factories","lived in big cities"],"But wealthy planters held the power."]],
+ c1850:[["Under the Compromise of 1850, how would New Mexico and Utah decide on slavery?",["Popular sovereignty","The Missouri Compromise line","A Supreme Court ruling","Slavery was banned there"],"The settlers would vote."],
+  ["Who helped get the Compromise of 1850 passed after Clay's plan stalled?",["Stephen Douglas","Abraham Lincoln","John C. Calhoun","James K. Polk"],"He broke it into separate bills."],
+  ["Who wrote Uncle Tom's Cabin?",["Harriet Beecher Stowe","Harriet Tubman","Sojourner Truth","Frederick Douglass"],"Published in 1852."],
+  ["What did the South get in the Compromise of 1850?",["A stricter Fugitive Slave Act","California as a slave state","Slavery in Oregon","An end to tariffs"],"Plus popular sovereignty in the territories."]],
+ kn:[["Bleeding Kansas happened because…",["settlers fought over whether Kansas would allow slavery","Kansas seceded","Mexico invaded Kansas","a drought struck Kansas"],"Popular sovereignty turned into a fight."],
+  ["Who attacked Senator Charles Sumner?",["Preston Brooks","John Brown","Stephen Douglas","Roger Taney"],"A South Carolina congressman."],
+  ["Which Kansas town did pro-slavery raiders sack in 1856?",["Lawrence","Topeka","Pottawatomie","Harpers Ferry"],"John Brown struck back at Pottawatomie."],
+  ["Stephen Douglas's nickname was…",["the Little Giant","the Great Compromiser","Old Hickory","Honest Abe"],"He was short but powerful."]],
+ abol:[["About how many people did Harriet Tubman lead to freedom?",["About 70","About 7","About 7,000","About 70,000"],"Over about 13 trips."],
+  ["Where did the Underground Railroad lead many freedom seekers after 1850?",["Canada","Mexico City","Cuba","Georgia"],"The Fugitive Slave Act made the North unsafe."],
+  ["In what state did Nat Turner's Rebellion take place?",["Virginia","South Carolina","Kansas","Massachusetts"],"In 1831."],
+  ["What was the name of Frederick Douglass's newspaper?",["The North Star","The Liberator","The Crisis","Common Sense"],"The Liberator was Garrison's."]],
+ sga:[["Which preacher was a leader of the Second Great Awakening?",["Charles Finney","Horace Mann","Brigham Young","John O'Sullivan"],"He led big revivals."],
+  ["Large outdoor religious gatherings during the Awakening were called…",["camp meetings","conventions","town halls","debates"],"Thousands attended."],
+  ["What right did the Declaration of Sentiments call for?",["The right of women to vote","The right to bear arms","The right to own enslaved people","The right to a national bank"],"Suffrage."],
+  ["In what year was the Seneca Falls Convention?",["1848","1776","1820","1865"],"In Seneca Falls, New York."]],
+ e1860:[["Who was the Constitutional Union candidate in 1860?",["John Bell","John C. Breckinridge","Stephen Douglas","Abraham Lincoln"],"He wanted to save the Union by avoiding slavery talk."],
+  ["About what share of the popular vote did Lincoln win in 1860?",["About 40 percent","About 90 percent","About 10 percent","About 60 percent"],"Enough electoral votes with a split field."],
+  ["The Dred Scott decision said Black Americans…",["were not citizens and could not sue","could vote in every state","were free in the territories","could become senators"],"Chief Justice Taney's ruling."],
+  ["The states that seceded formed the…",["Confederate States of America","Republic of Texas","Free Soil Party","Union"],"In 1861, with Jefferson Davis as president."]]
+};
+
+T.forEach(t=>t.quiz2=QUIZ2[t.id]);
+
+/* ---------- storage (per-viewer, optional) ---------- */
+const store = {
+  get(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const OLD = store.get("hist-class-old");
+let S = Object.assign({quiz:{},test:{},known:{},times:{},tts:OLD.tts,lineup:OLD.lineup}, store.get("hist-class"));
+const save = () => store.set("hist-class",S);
+
+const $ = (s,r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => {a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const byId = id => T.find(t=>t.id===id);
+const mkQ = (t,q) => ({tid:t.id,t:t.title,q:q[0],opts:shuffle(q[1].map((o,i)=>({o,right:i===0}))),why:q[2]});
+
+/* ---------- tabs ---------- */
+const ROOMS = [["home","Classroom"],["lessons","Lessons"],["flash","Flashcards"],["quiz","Quiz Show"],["lineup","Timeline Lineup"],["test","40-Question Test"],["retake","Test Retake"]];
+let room = (location.hash||"").slice(1);
+if(!ROOMS.some(r=>r[0]===room)) room="home";
+function renderTabs(){
+  $("#tabs").innerHTML = ROOMS.map(([k,l])=>`<button class="tab" role="tab" aria-selected="${k===room}" data-room="${k}">${l}</button>`).join("");
+}
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("[data-room]");if(b)go(b.dataset.room)});
+
+/* ---------- read aloud ---------- */
+/* Andrew and Ava are pre-recorded neural voices (audio/<voice>/<lesson>-<slide>.mp3); "computer" falls back to the browser's own voice.
+   One shared player plus a speak id: starting anything stops everything else, so only the current slide is ever heard. */
+const VOICES=[["andrew","Andrew (natural, male)"],["ava","Ava (natural, female)"],["computer","Computer voice (offline)"]];
+const tts={on:true,speaking:false,browser:"speechSynthesis" in window};
+const player=new Audio(); let speakId=0;
+S.tts=Object.assign({voice:"andrew",rate:1,auto:false},S.tts);
+if(!VOICES.some(v=>v[0]===S.tts.voice)) S.tts.voice="andrew";
+function voiceOpts(){return VOICES.filter(v=>v[0]!=="computer"||tts.browser).map(([k,l])=>`<option value="${k}" ${k===S.tts.voice?"selected":""}>${l}</option>`).join("")}
+function setReadBtn(){const b=$("#read");if(b){b.textContent=tts.speaking?"■ Stop reading":"🔊 Read slide";b.classList.toggle("reading",tts.speaking)}}
+function stopSpeak(){speakId++;tts.speaking=false;player.onended=player.onerror=null;player.pause();if(tts.browser)try{speechSynthesis.cancel()}catch(e){}setReadBtn()}
+function browserSpeak(text,done){
+  if(!tts.browser){done();return}
+  const u=new SpeechSynthesisUtterance(text);
+  const best=speechSynthesis.getVoices().find(v=>/^en/i.test(v.lang)&&/natural|premium|enhanced|google us/i.test(v.name)); if(best)u.voice=best;
+  u.rate=S.tts.rate; u.onend=u.onerror=done;
+  tts.speaking=true; setReadBtn(); speechSynthesis.speak(u);
+}
+function speak(text,file){
+  stopSpeak(); const id=speakId;
+  const done=()=>{if(id!==speakId)return;tts.speaking=false;setReadBtn()};
+  if(S.tts.voice==="computer"||!file){browserSpeak(text,done);return}
+  player.src=`audio/${S.tts.voice}/${file}.mp3`;
+  player.defaultPlaybackRate=player.playbackRate=S.tts.rate;
+  player.onended=done;
+  player.onerror=()=>{if(id===speakId)browserSpeak(text,done)};
+  tts.speaking=true; setReadBtn();
+  player.play().catch(done);
+}
+
+/* ---------- per-lesson timer (runs only in Lessons) ---------- */
+const clock={topic:null,start:null,paused:false};
+const fmt=ms=>{const s=Math.floor(ms/1000);return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`};
+function clockElapsed(id){return (S.times[id]||0)+(clock.topic===id&&clock.start?Date.now()-clock.start:0)}
+function clockStop(){if(clock.topic&&clock.start){S.times[clock.topic]=(S.times[clock.topic]||0)+Date.now()-clock.start;clock.start=null;save()}}
+function clockSet(id){if(clock.topic!==id){clockStop();clock.topic=id}if(!clock.paused&&!clock.start)clock.start=Date.now();clockDraw()}
+function clockDraw(){
+  const box=$("#clockbox"); box.hidden=room!=="lessons"||!clock.topic;
+  if(box.hidden)return;
+  $("#clabel").textContent=`Lesson ${T.findIndex(t=>t.id===clock.topic)+1}`;
+  $("#ctime").textContent=fmt(clockElapsed(clock.topic));
+  $("#cpause").textContent=clock.paused?"Resume":"Pause";
+}
+$("#cpause").onclick=()=>{clock.paused=!clock.paused;if(clock.paused)clockStop();else clock.start=Date.now();clockDraw()};
+$("#creset").onclick=()=>{S.times[clock.topic]=0;if(clock.start)clock.start=Date.now();save();clockDraw()};
+setInterval(clockDraw,1000);
+
+function toggleKnown(id){if(S.known[id])delete S.known[id];else S.known[id]=1;save()}
+
+function go(r,opt){stopSpeak();if(r!=="lessons")clockStop();room=r;try{history.replaceState(null,"","#"+r)}catch(e){}renderTabs();render(opt);clockDraw();window.scrollTo(0,0)}
+
+function chipsFor(t){
+  const c=[];
+  if(S.known[t.id]) c.push(`<span class="chip ok">Got it down</span>`);
+  if(S.times[t.id]>=1000) c.push(`<span class="chip">⏱ ${fmt(S.times[t.id])}</span>`);
+  const q=S.quiz[t.id]; if(q) c.push(`<span class="chip ${q.r/q.n>=.8?"ok":"warn"}">Quiz ${q.r}/${q.n}</span>`);
+  const s=S.test[t.id]; if(s!=null) c.push(`<span class="chip ${s>=80?"ok":"warn"}">Test ${s}%</span>`);
+  if(!c.length) c.push(`<span class="chip">Not started</span>`);
+  return c.join("");
+}
+
+/* ---------- rooms ---------- */
+function render(opt={}){
+  const app=$("#app");
+  if(room==="home"){
+    const nTerms=T.reduce((n,t)=>n+t.terms.length,0);
+    app.innerHTML=`<section class="hero">
+      <h1>History Test: Jackson to the Civil War</h1>
+      <p>Monday's test covers these 10 topics, from Andrew Jackson to the Election of 1860. These lessons cover ${nTerms} key terms. Work through the lessons, drill with Flashcards and the Quiz Show, then take the 40-question practice test until you score 90% or better.</p>
+      <p class="mono" style="color:var(--yellow);margin:0">Checked off: ${Object.keys(S.known).length} / 10 lessons</p>
+      <p class="muted" style="margin:0;font-size:.9rem">Tap the box on a lesson when you've got it down.</p>
+    </section>
+    <div class="grid">${T.map((t,i)=>`<div class="topic ${S.known[t.id]?"known":""}"><button class="open" data-lesson="${t.id}"><span class="num">LESSON ${i+1} · ${t.when}</span><h3>${t.title}</h3><span class="tl">${t.terms.map(x=>x[0]).join(" · ")}</span><div class="chips">${chipsFor(t)}</div></button><button class="check" data-check="${t.id}" aria-pressed="${!!S.known[t.id]}" aria-label="I've got ${esc(t.title)} down">${S.known[t.id]?"✓":""}</button></div>`).join("")}</div>
+    <h2 class="section-h">Easy to mix up on a multiple-choice test</h2>
+    <div class="mix">${MIXUPS.map(([a,b])=>`<div><b>${a}</b>${b}</div>`).join("")}</div>
+    <h2 class="section-h">Study plan for the next few days</h2>
+    <ol class="muted" style="max-width:65ch;display:grid;gap:6px;padding-left:1.2em">
+      <li><b style="color:var(--chalk)">Friday:</b> Lessons 1–4 (Jackson, Nullification, Manifest Destiny, Expansion), then Flashcards for those.</li>
+      <li><b style="color:var(--chalk)">Saturday:</b> Lessons 5–10, then Flashcards and one Quiz Show round.</li>
+      <li><b style="color:var(--chalk)">Sunday:</b> Take the 40-question practice test (tap "? Unsure" on any you guess), then run Test Retake. Do a Timeline Lineup round.</li>
+      <li><b style="color:var(--chalk)">Monday morning:</b> The mix-ups above and one Quiz Show round.</li>
+    </ol>`;
+    app.querySelectorAll("[data-lesson]").forEach(b=>b.onclick=()=>go("lessons",{topic:b.dataset.lesson}));
+    app.querySelectorAll("[data-check]").forEach(b=>b.onclick=()=>{toggleKnown(b.dataset.check);render()});
+  }
+  if(room==="lessons") lessonRoom(app,opt.topic||lessonTopic||T[0].id);
+  if(room==="flash") flashRoom(app);
+  if(room==="quiz") quizRoom(app);
+  if(room==="lineup") lineupRoom(app);
+  if(room==="test") testRoom(app);
+  if(room==="retake") retakeRoom(app);
+}
+
+function pickBar(cur,attr){
+  return `<div class="topic-pick">${T.map((t,i)=>`<button ${attr}="${t.id}" aria-pressed="${t.id===cur}">${i+1}. ${t.title}</button>`).join("")}</div>`;
+}
+
+/* Lessons: each lesson's slides end with a "Know these terms" recap slide. */
+const allSlides = t => [...t.slides,{h:"Know these terms",terms:t.terms}];
+function slideSpeech(t,s){
+  const end=x=>/[.!?]$/.test(x)?x:x+".";
+  return [t.title,s.h,...(s.p||[]),s.tip||"",...(s.terms||[]).map(([a,b])=>`${a}. ${b}`)].filter(Boolean).map(end).join(" ");
+}
+let slideIdx=0, lessonTopic=null, keyHandler=null;
+function lessonRoom(app,topicId){
+  if(lessonTopic!==topicId){slideIdx=0;lessonTopic=topicId}
+  const t=byId(topicId);
+  const slides=allSlides(t);
+  const s=slides[slideIdx], last=slideIdx===slides.length-1;
+  const n=T.indexOf(t);
+  app.innerHTML=`${pickBar(t.id,"data-t")}
+  <section class="stage" aria-live="polite">
+    <div class="eyebrow">Lesson ${n+1} of 10 · ${esc(t.title)} · ${t.when}</div>
+    <div style="display:grid;gap:16px;align-content:start">
+      <h2>${esc(s.h)}</h2>
+      ${s.p?`<ul>${s.p.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+      ${s.tip?`<div class="note">${esc(s.tip)}</div>`:""}
+      ${s.terms?`<dl>${s.terms.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>`:""}
+    </div>
+    <div class="ctrl">
+      <button class="btn ghost" id="prev" ${slideIdx===0&&n===0?"disabled":""}>← Back</button>
+      <button class="btn ${last?"y":""}" id="next">${last?(n<9?"Next lesson →":"Go to Quiz Show →"):"Next →"}</button>
+      <button class="btn ghost" id="read">🔊 Read slide</button>
+      <button class="btn ghost knowbtn" id="know" aria-pressed="${!!S.known[t.id]}">${S.known[t.id]?"✓ Got it down":"☐ Got it down"}</button>
+      <div class="dots">${slides.map((_,i)=>`<i class="${i===slideIdx?"on":""}"></i>`).join("")}</div>
+    </div>
+  </section>
+  <div class="tts"><label>Voice <select id="voice">${voiceOpts()}</select></label>
+    <label>Speed <select id="rate">${[0.75,1,1.25,1.5].map(r=>`<option value="${r}" ${r==S.tts.rate?"selected":""}>${r}×</option>`).join("")}</select></label>
+    <label><input type="checkbox" id="auto" ${S.tts.auto?"checked":""}> Read each slide automatically</label>
+    <span>Arrow keys change slides.</span></div>`;
+  stopSpeak(); clockSet(t.id);
+  $("#know").onclick=e=>{toggleKnown(t.id);const k=!!S.known[t.id];e.currentTarget.setAttribute("aria-pressed",k);e.currentTarget.textContent=k?"✓ Got it down":"☐ Got it down"};
+  const text=slideSpeech(t,s), file=`${t.id}-${slideIdx}`;
+  $("#read").onclick=()=>tts.speaking?stopSpeak():speak(text,file);
+  $("#voice").onchange=e=>{S.tts.voice=e.target.value;save();if(tts.speaking)speak(text,file)};
+  $("#rate").onchange=e=>{S.tts.rate=+e.target.value;save();player.defaultPlaybackRate=player.playbackRate=S.tts.rate};
+  $("#auto").onchange=e=>{S.tts.auto=e.target.checked;save();if(S.tts.auto)speak(text,file)};
+  if(S.tts.auto) speak(text,file);
+  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>lessonRoom(app,b.dataset.t));
+  const next=()=>{if(!last){slideIdx++;lessonRoom(app,t.id)}else if(n<9){lessonRoom(app,T[n+1].id)}else go("quiz")};
+  const prev=()=>{if(slideIdx>0){slideIdx--;lessonRoom(app,t.id)}else if(n>0){const p=T[n-1];lessonTopic=p.id;slideIdx=allSlides(p).length-1;lessonRoom(app,p.id)}};
+  $("#next").onclick=next; $("#prev").onclick=prev;
+  if(keyHandler) document.removeEventListener("keydown",keyHandler);
+  keyHandler=e=>{if(room!=="lessons"||e.target.closest("input,select"))return;if(e.key==="ArrowRight")next();if(e.key==="ArrowLeft")prev()};
+  document.addEventListener("keydown",keyHandler);
+}
+
+/* Flashcards: term on the front, definition on the back */
+let deck=[], fi=0, flashFilter="all";
+function buildDeck(){
+  deck=shuffle(T.filter(t=>flashFilter==="all"||t.id===flashFilter).flatMap(t=>t.terms.map(c=>({t:t.title,q:c[0],a:c[1]}))));fi=0;
+}
+function flashRoom(app){
+  if(!deck.length) buildDeck();
+  const done=fi>=deck.length, c=deck[fi];
+  app.innerHTML=`<div class="topic-pick"><button data-f="all" aria-pressed="${flashFilter==="all"}">All terms</button>${T.map((t,i)=>`<button data-f="${t.id}" aria-pressed="${flashFilter===t.id}">${i+1}. ${t.title}</button>`).join("")}</div>
+  <div class="card-area">
+    ${done?`<div class="qbox" style="text-align:center;width:min(560px,100%)"><h2>Deck cleared!</h2><p class="muted">Every card answered with "Got it."</p><button class="btn y" id="again">Shuffle again</button></div>`:`
+    <p class="mono muted" style="margin:0">${deck.length} cards left</p>
+    <button class="flash" id="card" aria-label="Flip card"><div class="in">
+      <div class="face front"><small>${esc(c.t)}</small>${esc(c.q)}</div>
+      <div class="face back"><small>${esc(c.t)}</small>${esc(c.a)}</div>
+    </div></button>
+    <div class="ctrl"><button class="btn ghost" id="miss">Again</button><button class="btn" id="flip">Flip</button><button class="btn y" id="got">Got it</button></div>
+    <p class="muted" style="font-size:.88rem;margin:0">Say what the term means out loud before you flip. "Again" puts the card back in the deck.</p>`}
+  </div>`;
+  app.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{flashFilter=b.dataset.f;buildDeck();flashRoom(app)});
+  if(done){$("#again").onclick=()=>{buildDeck();flashRoom(app)};return}
+  const card=$("#card"); const flip=()=>card.classList.toggle("flipped");
+  card.onclick=flip; $("#flip").onclick=flip;
+  $("#got").onclick=()=>{deck.splice(fi,1);flashRoom(app)};
+  $("#miss").onclick=()=>{const x=deck.splice(fi,1)[0];deck.push(x);flashRoom(app)};
+}
+
+/* Quiz Show */
+let Q=null;
+function newQuiz(){Q={items:shuffle(T.flatMap(t=>t.quiz.map(q=>mkQ(t,q)))).slice(0,12),i:0,pts:0,streak:0,best:0,right:0,pick:null}}
+function quizRoom(app){
+  if(!Q) newQuiz();
+  if(Q.i>=Q.items.length){
+    app.innerHTML=`<div class="qbox" style="text-align:center"><h2 style="font-family:var(--f-display);font-size:2rem">Final score: ${Q.pts}</h2>
+    <p class="score" style="justify-content:center"><span>Correct <b>${Q.right}/${Q.items.length}</b></span><span>Best streak <b>${Q.best}</b></span></p>
+    <p class="muted">${Q.right>=10?"Excellent. Try the 40-question test.":"Go back over the lessons you missed, then play again."}</p>
+    <div class="ctrl" style="justify-content:center"><button class="btn y" id="again">Play again</button><button class="btn ghost" id="totest">40-Question Test →</button></div></div>`;
+    $("#again").onclick=()=>{newQuiz();quizRoom(app)}; $("#totest").onclick=()=>go("test"); return;
+  }
+  const it=Q.items[Q.i];
+  app.innerHTML=`<div class="qbox">
+    <div class="score"><span>Question <b>${Q.i+1}</b>/${Q.items.length}</span><span>Points <b>${Q.pts}</b></span><span>Streak <b>${Q.streak}</b>${Q.streak>=3?" 🔥":""}</span></div>
+    <div class="mono muted" style="font-size:.8rem">${esc(it.t)}</div>
+    <h2>${esc(it.q)}</h2>
+    ${mcView(it.opts,Q.pick,it.why,"Next question →",()=>"")}
+  </div><p class="muted" style="font-size:.88rem">100 points per right answer, plus 50 for each answer in your current streak.</p>`;
+  if(Q.pick!=null){$("#nq").onclick=()=>{Q.i++;Q.pick=null;quizRoom(app)};return}
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    Q.pick=+b.dataset.i; const o=it.opts[Q.pick];
+    const rec=S.quiz[it.tid]||{r:0,n:0}; rec.n++;
+    if(o.right){Q.streak++;Q.best=Math.max(Q.best,Q.streak);Q.pts+=100+50*(Q.streak-1);Q.right++;rec.r++}
+    else Q.streak=0;
+    S.quiz[it.tid]=rec;save();
+    quizRoom(app); $("#nq").focus();
+  });
+}
+
+/* Renders one multiple-choice question from a stored pick (null = unanswered). Keeping the pick in state means
+   leaving the tab mid-question and coming back redraws the same state instead of leaving dead buttons. */
+function mcView(opts,pick,why,nextLabel,extra){
+  const o=pick!=null?opts[pick]:null;
+  return `<div class="opts">${opts.map((x,j)=>`<button class="opt ${pick!=null&&x.right?"right":""} ${pick===j&&!x.right?"wrong":""}" data-i="${j}" ${pick!=null?"disabled":""}>${String.fromCharCode(65+j)}. ${esc(x.o)}</button>`).join("")}</div>
+    ${o?`<div><p style="margin:0" class="${o.right?"":"why"}"><b style="color:${o.right?"var(--good)":"var(--bad)"}">${o.right?"Correct!":"Not quite."}</b> ${esc(why)}</p>
+    <div class="ctrl" style="margin-top:10px"><button class="btn y" id="nq">${nextLabel}</button>${extra(o)}</div></div>`:""}`;
+}
+
+/* President Lineup */
+/* Timeline Lineup: events in order. [event, year, clue] */
+const PRES=[["Missouri Compromise","1820","Missouri slave, Maine free, 36°30′ line"],
+  ["Nullification Crisis","1832–1833","South Carolina vs. the tariff"],
+  ["Texas annexed","1845","Joins as a slave state"],
+  ["Mexican-American War","1846–1848","Ends with the Mexican Cession"],
+  ["Compromise of 1850","1850","California free, Fugitive Slave Act"],
+  ["Kansas-Nebraska Act","1854","Missouri line erased; Bleeding Kansas"],
+  ["Dred Scott decision","1857","Congress can't ban slavery in territories"],
+  ["Election of 1860","1860","Lincoln wins; South Carolina secedes"]];
+const NP=PRES.length;
+S.lineup=Object.assign({wins:0,best:null,hard:false},S.lineup);
+if(S.lineup.n!==NP){S.lineup.best=null;S.lineup.n=NP}
+let L=null, resetTimer=null;
+function newLineup(){let o;do{o=shuffle([...PRES.keys()])}while(o.every((v,i)=>v===i));L={order:o,solved:false,start:Date.now()}}
+function lineupRoom(app){
+  if(!L) newLineup();
+  const ord=L.order, hard=S.lineup.hard;
+  app.innerHTML=`<section class="hero" style="padding-bottom:0">
+    <h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">Timeline Lineup</h1>
+    <p>Put these events in order, earliest at the top. Drag a card, or use the arrows. Notice the pattern: each fight over new land made the next one worse.</p></section>
+  <ol class="lineup ${L.solved?"solved":""}" id="lineup">${ord.map((p,i)=>`<li class="pcard" data-p="${p}">
+    <span class="slot">${i+1}</span>
+    <span class="who"><b>${PRES[p][0]}</b>${hard&&!L.solved?"":`<small>${PRES[p][2]}</small>`}${L.solved?`<small class="yrs">${PRES[p][1]}</small>`:""}</span>
+    <span class="arrows"><button data-mv="-1" aria-label="Move ${PRES[p][0]} up" ${i===0||L.solved?"disabled":""}>▲</button><button data-mv="1" aria-label="Move ${PRES[p][0]} down" ${i===NP-1||L.solved?"disabled":""}>▼</button></span></li>`).join("")}</ol>
+  ${L.solved?`<p class="win">Correct! New round coming…</p>`:""}
+  <div class="lstat"><span>In the right spot: <b id="lright">0</b>/${NP}</span><span>Rounds won: <b>${S.lineup.wins}</b></span><span>Best time: <b>${S.lineup.best?fmt(S.lineup.best):"–"}</b></span></div>
+  <div class="tts"><label><input type="checkbox" id="hard" ${hard?"checked":""}> Hard mode: hide the clues</label><button class="btn ghost" id="shuf" style="padding:5px 12px">Shuffle</button></div>`;
+  $("#lright").textContent=ord.filter((p,i)=>p===i).length;
+  $("#hard").onchange=e=>{S.lineup.hard=e.target.checked;save();lineupRoom(app)};
+  $("#shuf").onclick=()=>{clearTimeout(resetTimer);newLineup();lineupRoom(app)};
+  if(L.solved) return;
+  const list=$("#lineup");
+  list.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{
+    const i=[...list.children].indexOf(b.closest("li")), j=i+ +b.dataset.mv;
+    [ord[i],ord[j]]=[ord[j],ord[i]]; checkLineup(app,`[data-p="${ord[j]}"] [data-mv="${b.dataset.mv}"]`);
+  });
+  /* Listeners live on document (not pointer capture) because moving the card in the DOM drops capture mid-drag. */
+  let drag=null;
+  const move=e=>{
+    if(!drag)return; e.preventDefault();
+    const li=drag.li, others=[...list.children].filter(x=>x!==li);
+    const before=others.find(x=>{const r=x.getBoundingClientRect();return e.clientY<r.top+r.height/2});
+    if(before!==li.nextElementSibling) list.insertBefore(li,before||null);
+    li.style.transform=`translateY(${e.clientY-drag.y0-(li.offsetTop-drag.top0)}px) scale(1.02)`;
+    [...list.children].forEach((x,i)=>x.querySelector(".slot").textContent=i+1);
+  };
+  const end=()=>{
+    if(!drag)return; const li=drag.li; drag=null;
+    li.classList.remove("drag"); li.style.transform="";
+    document.removeEventListener("pointermove",move); document.removeEventListener("pointerup",end); document.removeEventListener("pointercancel",end);
+    L.order=[...list.children].map(x=>+x.dataset.p); checkLineup(app);
+  };
+  list.querySelectorAll(".pcard").forEach(li=>li.addEventListener("pointerdown",e=>{
+    if(e.target.closest("button")||e.button>0)return; e.preventDefault();
+    drag={li,y0:e.clientY,top0:li.offsetTop}; li.classList.add("drag");
+    document.addEventListener("pointermove",move,{passive:false}); document.addEventListener("pointerup",end); document.addEventListener("pointercancel",end);
+  }));
+}
+function checkLineup(app,refocus){
+  if(L.order.every((p,i)=>p===i)){
+    L.solved=true;const t=Date.now()-L.start;
+    S.lineup.wins++;if(!S.lineup.best||t<S.lineup.best)S.lineup.best=t;save();
+    lineupRoom(app);confetti();
+    clearTimeout(resetTimer);
+    resetTimer=setTimeout(()=>{newLineup();if(room==="lineup")lineupRoom(app)},3200);
+  }else{lineupRoom(app);const f=refocus&&$(refocus);if(f&&!f.disabled)f.focus()}
+}
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=document.createElement("canvas");c.id="confetti";document.body.appendChild(c);
+  const x=c.getContext("2d"),W=c.width=innerWidth,H=c.height=innerHeight;
+  const cols=["#f2d675","#9fe0a8","#f2a3a0","#eef0e6","#8ec5ff","#ffb86b"];
+  const P=Array.from({length:180},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*16,vy:-Math.random()*16-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.random()*cols.length|0]}));
+  const t0=performance.now();
+  (function f(now){
+    x.clearRect(0,0,W,H);
+    P.forEach(p=>{p.vy+=.45;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;
+      x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore()});
+    if(now-t0<3000)requestAnimationFrame(f);else c.remove();
+  })(t0);
+}
+
+/* 40-question practice test: 4 random questions from each of the 10 lessons, graded at the end like the real thing. */
+/* The test in progress is saved per viewer so a refresh or page update doesn't wipe answers. */
+let P=(()=>{try{const p=JSON.parse(localStorage.getItem("hist-test"));return p&&p.qs?p:null}catch(e){return null}})(), timerId=null;
+const saveP=()=>{try{localStorage.setItem("hist-test",JSON.stringify(P))}catch(e){}};
+/* One-time seed: the questions the student said they were unsure about on the test they turned in before the Unsure flag existed. */
+/* mode "new" = all 40 second-set questions; "mix" = 4 random per lesson from both sets (120 total). */
+function newTest(mode="mix"){
+  const pick=t=>mode==="new"?t.quiz2:shuffle([...t.quiz,...t.quiz2]).slice(0,4);
+  P={set:mode,qs:shuffle(T.flatMap(t=>pick(t).map(q=>mkQ(t,q)))),ans:{},unsure:[],graded:false,warned:false,end:null};saveP();if(typeof R!=="undefined")R=null}
+const isRight=i=>P.ans[i]!=null&&P.qs[i].opts[P.ans[i]].right;
+function testRoom(app){
+  if(!P) newTest("new");
+  clearInterval(timerId);
+  const N=P.qs.length, answered=Object.keys(P.ans).length, uns=new Set(P.unsure||[]);
+  let summary="";
+  if(P.graded){
+    const right=P.qs.filter((q,i)=>P.ans[i]!=null&&q.opts[P.ans[i]].right).length, pct=Math.round(100*right/N);
+    const letter=pct>=90?"A":pct>=80?"B":pct>=70?"C":pct>=60?"D":"F";
+    const by=T.map(t=>{const qs=P.qs.map((q,i)=>[q,i]).filter(([q])=>q.tid===t.id);const r=qs.filter(([q,i])=>P.ans[i]!=null&&q.opts[P.ans[i]].right).length;return {t,r,n:qs.length}});
+    summary=`<div style="display:grid;gap:10px"><div><span class="grade">${letter} · ${right}/${N} (${pct}%)</span></div>
+      <p style="margin:0">${pct>=90?"Test-ready! Take a fresh one tomorrow to make sure it sticks.":"Review the lessons marked in red below, then take a new test."}</p>
+      <div class="breakdown">${by.map(b=>`<span class="${b.r/b.n>=.75?"hi":"lo"}">${T.indexOf(b.t)+1}. ${esc(b.t.title)}: ${b.r}/${b.n}</span>`).join("")}</div></div>`;
+  }
+  app.innerHTML=`<div class="topic-pick" style="align-items:center">
+    <button id="newall" aria-pressed="${P.set==="new"}">★ All-new 40 questions</button>
+    <button id="newset" aria-pressed="${P.set==="mix"}">Mixed test (from all 120)</button>
+    ${P.graded?"":`<button id="tmr" aria-pressed="${!!P.end}">${P.end?"Timer on":"Start 45-min timer"}</button>`}
+    <span class="timer" id="clock"></span>
+  </div>
+  <form class="paper ${P.graded?"graded":""}" id="paper">
+    <div><h2 style="font-size:1.9rem">Unit Test · Jackson to 1860</h2>
+    <p style="margin:6px 0 0">${N} multiple-choice questions${P.set==="new"?" · all-new question set":P.set==="mix"?" · mixed from both question sets":""}. Choose the best answer. You'll see your score when you turn it in.</p></div>
+    ${summary}
+    <div style="display:grid;gap:6px"><span style="font-size:.85rem;color:#55625b">${P.graded?"Green = right, red = missed. Tap a number to jump to it.":"Dark = answered. Tap a number to jump to that question."}</span>
+    <div class="qnav" id="qnav">${P.qs.map((q,i)=>`<button type="button" data-jump="${i}" class="${P.graded?(isRight(i)?"ok":"no"):P.ans[i]!=null?"done":""} ${uns.has(i)?"un":""}" aria-label="Question ${i+1}">${i+1}</button>`).join("")}</div></div>
+    ${P.qs.map((q,i)=>{const a=P.ans[i];return `<fieldset class="mcq ${a!=null?"answered":""}" id="q-${i}"><legend>${i+1}. ${esc(q.q)}${P.graded?`<span class="src">Lesson ${T.findIndex(t=>t.id===q.tid)+1}${uns.has(i)?" · marked unsure":""}</span>`:`<button type="button" class="flag" data-flag="${i}" aria-pressed="${uns.has(i)}">? Unsure</button>`}</legend>
+      <div class="mopts">${q.opts.map((o,j)=>{const cls=(P.graded?(o.right?"is-right ":a===j?"is-wrong ":""):"")+(a===j?"sel":"");
+        return `<label class="${cls}"><input type="radio" name="q${i}" value="${j}" ${a===j?"checked":""} ${P.graded?"disabled":""}> <span>${String.fromCharCode(65+j)}. ${esc(o.o)}</span></label>`}).join("")}</div>
+      ${P.graded&&(a==null||!q.opts[a].right)?`<div class="expl"><b>${a==null?"Left blank.":"Missed."}</b> ${esc(q.why)}</div>`:""}
+    </fieldset>`}).join("")}
+    <div class="ctrl">${P.graded?`<button class="btn" type="button" id="retake" style="background:#23312b;color:#f6f1df">Take a new test</button>`
+      :`<button class="btn" type="submit" style="background:#23312b;color:#f6f1df">${P.warned?"Turn it in anyway":"Turn it in"}</button>
+        ${P.warned?`<span class="warn-line">You left ${N-answered} blank.</span>`:""}`}</div>
+    ${P.graded?"":`<div class="sticky-count" id="count">Answered ${answered}/${N}</div>`}
+  </form>`;
+  $("#newset").onclick=()=>{newTest("mix");testRoom(app);scrollTo(0,0)};
+  $("#newall").onclick=()=>{newTest("new");testRoom(app);scrollTo(0,0)};
+  $("#qnav").onclick=e=>{const b=e.target.closest("[data-jump]");if(!b)return;const f=$("#q-"+b.dataset.jump);
+    f.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});const r=f.querySelector("input:checked")||f.querySelector("input");if(r&&!r.disabled)r.focus({preventScroll:true})};
+  if(P.graded){$("#retake").onclick=()=>{newTest();testRoom(app);scrollTo(0,0)};return}
+  $("#tmr").onclick=()=>{P.end=P.end?null:Date.now()+45*60*1000;saveP();testRoom(app)};
+  $("#paper").addEventListener("click",e=>{const b=e.target.closest("[data-flag]");if(!b)return;const i=+b.dataset.flag;
+    uns.has(i)?uns.delete(i):uns.add(i);P.unsure=[...uns];saveP();
+    b.setAttribute("aria-pressed",uns.has(i));$(`#qnav [data-jump="${i}"]`).classList.toggle("un",uns.has(i))});
+  const tick=()=>{const c=$("#clock");if(!c||!P.end){if(c)c.textContent="";return}
+    const ms=Math.max(0,P.end-Date.now());c.textContent=ms?`${fmt(ms)} left`:"Time's up! Turn it in.";};
+  tick(); timerId=setInterval(tick,1000);
+  $("#paper").onchange=e=>{const m=(e.target.name||"").match(/^q(\d+)$/);if(!m)return;const i=+m[1];
+    P.ans[i]=+e.target.value;saveP();
+    const f=$("#q-"+i);f.classList.add("answered");f.querySelectorAll("label").forEach(l=>l.classList.toggle("sel",l.contains(e.target)));
+    $(`#qnav [data-jump="${i}"]`).classList.add("done");
+    $("#count").textContent=`Answered ${Object.keys(P.ans).length}/${N}`};
+  $("#paper").onsubmit=e=>{e.preventDefault();
+    if(Object.keys(P.ans).length<N&&!P.warned){P.warned=true;saveP();testRoom(app);return}
+    P.graded=true;P.end=null;R=null;saveP();
+    T.forEach(t=>{const qs=P.qs.map((q,i)=>[q,i]).filter(([q])=>q.tid===t.id);if(!qs.length)return;
+      const pct=Math.round(100*qs.filter(([q,i])=>P.ans[i]!=null&&q.opts[P.ans[i]].right).length/qs.length);
+      S.test[t.id]=Math.max(S.test[t.id]??0,pct)});
+    save();testRoom(app);scrollTo(0,0);
+    const right=P.qs.filter((q,i)=>P.ans[i]!=null&&q.opts[P.ans[i]].right).length;
+    if(right/N>=.9) confetti();
+  };
+}
+
+/* Test Retake: questions missed on the last graded test plus any marked unsure, one at a time with reshuffled answers and instant feedback. */
+let R=null;
+function retakePool(){if(!P||!P.graded)return [];const u=new Set(P.unsure||[]);return P.qs.map((q,i)=>i).filter(i=>!isRight(i)||u.has(i))}
+function startRetake(list){R={list:shuffle(list),i:0,right:0,missed:[],pick:null,cur:null}}
+function retakeRoom(app){
+  if(!P||!P.graded){
+    app.innerHTML=`<section class="hero"><h1 style="font-size:2.2rem">Test Retake</h1><p>Take and turn in the 40-Question Test first. Then this tab gives you another shot at the questions you missed or marked unsure.</p><div><button class="btn y" id="totest">Go to the 40-Question Test →</button></div></section>`;
+    $("#totest").onclick=()=>go("test");return;
+  }
+  const u=new Set(P.unsure||[]);
+  if(!R){
+    const pool=retakePool(), missed=P.qs.filter((q,i)=>!isRight(i)).length;
+    app.innerHTML=`<section class="hero" style="padding-bottom:0"><h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">Test Retake</h1>
+      <p>The questions you missed on your last test, plus the ones you weren't sure about. The answer choices are reshuffled, and you'll see the right answer after each one.</p></section>
+      <div class="qbox">
+        <div class="muted" style="font-size:.9rem">Red = missed (always included). Yellow = unsure. Tap a green number to add it, or a yellow one to take it out.</div>
+        <div class="qnav rt" id="rgrid">${P.qs.map((q,i)=>`<button type="button" data-r="${i}" class="${!isRight(i)?"no":u.has(i)?"un":"ok"}" ${!isRight(i)?"disabled":""} aria-label="Question ${i+1}">${i+1}</button>`).join("")}</div>
+        <div class="score"><span>Missed <b>${missed}</b></span><span>Unsure <b>${pool.length-missed}</b></span><span>Retake <b>${pool.length}</b> questions</span></div>
+        <div class="ctrl"><button class="btn y" id="rstart" ${pool.length?"":"disabled"}>Start retake →</button></div>
+      </div>`;
+    $("#rgrid").onclick=e=>{const b=e.target.closest("[data-r]");if(!b||b.disabled)return;const i=+b.dataset.r;
+      u.has(i)?u.delete(i):u.add(i);P.unsure=[...u];saveP();retakeRoom(app)};
+    $("#rstart").onclick=()=>{startRetake(pool);retakeRoom(app)};
+    return;
+  }
+  if(R.i>=R.list.length){
+    const n=R.list.length;
+    app.innerHTML=`<div class="qbox" style="text-align:center"><h2 style="font-family:var(--f-display);font-size:2rem">Retake score: ${R.right}/${n}</h2>
+      <p class="muted">${R.missed.length?`Still missing ${R.missed.length}. Run just those again, or review their lessons.`:"Every one right this time!"}</p>
+      <div class="ctrl" style="justify-content:center">${R.missed.length?`<button class="btn y" id="again">Retake the ${R.missed.length} I missed</button>`:""}<button class="btn ghost" id="back">Back to the list</button></div></div>`;
+    if(R.missed.length) $("#again").onclick=()=>{startRetake(R.missed);retakeRoom(app)}; else confetti();
+    $("#back").onclick=()=>{R=null;retakeRoom(app)};
+    return;
+  }
+  const idx=R.list[R.i], q=P.qs[idx], ln=T.findIndex(t=>t.id===q.tid);
+  if(!R.cur) R.cur=shuffle(q.opts);
+  app.innerHTML=`<div class="qbox">
+    <div class="score"><span>Question <b>${R.i+1}</b>/${R.list.length}</span><span>Right <b>${R.right}</b></span></div>
+    <div class="chips" style="align-items:center">${!isRight(idx)?`<span class="chip" style="border-color:var(--bad);color:var(--bad)">Missed</span>`:`<span class="chip warn">Unsure</span>`}<span class="mono muted" style="font-size:.8rem">#${idx+1} on your test · Lesson ${ln+1}</span></div>
+    <h2>${esc(q.q)}</h2>
+    ${mcView(R.cur,R.pick,q.why,R.i+1<R.list.length?"Next question →":"See my score →",o=>o.right?"":`<button class="btn ghost" id="rv">Review Lesson ${ln+1}</button>`)}
+  </div>`;
+  if(R.pick!=null){
+    $("#nq").onclick=()=>{R.i++;R.pick=null;R.cur=null;retakeRoom(app)};
+    const rv=$("#rv"); if(rv) rv.onclick=()=>go("lessons",{topic:q.tid});
+    return;
+  }
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    R.pick=+b.dataset.i;
+    if(R.cur[R.pick].right)R.right++;else R.missed.push(idx);
+    retakeRoom(app); $("#nq").focus();
+  });
+}
+
+renderTabs(); render();
+</script>
+
+</body></html>
