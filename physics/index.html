@@ -1,0 +1,989 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}</style>
+<title>Projectile Motion Classroom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="katex/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+/* Layout: a classroom chalkboard. Sticky tab rail of "rooms", one room visible at a time. Deliberately single-theme (dark board). */
+:root{
+  --board:#1d362f; --board-2:#25443b; --board-3:#2d5146;
+  --chalk:#eef0e6; --chalk-dim:#b4c2b8; --line:rgba(238,240,230,.16);
+  --yellow:#f2d675; --good:#9fe0a8; --bad:#f2a3a0; --wood:#6b4a2f;
+  --f-display:"Cabin Sketch","Comic Sans MS",cursive;
+  --f-body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--board);color:var(--chalk);font:16px/1.55 var(--f-body);
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(255,255,255,.05),transparent 60%),radial-gradient(ellipse at 90% 100%,rgba(0,0,0,.25),transparent 60%);min-height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--wood)}
+.wrap{max-width:1000px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;text-wrap:balance;margin:0;line-height:1.15}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:2px dashed var(--yellow);outline-offset:3px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--chalk-dim)}
+.katex{font-size:1.08em}
+
+/* top rail */
+header.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--wood);border-bottom:4px solid #4f361f;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.rail .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+.brand{font-family:var(--f-display);font-size:1.35rem;color:#fff4dc;margin-right:auto;white-space:nowrap}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{background:transparent;border:1.5px solid rgba(255,244,220,.35);color:#fff4dc;border-radius:999px;padding:5px 12px;font-size:.92rem}
+.tab[aria-selected="true"]{background:#fff4dc;color:#3b2716;border-color:#fff4dc;font-weight:700}
+
+/* hero */
+.hero{padding-block:36px 20px;display:grid;gap:14px}
+.hero h1{font-size:clamp(2.1rem,6vw,3.4rem)}
+.hero p{max-width:62ch;margin:0;color:var(--chalk-dim)}
+.note{border:1.5px dashed var(--yellow);border-radius:10px;padding:12px 16px;color:var(--yellow);max-width:76ch}
+.note b{color:var(--chalk)}
+
+/* topic grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:18px}
+.topic{position:relative;background:var(--board-2);border:1px solid var(--line);border-radius:12px}
+.topic:hover{border-color:var(--yellow)}
+.topic.known{border-color:var(--good);background:var(--board-3)}
+.topic .open{all:unset;cursor:pointer;display:grid;gap:6px;padding:14px 52px 14px 14px;width:100%;box-sizing:border-box;border-radius:12px}
+.topic .open:focus-visible{outline:2px dashed var(--yellow);outline-offset:-4px}
+.check{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:8px;border:2px solid var(--chalk-dim);background:transparent;color:var(--board);font-weight:700;font-size:1.05rem;display:grid;place-items:center;padding:0}
+.check[aria-pressed="true"]{background:var(--good);border-color:var(--good)}
+.knowbtn[aria-pressed="true"]{background:var(--good);color:var(--board);border-color:var(--good)}
+.clockbox{display:flex;align-items:center;gap:6px;background:#3b2716;color:#fff4dc;border-radius:999px;padding:4px 6px 4px 12px;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.9rem}
+.clockbox[hidden]{display:none}
+.clockbox .t{font-size:1.05rem;min-width:4.2ch;text-align:right}
+.clockbox button{background:rgba(255,244,220,.15);border:0;color:#fff4dc;border-radius:999px;padding:3px 9px;font-size:.8rem}
+.topic .num{font-family:var(--f-mono);font-size:.78rem;color:var(--chalk-dim);letter-spacing:.06em}
+.topic h3{font-size:1.25rem}
+.topic .tl{font-size:.85rem;color:var(--chalk-dim)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:.75rem;border-radius:999px;padding:1px 8px;border:1px solid var(--line);color:var(--chalk-dim)}
+.chip.ok{border-color:var(--good);color:var(--good)}
+.chip.warn{border-color:var(--yellow);color:var(--yellow)}
+.section-h{font-size:1.7rem;margin-top:28px}
+.mix{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:12px}
+.mix div{border:1.5px dashed var(--line);border-radius:10px;padding:10px 14px;color:var(--chalk-dim);font-size:.95rem}
+.mix b{color:var(--yellow);display:block}
+.mix.bad div{border-color:rgba(242,163,160,.45)}
+.mix.bad b{color:var(--bad)}
+
+/* slides */
+.stage{margin-top:24px;background:var(--board-2);border:10px solid var(--wood);border-radius:6px;box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 10px 30px rgba(0,0,0,.35);padding:clamp(18px,4vw,40px);min-height:380px;display:grid;grid-template-rows:auto 1fr auto;gap:16px}
+.stage .eyebrow{font-family:var(--f-mono);font-size:.8rem;color:var(--yellow);letter-spacing:.08em;text-transform:uppercase}
+.stage h2{font-size:clamp(1.7rem,4.5vw,2.6rem)}
+.stage ul{margin:0;padding-left:1.2em;display:grid;gap:10px;font-size:1.08rem;max-width:68ch}
+.stage li::marker{color:var(--yellow)}
+.stage dl{margin:0;display:grid;gap:10px;max-width:72ch}
+.stage dt{color:var(--yellow);font-weight:700}
+.stage dd{margin:0 0 0 1em}
+.ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--chalk);color:var(--board);border:0;border-radius:8px;padding:9px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--chalk);border:1.5px solid var(--line)}
+.btn.y{background:var(--yellow);color:#2b2410}
+.btn:disabled{opacity:.4;cursor:default}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--yellow)}
+.btn.reading{background:var(--yellow);color:#2b2410;border-color:var(--yellow)}
+.tts{display:flex;gap:10px 18px;flex-wrap:wrap;align-items:center;margin-top:14px;color:var(--chalk-dim);font-size:.92rem}
+.tts select{font:inherit;background:var(--board-2);color:var(--chalk);border:1px solid var(--line);border-radius:6px;padding:4px 6px;max-width:220px}
+.tts label{display:flex;gap:6px;align-items:center}
+.topic-pick{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+.topic-pick button{background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:.85rem;color:var(--chalk-dim)}
+.topic-pick button[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow)}
+
+/* flashcards */
+.card-area{display:grid;place-items:center;margin-top:24px;gap:16px}
+.flash{width:min(560px,100%);aspect-ratio:3/2;max-width:100%;perspective:1200px;background:none;border:0;padding:0}
+.flash .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flash.flipped .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:grid;place-items:center;padding:24px;text-align:center;font-size:1.2rem;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.face.front{background:#f6f1df;color:#23312b;font-family:var(--f-display);font-size:clamp(1.4rem,4.5vw,2rem)}
+.face.back{background:var(--board-3);border:1px solid var(--yellow);transform:rotateY(180deg)}
+.face small{position:absolute;top:10px;left:14px;font-family:var(--f-mono);font-size:.72rem;opacity:.6}
+
+/* quiz */
+.qbox{margin-top:24px;background:var(--board-2);border:1px solid var(--line);border-radius:12px;padding:clamp(16px,4vw,28px);display:grid;gap:14px}
+.qbox h2{font-family:var(--f-body);font-size:1.3rem;font-weight:700}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;background:var(--board);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px}
+.opt:hover:not(:disabled){border-color:var(--chalk-dim)}
+.opt.right{border-color:var(--good);color:var(--good)}
+.opt.wrong{border-color:var(--bad);color:var(--bad)}
+.score{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--f-mono)}
+.score b{color:var(--yellow);font-size:1.3rem}
+.why{color:var(--chalk-dim)}
+
+/* practice test (paper) */
+.paper{color-scheme:light;margin-top:24px;background:#f6f1df;color:#23312b;border-radius:6px;padding:clamp(18px,4vw,40px);box-shadow:0 10px 30px rgba(0,0,0,.4);display:grid;gap:18px}
+.paper h2{font-family:var(--f-display);color:#23312b}
+.mcq{border:0;margin:0;padding:0 0 14px;border-bottom:1px solid #d9d2bc;display:grid;gap:8px;min-width:0}
+.mcq legend{font-weight:700;padding:0;margin-bottom:8px}
+.mcq .src{font-family:var(--f-mono);font-size:.72rem;color:#7a8580;font-weight:400;margin-left:6px}
+.mopts{display:grid;gap:6px}
+.mopts label{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border-radius:6px;border:1.5px solid #d9d2bc;background:rgba(255,255,255,.6);cursor:pointer}
+.mopts input{appearance:none;-webkit-appearance:none;flex:none;width:18px;height:18px;margin:3px 0 0;border:2px solid #7a8580;border-radius:50%;background:#fff;cursor:pointer}
+.mopts input:checked{border-color:#f2d675;background:radial-gradient(circle,#f2d675 0 42%,#23312b 48%)}
+.mopts label.sel{background:#23312b;color:#f6f1df;border-color:#23312b;font-weight:700;box-shadow:0 0 0 3px rgba(35,49,43,.25)}
+.mopts label.sel::after{content:"✓ Selected";margin-left:auto;align-self:center;white-space:nowrap;font-family:var(--f-mono);font-size:.75rem;color:#f2d675}
+.paper.graded .mopts label.sel::after{content:"Your answer";color:inherit}
+.mopts label.is-right{background:#d6f0d9;border-color:#1d7a3a;color:#23312b;box-shadow:none}
+.mopts label.is-wrong{background:#f8d7d5;border-color:#a2312b;color:#23312b;box-shadow:none}
+.mcq.answered{border-left:4px solid #23312b;padding-left:12px}
+.qnav{display:flex;flex-wrap:wrap;gap:5px}
+.qnav button{min-width:32px;height:32px;padding:0 5px;border-radius:6px;border:1.5px solid #b9b19a;background:rgba(255,255,255,.6);color:#23312b;font-family:var(--f-mono);font-size:.8rem}
+.qnav button.done{background:#23312b;color:#f6f1df;border-color:#23312b}
+.qnav button.ok{background:#1d7a3a;color:#fff;border-color:#1d7a3a}
+.qnav button.no{background:#a2312b;color:#fff;border-color:#a2312b}
+.qnav button.un{box-shadow:inset 0 0 0 3px #f2d675}
+.qnav.rt button.un{background:#f2d675;color:#2b2410;border-color:#f2d675;box-shadow:none}
+.qnav button:disabled{cursor:default;opacity:1}
+.flag{margin-left:10px;font:700 .75rem var(--f-mono);border:1.5px solid #b9b19a;background:transparent;color:#55625b;border-radius:999px;padding:1px 9px;vertical-align:middle}
+.flag[aria-pressed="true"]{background:#f2d675;border-color:#c9a93a;color:#2b2410}
+.mcq .expl{font-size:.92rem;color:#38453f}
+.mcq .expl b{color:#a2312b}
+.grade{font-family:var(--f-display);font-size:2.6rem;color:#a2312b;transform:rotate(-5deg);display:inline-block}
+.breakdown{display:flex;flex-wrap:wrap;gap:6px}
+.breakdown span{font-size:.82rem;border-radius:999px;padding:2px 10px;border:1.5px solid #d9d2bc;background:#fff}
+.breakdown span.lo{border-color:#a2312b;color:#a2312b}
+.breakdown span.hi{border-color:#1d7a3a;color:#1d7a3a}
+.warn-line{color:#a2312b;font-weight:700}
+.sticky-count{position:sticky;bottom:max(12px,env(safe-area-inset-bottom,0px));justify-self:end;background:#23312b;color:#f6f1df;border-radius:999px;padding:6px 14px;font-family:var(--f-mono);font-size:.85rem;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+
+/* physics additions */
+.eqgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:16px}
+.eqc{background:var(--board-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.eqc .katex-display{margin:.35em 0;overflow-x:auto;overflow-y:hidden}
+.eqc .tag{font-family:var(--f-mono);font-size:.75rem;color:var(--yellow);letter-spacing:.06em;text-transform:uppercase}
+.eqc p{margin:0;color:var(--chalk-dim);font-size:.92rem}
+.tablewrap{overflow-x:auto;margin-top:12px}
+table.sym{border-collapse:collapse;width:100%;font-size:.95rem;min-width:560px}
+.sym th,.sym td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.sym th{color:var(--yellow);font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.sym td.c{text-align:center}
+.yes{color:var(--good);font-weight:700}.nope{color:var(--bad)}
+.step{border-left:3px solid var(--line);padding:2px 0 2px 14px;display:grid;gap:10px}
+.step.done{border-left-color:var(--good)}
+.step h3{font-size:1.2rem}
+.step h3 .L{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--yellow);color:#2b2410;font-family:var(--f-mono);font-size:.8em;margin-right:8px}
+.gin{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.gin label{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--board);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+.gin label.ok{border-color:var(--good)}
+.gin label.no{border-color:var(--bad)}
+.gin .fb{flex-basis:100%}
+.numin{width:8ch;font:inherit;font-family:var(--f-mono);background:var(--board-3);color:var(--chalk);border:1.5px solid var(--chalk-dim);border-radius:6px;padding:4px 6px}
+.fb{font-size:.9rem;margin:0}
+.fb.ok{color:var(--good)}
+.fb.no{color:var(--bad)}
+.eqpick{display:flex;flex-wrap:wrap;gap:8px}
+.eqpick button{background:var(--board);border:1.5px solid var(--line);border-radius:10px;padding:6px 12px;color:var(--chalk)}
+.eqpick button.ok{border-color:var(--good);background:rgba(159,224,168,.14)}
+.eqpick button.no{border-color:var(--bad);background:rgba(242,163,160,.1)}
+.story{font-size:1.08rem;max-width:72ch;margin:0}
+.parts{display:flex;gap:6px;flex-wrap:wrap}
+.parts button{background:transparent;border:1.5px solid var(--line);border-radius:8px;padding:4px 12px;color:var(--chalk-dim);font-family:var(--f-mono)}
+.parts button[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow)}
+.parts button.done{border-color:var(--good);color:var(--good)}
+.work{background:#f6f1df;color:#23312b;border-radius:8px;padding:14px 18px;display:grid;gap:8px;overflow-x:auto}
+.work>div{display:grid;grid-template-columns:8.5em 1fr;gap:10px;align-items:baseline}
+.work b{font-family:var(--f-display);font-size:1.1rem;color:#a2312b}
+.paper .numin{background:#fff;color:#23312b;border-color:#7a8580}
+.paper .frin{display:flex;flex-wrap:wrap;gap:8px 16px}
+.paper .frin label{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;border:1.5px solid #d9d2bc;background:rgba(255,255,255,.6)}
+.paper .frin label.has{border-color:#23312b}
+.paper .frin label.is-right{background:#d6f0d9;border-color:#1d7a3a}
+.paper .frin label.is-wrong{background:#f8d7d5;border-color:#a2312b}
+.paper .frhead{display:grid;gap:8px;padding-top:6px}
+.paper .frhead p{margin:0}
+.sketch{width:100%;max-width:420px;height:auto;color:inherit}
+.paper details summary{cursor:pointer;font-weight:700;color:#a2312b}
+.paper .work{background:#fff;border:1.5px solid #d9d2bc}
+
+@media (prefers-reduced-motion:reduce){.flash .in{transition:none}}
+@media (max-width:560px){.brand{width:100%}.dots{margin-left:0;width:100%}.work>div{grid-template-columns:1fr;gap:2px}}
+</style>
+
+</head><body>
+<header class="rail"><div class="wrap">
+  <div class="brand">Room −9.8 · Projectiles</div>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <div class="clockbox" id="clockbox" hidden aria-live="off">
+    <span id="clabel">Lesson 1</span><span class="t" id="ctime">0:00</span>
+    <button id="cpause">Pause</button><button id="creset">Reset</button>
+  </div>
+</div></header>
+
+<main class="wrap" id="app"></main>
+
+<script>
+/* House rule for this guide: acceleration is always written a_y = -9.8 m/s^2 (right and up positive). */
+/* Text markup: [[tex|spoken words]] renders as KaTeX on screen and is read aloud as the spoken words. */
+
+//<LESSONS>
+const T = [
+{id:"proj",title:"What Is a Projectile?",when:"The basics",
+ slides:[
+  {h:"A projectile",p:["A projectile is an object flying through the air where gravity is the only force acting on it. We ignore air resistance.","Projectiles: a served volleyball, a marble rolling off a table, a kicked soccer ball.","Not projectiles: a puck resting on ice, a sled sliding down a hill, a cart rolling on the floor. Something is still holding them up or pushing them.","Once it leaves your hand, the ramp, or the table, nothing pushes it forward anymore."]},
+  {h:"The only acceleration",p:["After launch, the only acceleration points straight down: [[a_y = -9.8|a-y equals negative 9.8]] m/s².","It points down the whole flight: on the way up, at the very top, and on the way down.","Right and up are positive. Left and down are negative. That is why the 9.8 has a minus sign."],tip:"Air resistance is ignored on this test unless a problem says otherwise."}],
+ terms:[["Projectile","An object in the air with gravity as the only force on it (no air resistance)."],["[[a_y|a-y]]","−9.8 m/s². Points down the entire flight, even at the top."],["Sign rule","Right and up are positive. Left and down are negative."]]},
+
+{id:"indep",title:"Horizontal vs. Vertical",when:"Two separate motions",
+ slides:[
+  {h:"Two motions at once",p:["Split every projectile into a horizontal motion (x) and a vertical motion (y).","Horizontal: [[a_x = 0|a-x equals zero]], so [[v_x|v-x]] never changes. Steady speed sideways.","Vertical: [[a_y = -9.8|a-y equals negative 9.8]] m/s², so [[v_y|v-y]] changes by 9.8 m/s every second.","The two motions do not affect each other."]},
+  {h:"Time is the bridge",p:["Both motions happen during the same time [[t|t]].","Usually you find [[t|t]] from one direction (often the vertical), then plug it into the other.","A ball dropped and a ball rolled off the same table at the same instant hit the floor together. Both start with [[v_{iy} = 0|v-i-y equals zero]] and fall the same height."],tip:"Cart trick: a ball dropped through the floor of a cart moving at steady speed lands right under the opening. It keeps the cart's horizontal velocity the whole way down."},
+  {h:"How the speeds change",p:["Going up, [[v_y|v-y]] gets smaller. At the top it is zero. Coming down, it gets bigger in the negative direction.","From the top to the ground, the horizontal part stays the same and the vertical part grows.","A ball released from rest falls with the same downward acceleration the whole time. Its speed grows; its acceleration does not."]}],
+ terms:[["Horizontal motion","[[a_x = 0|a-x equals zero]], so [[v_x|v-x]] stays constant the whole flight."],["Vertical motion","[[a_y = -9.8|a-y equals negative 9.8]] m/s², so [[v_y|v-y]] keeps changing."],["Shared time","The horizontal and vertical motions use the same [[t|t]]. Find it from one, use it in the other."]]},
+
+{id:"signs",title:"Signs: Up, Down, dᵧ",when:"The #1 point-loser",
+ slides:[
+  {h:"Pick directions first",p:["Right is positive and up is positive.","So [[a_y = -9.8|a-y equals negative 9.8]] m/s². Never +9.8.","A velocity pointing down is negative, like [[v_{fy} = -5.6|v-f-y equals negative 5.6]] m/s."]},
+  {h:"Vertical displacement",p:["[[d_y|d-y]] is the final height minus the starting height.","Lands below where it started: [[d_y|d-y]] is negative. A ball falling from a 3.2 m platform to the floor has [[d_y = -3.2|d-y equals negative 3.2]] m.","Lands at the same height it started (ground to ground): [[d_y = 0|d-y equals zero]]."],tip:"Quick check: if your calculator gives an error taking a square root, one of your signs is wrong. [[d_y|d-y]] and [[a_y|a-y]] should both be negative for a fall."}],
+ terms:[["[[a_y|a-y]] sign","Always −9.8 m/s², because down is negative."],["[[d_y|d-y]] below start","Negative. Falling 1.60 m means [[d_y = -1.60|d-y equals negative 1.60]] m."],["[[d_y|d-y]] same height","Zero, when it lands at the height it was launched from."]]},
+
+{id:"horiz",title:"Horizontal Launch",when:"Off a table, bench, or cliff",
+ slides:[
+  {h:"What a horizontal launch means",p:["The object leaves moving straight sideways: off a table, a bench, a ledge, or a ramp edge.","So [[v_{iy} = 0|v-i-y equals zero]], and [[v_x|v-x]] is the launch speed.","It lands below where it started, so [[d_y|d-y]] is negative."]},
+  {h:"The recipe",p:["Step 1, time from the vertical: [[d_y = \\tfrac12 a_y t^2|d-y equals one half a-y t squared]], so [[t = \\sqrt{2d_y / a_y}|t equals the square root of 2 d-y over a-y]].","Step 2, distance from the horizontal: [[d_x = v_x t|d-x equals v-x times t]].","Step 3, vertical velocity at landing: [[v_{fy} = a_y t|v-f-y equals a-y times t]]. It comes out negative because it is moving down."]},
+  {h:"Example: marble off a 1.60 m bench at 3.5 m/s",p:["Time: [[t = \\sqrt{2(-1.60)/(-9.8)} = 0.571|t equals the square root of 2 times negative 1.60 over negative 9.8, which is 0.571]] s.","Distance: [[d_x = (3.5)(0.571) = 2.0|d-x equals 3.5 times 0.571, which is 2.0]] m.","Vertical velocity: [[v_{fy} = (-9.8)(0.571) = -5.6|v-f-y equals negative 9.8 times 0.571, which is negative 5.6]] m/s."],tip:"Negative divided by negative is positive, so the square root works. That is why [[d_y|d-y]] and [[a_y|a-y]] must both be negative."}],
+ terms:[["Horizontal launch start","[[v_{iy} = 0|v-i-y equals zero]] and [[v_x|v-x]] = launch speed."],["Time to fall","[[t = \\sqrt{2d_y / a_y}|t equals the square root of 2 d-y over a-y]], with both [[d_y|d-y]] and [[a_y|a-y]] negative."],["Distance","[[d_x = v_x t|d-x equals v-x t]] using that same time."]]},
+
+{id:"angle",title:"Angled Launch: Components",when:"cos and sin",
+ slides:[
+  {h:"Break the launch velocity apart",p:["The launch speed [[v_i|v-i]] points at angle [[\\theta|theta]] above the horizontal.","Horizontal part: [[v_{ix} = v_i\\cos\\theta|v-i-x equals v-i cosine theta]].","Vertical part: [[v_{iy} = v_i\\sin\\theta|v-i-y equals v-i sine theta]]."],tip:"Cosine goes with the side next to the angle (horizontal). Sine goes with the side across from it (vertical)."},
+  {h:"Example: soccer ball at 25 m/s, 37.0°",p:["[[v_{iy} = 25\\sin 37.0^\\circ \\approx +15|v-i-y equals 25 sine 37 degrees, about positive 15]] m/s.","[[v_{ix} = 25\\cos 37.0^\\circ \\approx +20|v-i-x equals 25 cosine 37 degrees, about positive 20]] m/s.","Sanity check: each part is smaller than 25. Below 45°, the horizontal part is the bigger one."],tip:"Calculator in DEGREE mode. In radian mode, sin 37 gives −0.64 and every answer after it is wrong."}],
+ terms:[["[[v_{ix}|v-i-x]]","[[v_i\\cos\\theta|v-i cosine theta]]. Horizontal part. Stays the same all flight."],["[[v_{iy}|v-i-y]]","[[v_i\\sin\\theta|v-i sine theta]]. Vertical part. Shrinks to zero at the top."],["Degree mode","Check it before the test. Radians wreck every trig answer."]]},
+
+{id:"apex",title:"The Top & Symmetry",when:"Max height, time up = time down",
+ slides:[
+  {h:"At the apex (highest point)",p:["[[v_y = 0|v-y equals zero]]. It has stopped going up and has not started down yet.","[[v_x|v-x]] is still its launch value. So for an angled launch, the total velocity is NOT zero at the top.","The acceleration is still −9.8 m/s². It never turns off."],tip:"Only a ball thrown straight up has zero total velocity at the top."},
+  {h:"Maximum height",p:["Use the equation with no time in it: [[v_{fy}^2 = v_{iy}^2 + 2a_y d_y|v-f-y squared equals v-i-y squared plus 2 a-y d-y]].","At the top [[v_{fy} = 0|v-f-y equals zero]], so [[d_y = -v_{iy}^2 / (2a_y)|d-y equals negative v-i-y squared over 2 a-y]].","Example: [[v_{iy} = 7.00|v-i-y equals 7.00]] m/s gives [[d_y = -(7.00)^2/(2 \\cdot -9.8) = 2.5|d-y equals negative 7 squared over 2 times negative 9.8, which is 2.5]] m."]},
+  {h:"Symmetry: same launch and landing height",p:["Time going up equals time coming down. Total time is twice the time up.","For the whole flight [[d_y = 0|d-y equals zero]], which gives [[t = -2v_{iy}/a_y|t equals negative 2 v-i-y over a-y]].","It lands with the same speed and the same angle it left with, just pointing down."],tip:"Takes 1.2 s to reach the top? Then it is in the air 2.4 s total."}],
+ terms:[["Apex","[[v_y = 0|v-y equals zero]], [[v_x|v-x]] unchanged, [[a_y|a-y]] still −9.8 m/s²."],["Max height","[[d_y = -v_{iy}^2 / (2a_y)|d-y equals negative v-i-y squared over 2 a-y]]"],["Same-height flight","[[d_y = 0|d-y equals zero]], time up = time down, [[t = -2v_{iy}/a_y|t equals negative 2 v-i-y over a-y]]."]]},
+
+{id:"final",title:"Final Velocity",when:"Speed and angle at landing",
+ slides:[
+  {h:"Velocity has two parts",p:["At landing, [[v_x|v-x]] is unchanged and [[v_{fy}|v-f-y]] is negative because it is moving down.","Find [[v_{fy}|v-f-y]] with [[v_{fy} = v_{iy} + a_y t|v-f-y equals v-i-y plus a-y t]], or with the no-time equation if you don't have [[t|t]]."]},
+  {h:"Put them back together",p:["Speed, with the Pythagorean theorem: [[v = \\sqrt{v_x^2 + v_{fy}^2}|v equals the square root of v-x squared plus v-f-y squared]].","Angle below horizontal: [[\\theta = \\tan^{-1}(\\lvert v_{fy} \\rvert / v_x)|theta equals the inverse tangent of v-f-y over v-x]].","Always give the direction: 6.6 m/s at 58° below the horizontal, to the right."]},
+  {h:"Example: the marble",p:["[[v_x = 3.5|v-x equals 3.5]] m/s and [[v_{fy} = -5.6|v-f-y equals negative 5.6]] m/s.","[[v = \\sqrt{3.5^2 + 5.6^2} = 6.6|v equals the square root of 3.5 squared plus 5.6 squared, which is 6.6]] m/s.","[[\\theta = \\tan^{-1}(5.6/3.5) = 58^\\circ|theta equals the inverse tangent of 5.6 over 3.5, which is 58 degrees]] below the horizontal."],tip:"Speed is never negative. The downward part shows up in the direction: below the horizontal."}],
+ terms:[["Landing speed","[[v = \\sqrt{v_x^2 + v_{fy}^2}|v equals the square root of v-x squared plus v-f-y squared]]"],["Landing angle","[[\\theta = \\tan^{-1}(\\lvert v_{fy} \\rvert / v_x)|theta equals the inverse tangent of v-f-y over v-x]], below the horizontal."],["Full answer","Speed + angle + direction, like 6.6 m/s at 58° below the horizontal, right."]]}
+];
+//</LESSONS>
+
+const MISTAKES = [
+  ["Using +9.8","Up is positive, so [[a_y = -9.8|]] m/s². Every time."],
+  ["Forgetting [[d_y|]] is negative","Lands below the start? [[d_y|]] is negative. A 1.60 m drop is [[d_y = -1.60|]] m."],
+  ["Swapping sin and cos","cos → horizontal ([[v_{ix}|]]). sin → vertical ([[v_{iy}|]])."],
+  ["Calculator in radians","sin 30 should be 0.5. If it's −0.988, switch to DEG."],
+  ["Total v = 0 at the top","Only [[v_y|]] is zero at the apex. [[v_x|]] keeps going, so total v is not zero."],
+  ["Mixing up the times","Same-height launch: total time = 2 × time up. Use the same [[t|]] for x and y."]
+];
+
+/* Practice test multiple choice (from the class study guide). [question, [A,B,C,D], correct index, explanation, variant generator key] */
+const MC = [
+ ["Which object is a projectile?",["A puck resting on the ice","A sled sliding down a hill","A volleyball in the air after a serve","A shopping cart rolling on a floor"],2,"After the serve, gravity is the only force on the volleyball in this model."],
+ ["A marble rolls off a table and travels through the air. How does its horizontal velocity change after it leaves the table?",["It stays constant.","It gets larger.","It gets smaller.","It immediately becomes zero."],0,"Horizontal acceleration is zero, so the horizontal velocity stays constant."],
+ ["Two balls leave the same height at the same instant. One is dropped and the other rolls off horizontally. Which reaches the floor first?",["The ball that rolls off","The ball that is dropped","The ball with the larger mass","They reach the floor together."],3,"Both start with [[v_{iy}=0|]], fall the same vertical distance, and have the same vertical acceleration."],
+ ["A toy car leaves a ramp horizontally at 18 m/s and is in the air for 2.5 s. How far does it travel horizontally?",["7.2 m","45 m","20.5 m","110 m"],1,"[[d_x = v_x t = (18)(2.5) = 45|]] m.","dx"],
+ ["A ball falls from a platform 3.2 m above the floor. If up is positive, what is the ball’s vertical displacement from the platform to the floor?",["+3.2 m","0 m","−3.2 m","−9.8 m"],2,"[[d_y = y_f - y_i = 0 - 3.2 = -3.2|]] m when the floor is the reference level.","dy"],
+ ["A coin slides horizontally off a desk. What is its vertical velocity at the instant it leaves the desk?",["9.8 m/s upward","0 m/s","9.8 m/s downward","Equal to its horizontal speed"],1,"The launch velocity points horizontally, so its initial vertical part is zero."],
+ ["A ball is thrown straight up. What are its velocity and acceleration at the highest point?",["v = 0 and a = 0","v is upward and a = 0","v = 0 and a is upward","v = 0 and a is downward"],3,"The ball is momentarily at rest at the top. Gravity still accelerates it downward."],
+ ["A cart rolls at a constant speed along a straight, level track. A small ball is released through an opening in its base. When the ball hits the floor, where is the opening?",["Directly above the ball","Ahead of the ball","Behind the ball","At the ball’s release position"],0,"At release, the ball has the cart’s horizontal velocity. Both cover the same horizontal distance during the fall."],
+ ["A soccer ball is kicked at 25 m/s at 37.0° above the horizontal. What is its initial vertical velocity?",["0 m/s","+15 m/s","+20 m/s","+25 m/s"],1,"[[v_{iy} = (25)\\sin 37.0^\\circ \\approx +15|]] m/s.","viy"],
+ ["For the same kick in Question 9, what is the initial horizontal velocity in the direction of the kick?",["0 m/s","+15 m/s","+25 m/s","+20 m/s"],3,"[[v_{ix} = (25)\\cos 37.0^\\circ \\approx +20|]] m/s.","vix"],
+ ["A ball is released from rest and falls. Which statement describes its motion?",["Its vertical velocity is constant.","Its downward acceleration increases.","Its downward acceleration is constant.","Its vertical velocity stays zero."],2,"The acceleration is 9.8 m/s² downward the whole fall. Its downward speed increases."],
+ ["A projectile moves from the apex to the ground. What happens to the magnitudes of its horizontal and vertical velocity components during this part of the flight?",["Horizontal stays constant, vertical increases.","Horizontal increases, vertical stays constant.","Both stay constant.","Both increase."],0,"With [[a_x = 0|]], the horizontal size stays constant. The vertical speed grows from zero as it comes down."],
+ ["What are the velocity components of a ball at the apex of an angled launch?",["Both components are zero.","The horizontal component is zero and the vertical component is downward.","The horizontal component increases and the vertical component is zero.","The horizontal component is unchanged and the vertical component is zero."],3,"[[v_y|]] is zero at the apex. The horizontal part stays at its launch value."],
+ ["A projectile moves 21 m to the right in 3.5 s. What is its horizontal velocity?",["+3.5 m/s","+6.0 m/s","+17.5 m/s","+74 m/s"],1,"[[v_x = d_x / t = 21 / 3.5 = +6.0|]] m/s.","vx"],
+ ["A ball launched at an angle takes 1.2 s to reach its highest point. It lands at its launch height. What is its total time in the air?",["0.60 s","1.2 s","2.4 s","3.6 s"],2,"At equal launch and landing heights, time down = time up. Total = 1.2 s + 1.2 s = 2.4 s.","ttot"]
+];
+
+/* ---------- storage (per-viewer, optional) ---------- */
+const store = {
+  get(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let S = Object.assign({quiz:{},known:{},times:{},tts:null,coach:{}}, store.get("pm-class"));
+const save = () => store.set("pm-class",S);
+
+const $ = (s,r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => {a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const byId = id => T.find(t=>t.id===id);
+const rnd = (a,b,d=0) => {const k=Math.pow(10,d);return Math.round((a+Math.random()*(b-a))*k)/k};
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+/* ---------- math rendering + speech ---------- */
+const MK=/\[\[([^|\]]+)\|([^\]]*)\]\]/g;
+const TEX=(t,d)=>window.katex?katex.renderToString(t,{throwOnError:false,displayMode:!!d}):`<span class="mono">${esc(t)}</span>`;
+function md(s){s=String(s);let out="",last=0;s.replace(MK,(m,tex,sp,i)=>{out+=esc(s.slice(last,i))+TEX(tex);last=i+m.length;return m});return out+esc(s.slice(last))}
+function say(s){
+  return String(s).replace(MK,(m,t,sp)=>sp)
+   .replace(/m\/s²/g," meters per second squared").replace(/m\/s/g," meters per second")
+   .replace(/(\d)\s?m\b/g,"$1 meters").replace(/(\d)\s?s\b/g,"$1 seconds").replace(/°/g," degrees")
+   .replace(/[−–]\s?(\d)/g,"negative $1").replace(/\+(\d)/g,"positive $1").replace(/×/g," times ")
+   .replace(/θ/g,"theta").replace(/dᵧ/g,"d-y").replace(/#1/g,"number one").replace(/→/g,"to").replace(/ = /g," equals ").replace(/\s+/g," ").trim();
+}
+const f3 = x => Math.abs(x)<1e-9?"0":x.toPrecision(3).replace("-","−");
+const f2 = x => Math.abs(x)<1e-9?"0":(Math.abs(x)>=10?Math.round(x).toString():x.toPrecision(2)).replace("-","−");
+const sgn = x => (x>0?"+":"")+f3(x);
+
+/* Numeric answer check: within 2%, or exactly right when rounded to the decimals the student typed (2+ sig figs). */
+function chk(str,v){
+  str=String(str||"").trim().replace(/[−–—]/g,"-").replace(/,/g,"").replace(/\s+/g,"");
+  if(!str) return "empty";
+  const m=str.match(/^([+-]?)(\d+\.?\d*|\.\d+)/); if(!m) return "no";
+  const x=parseFloat(m[1]+m[2]);
+  const dec=(m[2].split(".")[1]||"").length, sig=m[2].replace(".","").replace(/^0+/,"").length;
+  const close=x=>{if(Math.abs(v)<1e-9)return Math.abs(x)<=0.01;
+    return Math.abs(x-v)<=0.02*Math.abs(v)+1e-9||(sig>=2&&Math.abs(x-v)<=0.5*Math.pow(10,-dec)*1.0001)};
+  if(close(x)) return "ok";
+  if(Math.abs(v)>1e-9&&close(-x)) return "sign";
+  return "no";
+}
+const CHKMSG={ok:"✓ Right.",sign:"Right size, wrong sign. Which way does it point?",no:"Not quite. Check it again.",empty:"Fill this in."};
+
+/* ---------- tabs ---------- */
+const ROOMS = [["home","Classroom"],["lessons","Lessons"],["lab","Projectile Lab"],["formulas","Formula Sheet"],["coach","GUESS Coach"],["flash","Flashcards"],["quiz","Quiz Show"],["test","Practice Test"],["retake","Test Retake"]];
+let room = (location.hash||"").slice(1);
+if(!ROOMS.some(r=>r[0]===room)) room="home";
+function renderTabs(){
+  $("#tabs").innerHTML = ROOMS.map(([k,l])=>`<button class="tab" role="tab" aria-selected="${k===room}" data-room="${k}">${l}</button>`).join("");
+}
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("[data-room]");if(b)go(b.dataset.room)});
+
+/* ---------- read aloud ---------- */
+/* Andrew and Ava are pre-recorded neural voices (audio/<voice>/<lesson>-<slide>.mp3); "computer" falls back to the browser's own voice.
+   One shared player plus a speak id: starting anything stops everything else, so only the current slide is ever heard. */
+const VOICES=[["andrew","Andrew (natural, male)"],["ava","Ava (natural, female)"],["computer","Computer voice (offline)"]];
+const tts={on:true,speaking:false,browser:"speechSynthesis" in window};
+const player=new Audio(); let speakId=0;
+S.tts=Object.assign({voice:"andrew",rate:1,auto:false},S.tts);
+if(!VOICES.some(v=>v[0]===S.tts.voice)) S.tts.voice="andrew";
+function voiceOpts(){return VOICES.filter(v=>v[0]!=="computer"||tts.browser).map(([k,l])=>`<option value="${k}" ${k===S.tts.voice?"selected":""}>${l}</option>`).join("")}
+function setReadBtn(){const b=$("#read");if(b){b.textContent=tts.speaking?"■ Stop reading":"🔊 Read slide";b.classList.toggle("reading",tts.speaking)}}
+function stopSpeak(){speakId++;tts.speaking=false;player.onended=player.onerror=null;player.pause();if(tts.browser)try{speechSynthesis.cancel()}catch(e){}setReadBtn()}
+function browserSpeak(text,done){
+  if(!tts.browser){done();return}
+  const u=new SpeechSynthesisUtterance(text);
+  const best=speechSynthesis.getVoices().find(v=>/^en/i.test(v.lang)&&/natural|premium|enhanced|google us/i.test(v.name)); if(best)u.voice=best;
+  u.rate=S.tts.rate; u.onend=u.onerror=done;
+  tts.speaking=true; setReadBtn(); speechSynthesis.speak(u);
+}
+function speak(text,file){
+  stopSpeak(); const id=speakId;
+  const done=()=>{if(id!==speakId)return;tts.speaking=false;setReadBtn()};
+  if(S.tts.voice==="computer"||!file){browserSpeak(text,done);return}
+  player.src=`audio/${S.tts.voice}/${file}.mp3`;
+  player.defaultPlaybackRate=player.playbackRate=S.tts.rate;
+  player.onended=done;
+  player.onerror=()=>{if(id===speakId)browserSpeak(text,done)};
+  tts.speaking=true; setReadBtn();
+  player.play().catch(()=>{if(id===speakId)browserSpeak(text,done)});
+}
+
+/* ---------- per-lesson timer (runs only in Lessons) ---------- */
+const clock={topic:null,start:null,paused:false};
+const fmt=ms=>{const s=Math.floor(ms/1000);return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`};
+function clockElapsed(id){return (S.times[id]||0)+(clock.topic===id&&clock.start?Date.now()-clock.start:0)}
+function clockStop(){if(clock.topic&&clock.start){S.times[clock.topic]=(S.times[clock.topic]||0)+Date.now()-clock.start;clock.start=null;save()}}
+function clockSet(id){if(clock.topic!==id){clockStop();clock.topic=id}if(!clock.paused&&!clock.start)clock.start=Date.now();clockDraw()}
+function clockDraw(){
+  const box=$("#clockbox"); box.hidden=room!=="lessons"||!clock.topic;
+  if(box.hidden)return;
+  $("#clabel").textContent=`Lesson ${T.findIndex(t=>t.id===clock.topic)+1}`;
+  $("#ctime").textContent=fmt(clockElapsed(clock.topic));
+  $("#cpause").textContent=clock.paused?"Resume":"Pause";
+}
+$("#cpause").onclick=()=>{clock.paused=!clock.paused;if(clock.paused)clockStop();else clock.start=Date.now();clockDraw()};
+$("#creset").onclick=()=>{S.times[clock.topic]=0;if(clock.start)clock.start=Date.now();save();clockDraw()};
+setInterval(clockDraw,1000);
+
+function toggleKnown(id){if(S.known[id])delete S.known[id];else S.known[id]=1;save()}
+
+let labStop=null;
+function go(r,opt){stopSpeak();if(labStop)labStop();if(r!=="lessons")clockStop();room=r;try{history.replaceState(null,"","#"+r)}catch(e){}renderTabs();render(opt);clockDraw();window.scrollTo(0,0)}
+
+function chipsFor(t){
+  const c=[];
+  if(S.known[t.id]) c.push(`<span class="chip ok">Got it down</span>`);
+  if(S.times[t.id]>=1000) c.push(`<span class="chip">⏱ ${fmt(S.times[t.id])}</span>`);
+  if(!c.length) c.push(`<span class="chip">Not started</span>`);
+  return c.join("");
+}
+
+/* ---------- rooms ---------- */
+function render(opt={}){
+  const app=$("#app");
+  if(room==="home"){
+    app.innerHTML=`<section class="hero">
+      <h1>Projectile Motion Test</h1>
+      <p>Seven short lessons cover everything on the study guide: horizontal launches, angled launches, the top of the path, and landing velocity. Then work the free-response problems step by step in the GUESS Coach and take the practice test.</p>
+      <div class="note"><b>House rule:</b> right and up are positive, so the acceleration is always ${md("[[a_y = -9.8|]]")} m/s².</div>
+      <p class="mono" style="color:var(--yellow);margin:0">Checked off: ${Object.keys(S.known).filter(k=>byId(k)).length} / ${T.length} lessons</p>
+      <p class="muted" style="margin:0;font-size:.9rem">Tap the box on a lesson when you've got it down.</p>
+    </section>
+    <div class="grid">${T.map((t,i)=>`<div class="topic ${S.known[t.id]?"known":""}"><button class="open" data-lesson="${t.id}"><span class="num">LESSON ${i+1} · ${esc(t.when)}</span><h3>${esc(t.title)}</h3><span class="tl">${t.slides.map(x=>esc(x.h)).join(" · ")}</span><div class="chips">${chipsFor(t)}</div></button><button class="check" data-check="${t.id}" aria-pressed="${!!S.known[t.id]}" aria-label="I've got ${esc(t.title)} down">${S.known[t.id]?"✓":""}</button></div>`).join("")}</div>
+    <h2 class="section-h">Common mistakes</h2>
+    <div class="mix bad">${MISTAKES.map(([a,b])=>`<div><b>${md(a)}</b>${md(b)}</div>`).join("")}</div>
+    <h2 class="section-h">Plan for tonight</h2>
+    <ol class="muted" style="max-width:65ch;display:grid;gap:6px;padding-left:1.2em">
+      <li><b style="color:var(--chalk)">20 min:</b> Lessons 1–7. Tap "Read slide" if you'd rather listen.</li>
+      <li><b style="color:var(--chalk)">10 min:</b> Formula Sheet. Learn the "Which equation?" chart.</li>
+      <li><b style="color:var(--chalk)">25 min:</b> GUESS Coach: Free Response 1 and 2, then two new problems of each type.</li>
+      <li><b style="color:var(--chalk)">20 min:</b> Practice Test. Flag anything you guess with "? Unsure", then run Test Retake.</li>
+      <li><b style="color:var(--chalk)">Morning:</b> One Quiz Show round and the Common mistakes board above.</li>
+    </ol>`;
+    app.querySelectorAll("[data-lesson]").forEach(b=>b.onclick=()=>go("lessons",{topic:b.dataset.lesson}));
+    app.querySelectorAll("[data-check]").forEach(b=>b.onclick=()=>{toggleKnown(b.dataset.check);render()});
+  }
+  if(room==="lessons") lessonRoom(app,opt.topic||lessonTopic||T[0].id);
+  if(room==="lab") labRoom(app);
+  if(room==="formulas") formulaRoom(app);
+  if(room==="coach") coachRoom(app,opt);
+  if(room==="flash") flashRoom(app);
+  if(room==="quiz") quizRoom(app);
+  if(room==="test") testRoom(app);
+  if(room==="retake") retakeRoom(app);
+}
+
+function pickBar(cur,attr){
+  return `<div class="topic-pick">${T.map((t,i)=>`<button ${attr}="${t.id}" aria-pressed="${t.id===cur}">${i+1}. ${esc(t.title)}</button>`).join("")}</div>`;
+}
+
+/* Lessons: each lesson's slides end with a "Know this" recap slide. */
+const allSlides = t => [...t.slides,{h:"Know this",terms:t.terms}];
+function slideSpeech(t,s){
+  const end=x=>/[.!?]$/.test(x)?x:x+".";
+  return [t.title,s.h,...(s.p||[]),s.tip||"",...(s.terms||[]).map(([a,b])=>`${a}. ${b}`)].filter(Boolean).map(x=>end(say(x))).join(" ");
+}
+let slideIdx=0, lessonTopic=null, keyHandler=null;
+function lessonRoom(app,topicId){
+  if(lessonTopic!==topicId){slideIdx=0;lessonTopic=topicId}
+  const t=byId(topicId);
+  const slides=allSlides(t);
+  const s=slides[slideIdx], last=slideIdx===slides.length-1;
+  const n=T.indexOf(t), N=T.length;
+  app.innerHTML=`${pickBar(t.id,"data-t")}
+  <section class="stage" aria-live="polite">
+    <div class="eyebrow">Lesson ${n+1} of ${N} · ${esc(t.title)} · ${esc(t.when)}</div>
+    <div style="display:grid;gap:16px;align-content:start">
+      <h2>${esc(s.h)}</h2>
+      ${s.p?`<ul>${s.p.map(x=>`<li>${md(x)}</li>`).join("")}</ul>`:""}
+      ${s.tip?`<div class="note">${md(s.tip)}</div>`:""}
+      ${s.terms?`<dl>${s.terms.map(([a,b])=>`<div><dt>${md(a)}</dt><dd>${md(b)}</dd></div>`).join("")}</dl>`:""}
+    </div>
+    <div class="ctrl">
+      <button class="btn ghost" id="prev" ${slideIdx===0&&n===0?"disabled":""}>← Back</button>
+      <button class="btn ${last?"y":""}" id="next">${last?(n<N-1?"Next lesson →":"Go to the GUESS Coach →"):"Next →"}</button>
+      <button class="btn ghost" id="read">🔊 Read slide</button>
+      <button class="btn ghost knowbtn" id="know" aria-pressed="${!!S.known[t.id]}">${S.known[t.id]?"✓ Got it down":"☐ Got it down"}</button>
+      <div class="dots">${slides.map((_,i)=>`<i class="${i===slideIdx?"on":""}"></i>`).join("")}</div>
+    </div>
+  </section>
+  <div class="tts"><label>Voice <select id="voice">${voiceOpts()}</select></label>
+    <label>Speed <select id="rate">${[0.75,1,1.25,1.5].map(r=>`<option value="${r}" ${r==S.tts.rate?"selected":""}>${r}×</option>`).join("")}</select></label>
+    <label><input type="checkbox" id="auto" ${S.tts.auto?"checked":""}> Read each slide automatically</label>
+    <span>Arrow keys change slides.</span></div>`;
+  stopSpeak(); clockSet(t.id);
+  $("#know").onclick=e=>{toggleKnown(t.id);const k=!!S.known[t.id];e.currentTarget.setAttribute("aria-pressed",k);e.currentTarget.textContent=k?"✓ Got it down":"☐ Got it down"};
+  const text=slideSpeech(t,s), file=`${t.id}-${slideIdx}`;
+  $("#read").onclick=()=>tts.speaking?stopSpeak():speak(text,file);
+  $("#voice").onchange=e=>{S.tts.voice=e.target.value;save();if(tts.speaking)speak(text,file)};
+  $("#rate").onchange=e=>{S.tts.rate=+e.target.value;save();player.defaultPlaybackRate=player.playbackRate=S.tts.rate};
+  $("#auto").onchange=e=>{S.tts.auto=e.target.checked;save();if(S.tts.auto)speak(text,file)};
+  if(S.tts.auto) speak(text,file);
+  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>lessonRoom(app,b.dataset.t));
+  const next=()=>{if(!last){slideIdx++;lessonRoom(app,t.id)}else if(n<N-1){lessonRoom(app,T[n+1].id)}else go("coach")};
+  const prev=()=>{if(slideIdx>0){slideIdx--;lessonRoom(app,t.id)}else if(n>0){const p=T[n-1];lessonTopic=p.id;slideIdx=allSlides(p).length-1;lessonRoom(app,p.id)}};
+  $("#next").onclick=next; $("#prev").onclick=prev;
+  if(keyHandler) document.removeEventListener("keydown",keyHandler);
+  keyHandler=e=>{if(room!=="lessons"||e.target.closest("input,select"))return;if(e.key==="ArrowRight")next();if(e.key==="ArrowLeft")prev()};
+  document.addEventListener("keydown",keyHandler);
+}
+
+/* ---------- Formula Sheet ---------- */
+const EQ={
+  comp:{n:"Launch components",tex:"v_{ix}=v_i\\cos\\theta \\qquad v_{iy}=v_i\\sin\\theta",vars:["vi","th","vix","viy"],use:"Angled launch: split the launch speed into horizontal (cos) and vertical (sin) parts."},
+  dx:{n:"Horizontal motion",tex:"d_x=v_x t",vars:["dx","vx","t"],use:"Anything sideways. [[v_x|]] never changes, so this is the only horizontal equation you need."},
+  dy:{n:"Vertical displacement",tex:"d_y=v_{iy}t+\\tfrac12 a_y t^2",vars:["dy","viy","ay","t"],use:"Time to fall, or height after a time. Has no [[v_{fy}|]] in it."},
+  vfy:{n:"Vertical velocity",tex:"v_{fy}=v_{iy}+a_y t",vars:["vfy","viy","ay","t"],use:"Vertical velocity at a time, or time to the top ([[v_{fy}=0|]]). Has no [[d_y|]] in it."},
+  vfy2:{n:"Vertical, no time",tex:"v_{fy}^2=v_{iy}^2+2a_y d_y",vars:["vfy","viy","ay","dy"],use:"Max height, or landing [[v_{fy}|]] when you don't know [[t|]]. Has no [[t|]] in it."},
+  mag:{n:"Final velocity",tex:"v=\\sqrt{v_x^2+v_{fy}^2} \\\\ \\theta=\\tan^{-1}\\!\\left(\\frac{\\lvert v_{fy}\\rvert}{v_x}\\right)",vars:["v","ang","vx","vfy"],use:"Put the two parts back together: speed, plus the angle below the horizontal."}
+};
+const VAR={vi:["v_i","launch speed","m/s"],th:["\\theta","launch angle above horizontal","°"],vix:["v_{ix}","initial horizontal velocity","m/s"],viy:["v_{iy}","initial vertical velocity","m/s"],
+  vx:["v_x","horizontal velocity (never changes)","m/s"],dx:["d_x","horizontal displacement","m"],dy:["d_y","vertical displacement","m"],ay:["a_y","vertical acceleration","m/s²"],
+  t:["t","time","s"],vfy:["v_{fy}","final vertical velocity","m/s"],v:["v","final speed","m/s"],ang:["\\theta","landing angle below horizontal","°"]};
+function formulaRoom(app){
+  const rows=[["vi","Launch speed","m/s","Always positive. Given in the problem."],["th","Launch angle","degrees","Measured up from the horizontal. Calculator in DEG mode."],
+    ["vix","Initial horizontal velocity","m/s","[[v_i\\cos\\theta|]]. Same as [[v_x|]] the whole flight."],["viy","Initial vertical velocity","m/s","[[v_i\\sin\\theta|]]. Zero for a horizontal launch."],
+    ["vx","Horizontal velocity","m/s","Constant, because [[a_x = 0|]]."],["dx","Horizontal displacement (range)","m","Positive to the right."],
+    ["dy","Vertical displacement","m","Negative if it lands below the start. Zero if it lands at the same height."],["ay","Vertical acceleration","m/s²","Always −9.8 m/s²."],
+    ["t","Time","s","The same for horizontal and vertical."],["vfy","Final vertical velocity","m/s","Zero at the top. Negative while falling."],
+    ["v","Final speed","m/s","[[\\sqrt{v_x^2+v_{fy}^2}|]]. Never negative."]];
+  const tick=(e,k)=>EQ[e].vars.includes(k)?`<span class="yes">✓</span>`:`<span class="nope">—</span>`;
+  app.innerHTML=`<section class="hero" style="padding-bottom:4px"><h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">Formula Sheet</h1>
+    <p>The study guide's equations, what every symbol means, and how to pick the right one. Right and up are positive, and ${md("[[a_y = -9.8|]]")} m/s².</p></section>
+  <div class="eqgrid">${Object.values(EQ).map((e,i)=>`<div class="eqc"><span class="tag">${i+1}. ${e.n}</span>${TEX(e.tex,1)}<p>${md(e.use)}</p></div>`).join("")}</div>
+  <h2 class="section-h">Shortcuts that come from those</h2>
+  <div class="eqgrid">
+    <div class="eqc"><span class="tag">Horizontal launch: time to fall</span>${TEX("t=\\sqrt{\\dfrac{2d_y}{a_y}}",1)}<p>From the [[d_y|]] equation with [[v_{iy}=0|]]. Both [[d_y|]] and [[a_y|]] negative.</p></div>
+    <div class="eqc"><span class="tag">Angled launch: max height</span>${TEX("d_y=\\dfrac{-v_{iy}^2}{2a_y}",1)}<p>From the no-time equation with [[v_{fy}=0|]] at the top.</p></div>
+    <div class="eqc"><span class="tag">Same height: total time</span>${TEX("t=\\dfrac{-2v_{iy}}{a_y}",1)}<p>From the [[d_y|]] equation with [[d_y=0|]]. Time up is half of this.</p></div>
+  </div>`.replace(/<p>([^<]*\[\[[\s\S]*?)<\/p>/g,(m,x)=>`<p>${md(x)}</p>`)+`
+  <h2 class="section-h">Every symbol</h2>
+  <div class="tablewrap"><table class="sym"><thead><tr><th>Symbol</th><th>Meaning</th><th>Units</th><th>Remember</th></tr></thead><tbody>
+    ${rows.map(([k,m,u,r])=>`<tr><td>${TEX(VAR[k][0])}</td><td>${m}</td><td class="mono">${u}</td><td>${md(r)}</td></tr>`).join("")}
+  </tbody></table></div>
+  <h2 class="section-h">Which equation?</h2>
+  <p class="muted" style="max-width:70ch">Each vertical equation leaves one thing out. Pick the one that leaves out the thing you don't know and don't need.</p>
+  <div class="tablewrap"><table class="sym"><thead><tr><th>Equation</th><th>${TEX("d_y")}</th><th>${TEX("v_{iy}")}</th><th>${TEX("v_{fy}")}</th><th>${TEX("a_y")}</th><th>${TEX("t")}</th><th>Leaves out</th></tr></thead><tbody>
+    ${["dy","vfy","vfy2"].map(e=>`<tr><td>${TEX(EQ[e].tex)}</td>${["dy","viy","vfy","ay","t"].map(k=>`<td class="c">${tick(e,k)}</td>`).join("")}<td>${TEX({dy:"v_{fy}",vfy:"d_y",vfy2:"t"}[e])}</td></tr>`).join("")}
+  </tbody></table></div>
+  <div class="mix" style="margin-top:16px">
+    <div><b>Want time, ball rolls off an edge?</b>${md("[[d_y = v_{iy}t + \\tfrac12 a_y t^2|]] with [[v_{iy}=0|]].")}</div>
+    <div><b>Want how far sideways?</b>${md("[[d_x = v_x t|]]. Get [[t|]] from the vertical first.")}</div>
+    <div><b>Want max height?</b>${md("[[v_{fy}^2 = v_{iy}^2 + 2a_y d_y|]] with [[v_{fy}=0|]].")}</div>
+    <div><b>Want time to the top?</b>${md("[[v_{fy} = v_{iy} + a_y t|]] with [[v_{fy}=0|]].")}</div>
+    <div><b>Want vertical velocity at landing?</b>${md("[[v_{fy} = v_{iy} + a_y t|]] if you have [[t|]]; the no-time equation if you don't.")}</div>
+    <div><b>Want the landing velocity?</b>${md("Speed [[\\sqrt{v_x^2+v_{fy}^2}|]], angle [[\\tan^{-1}(\\lvert v_{fy}\\rvert/v_x)|]] below horizontal.")}</div>
+  </div>`;
+}
+
+/* ---------- problems (shared by the GUESS Coach, Practice Test and Retake) ---------- */
+/* Each part: ask, unk (unknown keys), giv [{k,v,why}], ans [{k,v,label}], work {G,U,E,S,A} (TeX strings except U). */
+const AY=-9.8;
+const G = (k,v,why)=>({k,v,why});
+const A = (k,v,label)=>({k,v,label});
+const U_ = {m:"\\text{ m}",s:"\\text{ s}",ms:"\\text{ m/s}",ms2:"\\text{ m/s}^2",deg:"^\\circ"};
+const N_ = x => f3(x).replace("−","-");
+function horizontal(v,h,obj,vs,hs){
+  const t=Math.sqrt(2*h/9.8), dx=v*t, vfy=AY*t, sp=Math.hypot(v,vfy), ang=Math.atan(Math.abs(vfy)/v)*180/Math.PI;
+  const H=N_(h), V=N_(v), Tt=N_(t);
+  return {kind:"h",v,h,title:"Horizontal Launch",
+   story:`${obj||"A marble rolls horizontally off a lab bench"} at ${vs||v} m/s. The edge is ${hs||h} m above the floor. Ignore air resistance. Use [[a_y = -9.8|]] m/s² and take right and up as positive.`,
+   parts:[
+    {ask:"How long is it in the air before it hits the floor?",unk:["t"],
+     giv:[G("dy",-h,`It lands ${f3(h)} m BELOW where it started, so ${"[[d_y|]]"} is negative.`),G("viy",0,"It leaves moving straight sideways, so there is no vertical velocity at the start."),G("ay",AY,"Always −9.8 m/s² (down is negative).")],
+     ans:[A("t",t,"time")],
+     work:{G:`d_y=-${H}${U_.m},\\; v_{iy}=0,\\; a_y=-9.8${U_.ms2}`,U:"t, the time from the edge to the floor",E:"d_y=v_{iy}t+\\tfrac12a_yt^2 \\;\\Rightarrow\\; t=\\sqrt{2d_y/a_y}",S:`t=\\sqrt{\\dfrac{2(-${H})}{-9.8}}`,A:`t=${Tt}${U_.s}`}},
+    {ask:"How far from the edge does it land?",unk:["dx"],
+     giv:[G("vx",v,"Horizontal velocity never changes, so it is the launch speed."),G("t",t,"Use the time from part (a). Keep the extra digits.")],
+     ans:[A("dx",dx,"horizontal distance")],
+     work:{G:`v_x=+${V}${U_.ms},\\; t=${Tt}${U_.s}`,U:"dx, the horizontal displacement from the edge",E:"d_x=v_xt",S:`d_x=(${V})(${Tt})`,A:`d_x=+${N_(dx)}${U_.m}\\text{ (to the right)}`}},
+    {ask:"What is its vertical velocity just before landing? Include the sign.",unk:["vfy"],
+     giv:[G("viy",0,"Launched horizontally."),G("ay",AY,"Always −9.8 m/s²."),G("t",t,"From part (a).")],
+     ans:[A("vfy",vfy,"vertical velocity")],
+     work:{G:`v_{iy}=0,\\; a_y=-9.8${U_.ms2},\\; t=${Tt}${U_.s}`,U:"vfy, the vertical velocity at impact",E:"v_{fy}=v_{iy}+a_yt",S:`v_{fy}=0+(-9.8)(${Tt})`,A:`v_{fy}=${N_(vfy)}${U_.ms}\\text{ (downward)}`}},
+    {ask:"What is its final velocity (speed and angle) just before landing?",unk:["v","ang"],
+     giv:[G("vx",v,"Same as the launch speed the whole flight."),G("vfy",vfy,"From part (c). Negative, moving down.")],
+     ans:[A("v",sp,"speed"),A("ang",ang,"angle below horizontal")],
+     work:{G:`v_x=+${V}${U_.ms},\\; v_{fy}=${N_(vfy)}${U_.ms}`,U:"the impact speed and its angle",E:"v=\\sqrt{v_x^2+v_{fy}^2},\\;\\; \\theta=\\tan^{-1}(\\lvert v_{fy}\\rvert/v_x)",S:`v=\\sqrt{(${V})^2+(${N_(vfy)})^2},\\;\\; \\theta=\\tan^{-1}(${N_(-vfy)}/${V})`,A:`${N_(sp)}${U_.ms}\\text{ at }${N_(ang)}^\\circ\\text{ below the horizontal, to the right}`}}
+   ]};
+}
+function angled(v,th,obj,vs,ths){
+  const r=th*Math.PI/180, vix=v*Math.cos(r), viy=v*Math.sin(r), H=viy*viy/19.6, t=2*viy/9.8, R=vix*t, vfy=-viy;
+  const V=N_(v), TH=N_(th), VX=N_(vix), VY=N_(viy), Tt=N_(t);
+  return {kind:"a",v,th,title:"Launch at an Angle",
+   story:`${obj||"A student launches a foam ball from ground level"} at ${vs||v} m/s and ${ths||th}° above the horizontal. It lands back at ground level. Ignore air resistance. Use [[a_y = -9.8|]] m/s² and take right and up as positive.`,
+   parts:[
+    {ask:"Find the horizontal and vertical parts of the launch velocity.",unk:["vix","viy"],
+     giv:[G("vi",v,"The launch speed from the problem."),G("th",th,"The launch angle above the horizontal.")],
+     ans:[A("vix",vix,"horizontal part"),A("viy",viy,"vertical part")],
+     work:{G:`v_i=${V}${U_.ms},\\; \\theta=${TH}^\\circ`,U:"vix and viy, the launch components",E:"v_{ix}=v_i\\cos\\theta,\\;\\; v_{iy}=v_i\\sin\\theta",S:`v_{ix}=(${V})\\cos ${TH}^\\circ,\\;\\; v_{iy}=(${V})\\sin ${TH}^\\circ`,A:`v_{ix}=+${VX}${U_.ms},\\;\\; v_{iy}=+${VY}${U_.ms}`}},
+    {ask:"What maximum height does it reach above the ground?",unk:["dy"],
+     giv:[G("viy",viy,"From part (a)."),G("vfy",0,"At the top, the vertical velocity is zero."),G("ay",AY,"Always −9.8 m/s².")],
+     ans:[A("dy",H,"max height")],
+     work:{G:`v_{iy}=+${VY}${U_.ms},\\; v_{fy}=0\\text{ (top)},\\; a_y=-9.8${U_.ms2}`,U:"dy, the height of the top above the launch point",E:"v_{fy}^2=v_{iy}^2+2a_yd_y \\;\\Rightarrow\\; d_y=\\dfrac{v_{fy}^2-v_{iy}^2}{2a_y}",S:`d_y=\\dfrac{0-(${VY})^2}{2(-9.8)}`,A:`d_y=${N_(H)}${U_.m}`}},
+    {ask:"What is its total time in the air?",unk:["t"],
+     giv:[G("dy",0,"It lands at the same height it started, so the vertical displacement is zero."),G("viy",viy,"From part (a)."),G("ay",AY,"Always −9.8 m/s².")],
+     ans:[A("t",t,"total time")],
+     work:{G:`d_y=0,\\; v_{iy}=+${VY}${U_.ms},\\; a_y=-9.8${U_.ms2}`,U:"t, the total time in the air",E:"0=v_{iy}t+\\tfrac12a_yt^2 \\;\\Rightarrow\\; t=\\dfrac{-2v_{iy}}{a_y}",S:`t=\\dfrac{-2(${VY})}{-9.8}`,A:`t=${Tt}${U_.s}\\text{ (the other root, }t=0\\text{, is the launch)}`}},
+    {ask:"What is its horizontal range?",unk:["dx"],
+     giv:[G("vx",vix,"The horizontal part from (a). It never changes."),G("t",t,"The total time from (c).")],
+     ans:[A("dx",R,"range")],
+     work:{G:`v_x=+${VX}${U_.ms},\\; t=${Tt}${U_.s}`,U:"dx, the range",E:"d_x=v_xt",S:`d_x=(${VX})(${Tt})`,A:`d_x=+${N_(R)}${U_.m}`}},
+    {ask:"What is its final velocity just before landing (vertical part, speed, and angle)?",unk:["vfy","v","ang"],
+     giv:[G("vx",vix,"Unchanged from launch."),G("viy",viy,"From part (a)."),G("ay",AY,"Always −9.8 m/s²."),G("t",t,"From part (c).")],
+     ans:[A("vfy",vfy,"vertical part"),A("v",v,"speed"),A("ang",th,"angle below horizontal")],
+     work:{G:`v_x=+${VX}${U_.ms},\\; v_{iy}=+${VY}${U_.ms},\\; a_y=-9.8${U_.ms2},\\; t=${Tt}${U_.s}`,U:"vfy, then the speed and angle",E:"v_{fy}=v_{iy}+a_yt,\\;\\; v=\\sqrt{v_x^2+v_{fy}^2},\\;\\; \\theta=\\tan^{-1}(\\lvert v_{fy}\\rvert/v_x)",S:`v_{fy}=${VY}+(-9.8)(${Tt}),\\;\\; v=\\sqrt{(${VX})^2+(${N_(vfy)})^2}`,A:`v_{fy}=${N_(vfy)}${U_.ms};\\; ${V}${U_.ms}\\text{ at }${TH}^\\circ\\text{ below the horizontal (same as launch)}`}}
+   ]};
+}
+const FR1=()=>horizontal(3.5,1.60,"A marble rolls horizontally off a lab bench","3.5","1.60");
+const FR2=()=>angled(14.0,30.0,"A student launches a foam ball from ground level","14.0","30.0");
+const H_OBJ=[["A marble rolls horizontally off a lab bench",[0.8,1.6],[1,5]],["A skateboarder rides straight off a ledge",[0.8,3],[3,9]],["A stone is kicked horizontally off a cliff",[10,45],[3,15]],
+  ["A toy car shoots horizontally off a table",[0.7,1.2],[1,4]],["A package slides horizontally off a flat roof",[3,12],[2,7]],["A diver runs straight off a platform",[3,10],[1.5,4]]];
+const A_OBJ=["A soccer ball is kicked from the field","A golf ball is chipped from the fairway","A foam ball is launched from ground level","A water balloon is launched from the lawn","A football is punted from ground level"];
+function randH(){const [o,hr,vr]=pick(H_OBJ);return horizontal(rnd(vr[0],vr[1],1),+rnd(hr[0],hr[1],2).toPrecision(3),o)}
+function randA(){let th;do{th=Math.round(rnd(20,70))}while(th===45);return angled(Math.round(rnd(9,30)),th,pick(A_OBJ))}
+function workHTML(p){return `<div class="work"><div><b>Givens</b><span>${TEX(p.work.G)}</span></div><div><b>Unknown</b><span>${md(p.work.U.replace(/\b(vix|viy|vfy|dx|dy|vx|t)\b/g,(m,k)=>`[[${VAR[k][0]}|]]`))}</span></div><div><b>Equation</b><span>${TEX(p.work.E)}</span></div><div><b>Substitute</b><span>${TEX(p.work.S)}</span></div><div><b>Solve</b><span>${TEX(p.work.A)}</span></div></div>`}
+function sketch(prob){
+  if(prob.kind==="h") return `<svg class="sketch" viewBox="0 0 400 190" role="img" aria-label="Sketch: object leaves a ledge horizontally and curves down to the floor">
+    <rect x="20" y="40" width="90" height="130" fill="none" stroke="currentColor" stroke-width="2"/><line x1="10" y1="170" x2="390" y2="170" stroke="currentColor" stroke-width="2"/>
+    <path d="M110 40 Q 230 45 300 168" fill="none" stroke="currentColor" stroke-dasharray="5 5" stroke-width="2"/><circle cx="110" cy="34" r="6" fill="currentColor"/>
+    <line x1="116" y1="34" x2="166" y2="34" stroke="#c8962a" stroke-width="3"/><path d="M166 34 l-9 -5 v10z" fill="#c8962a"/><text x="140" y="26" font-size="13" fill="#c8962a">vᵢ</text>
+    <line x1="130" y1="60" x2="130" y2="96" stroke="#a2312b" stroke-width="3"/><path d="M130 100 l-5 -9 h10z" fill="#a2312b"/><text x="138" y="88" font-size="13" fill="#a2312b">aᵧ</text>
+    <line x1="352" y1="40" x2="352" y2="170" stroke="currentColor" stroke-width="1"/><text x="358" y="110" font-size="13" fill="currentColor">dᵧ</text>
+    <line x1="110" y1="184" x2="300" y2="184" stroke="currentColor" stroke-width="1"/><text x="200" y="181" font-size="13" fill="currentColor">dₓ</text></svg>`;
+  return `<svg class="sketch" viewBox="0 0 400 170" role="img" aria-label="Sketch: ball launched at an angle from the ground, rising to a maximum height and landing at the same level">
+    <line x1="10" y1="150" x2="390" y2="150" stroke="currentColor" stroke-width="2"/><path d="M40 150 Q 200 -20 360 150" fill="none" stroke="currentColor" stroke-dasharray="5 5" stroke-width="2"/>
+    <line x1="40" y1="150" x2="95" y2="108" stroke="#c8962a" stroke-width="3"/><text x="62" y="112" font-size="13" fill="#c8962a">vᵢ</text><text x="90" y="145" font-size="13" fill="currentColor">θ</text>
+    <line x1="200" y1="65" x2="200" y2="150" stroke="currentColor" stroke-width="1"/><text x="206" y="112" font-size="13" fill="currentColor">max height</text>
+    <line x1="40" y1="163" x2="360" y2="163" stroke="currentColor" stroke-width="1"/><text x="185" y="160" font-size="13" fill="currentColor">range dₓ</text></svg>`;
+}
+
+/* ---------- GUESS Coach ---------- */
+/* State lives in CO so leaving the tab and coming back redraws exactly where you were. */
+let CO={pid:"fr1",pi:0,probs:{fr1:FR1(),fr2:FR2()},st:{}};
+const PNAME={fr1:"Free Response 1 · Horizontal",fr2:"Free Response 2 · Angled"};
+function eqVerdict(e,p){
+  const vars=EQ[e].vars, have=new Set(p.giv.map(g=>g.k)), unk=new Set(p.unk);
+  const alias=k=>k==="vix"&&have.has("vx")?"vx":k;
+  if(!vars.some(k=>unk.has(k))) return {ok:false,msg:`This one doesn't contain ${p.unk.map(k=>TEX(VAR[k][0])).join(" or ")}, so it can't find it.`};
+  const miss=vars.filter(k=>!unk.has(k)&&!have.has(alias(k))&&!(e==="comp"&&p.unk.includes("vix")));
+  if(miss.length) return {ok:false,msg:`This needs ${miss.map(k=>TEX(VAR[k][0])).join(" and ")}, which isn't in your givens for this part.`};
+  return {ok:true,msg:`Yes. Everything in it is known except ${vars.filter(k=>unk.has(k)).map(k=>TEX(VAR[k][0])).join(", ")}.`};
+}
+function coachRoom(app,opt={}){
+  if(opt.pid){CO.pid=opt.pid;CO.pi=opt.pi||0;if(opt.prob)CO.probs[opt.pid]=opt.prob;if(opt.show){const k=`${CO.pid}-${CO.pi}`;CO.st[k]=Object.assign(CO.st[k]||{},{show:true})}}
+  const prob=CO.probs[CO.pid], p=prob.parts[CO.pi], key=`${CO.pid}-${CO.pi}`;
+  const st=CO.st[key]=CO.st[key]||{g:{},gc:false,eq:[],a:{},ac:false,show:false};
+  const L=String.fromCharCode(97+CO.pi);
+  const gRes=p.giv.map(g=>chk(st.g[g.k],g.v)), gDone=st.gc&&gRes.every(r=>r==="ok");
+  const eqOk=p.unk.every(u=>st.eq.some(e=>eqVerdict(e,p).ok&&EQ[e].vars.includes(u)));
+  const aRes=p.ans.map(a=>chk(st.a[a.k],a.v)), aDone=st.ac&&aRes.every(r=>r==="ok");
+  const partDone=i=>{const s=CO.st[`${CO.pid}-${i}`];return s&&s.ac&&prob.parts[i].ans.every(a=>chk(s.a[a.k],a.v)==="ok")};
+  const custom=CO.pid.startsWith("gen");
+  app.innerHTML=`<section class="hero" style="padding-bottom:0"><h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">GUESS Coach</h1>
+    <p><b style="color:var(--chalk)">G</b>ivens, <b style="color:var(--chalk)">U</b>nknown, <b style="color:var(--chalk)">E</b>quation, <b style="color:var(--chalk)">S</b>ubstitute, <b style="color:var(--chalk)">S</b>olve. Fill in each step and check it. Type numbers only, with a minus sign where it belongs.</p></section>
+  <div class="topic-pick">
+    <button data-pid="fr1" aria-pressed="${CO.pid==="fr1"}">${PNAME.fr1}</button><button data-pid="fr2" aria-pressed="${CO.pid==="fr2"}">${PNAME.fr2}</button>
+    <button data-gen="h" aria-pressed="${CO.pid==="genh"}">🎲 New horizontal problem</button><button data-gen="a" aria-pressed="${CO.pid==="gena"}">🎲 New angled problem</button>
+  </div>
+  <div class="qbox">
+    <div class="mono muted" style="font-size:.8rem;letter-spacing:.06em;text-transform:uppercase">${custom?"Practice problem · ":""}${prob.title}</div>
+    <p class="story">${md(prob.story)}</p>
+    <div style="color:var(--chalk-dim)">${sketch(prob)}</div>
+    <div class="parts">${prob.parts.map((_,i)=>`<button data-pi="${i}" aria-pressed="${i===CO.pi}" class="${partDone(i)?"done":""}">(${String.fromCharCode(97+i)})${partDone(i)?" ✓":""}</button>`).join("")}</div>
+    <h2>(${L}) ${esc(p.ask)}</h2>
+    <div class="step ${gDone?"done":""}"><h3><span class="L">G</span>Givens: type each value with its sign</h3>
+      <div class="gin">${p.giv.map((g,i)=>{const r=gRes[i];return `<label class="${st.gc?(r==="ok"?"ok":"no"):""}">${TEX(VAR[g.k][0]+"=")}<input class="numin" inputmode="decimal" autocomplete="off" data-g="${g.k}" value="${esc(st.g[g.k]||"")}" aria-label="${VAR[g.k][1]}"><span class="mono muted">${VAR[g.k][2]}</span>
+        ${st.gc&&r!=="ok"?`<p class="fb no">${r==="sign"?"Check the sign. ":r==="empty"?"":"Not quite. "}${md(g.why)}</p>`:st.gc?`<p class="fb ok">✓ ${md(g.why)}</p>`:""}</label>`}).join("")}</div>
+      <div class="ctrl"><button class="btn ghost" id="cg">Check givens</button>${st.gc&&!gDone?`<button class="btn ghost" id="fillg">Show me the givens</button>`:""}</div></div>
+    <div class="step"><h3><span class="L">U</span>Unknown</h3><p style="margin:0">${p.unk.map(k=>`${TEX(VAR[k][0])} <span class="muted">(${VAR[k][1]})</span>`).join(", ")}</p></div>
+    <div class="step ${eqOk?"done":""}"><h3><span class="L">E</span>Equation: tap the one${p.unk.length>1?"s":""} that will find it</h3>
+      <div class="eqpick">${Object.keys(EQ).map(e=>{const on=st.eq.includes(e),v=on&&eqVerdict(e,p);return `<button data-eq="${e}" class="${on?(v.ok?"ok":"no"):""}" aria-pressed="${on}">${TEX(EQ[e].tex)}</button>`}).join("")}</div>
+      ${st.eq.map(e=>{const v=eqVerdict(e,p);return `<p class="fb ${v.ok?"ok":"no"}">${v.ok?"✓":"✗"} ${EQ[e].n}: ${v.msg}</p>`}).join("")}</div>
+    <div class="step ${aDone?"done":""}"><h3><span class="L">S</span>Substitute &amp; Solve</h3>
+      ${eqOk?`<p class="muted" style="margin:0">Plug your givens into the equation, then solve. Keep extra digits until the end.</p>`:`<p class="muted" style="margin:0">Pick a working equation first (or just try the answer).</p>`}
+      <div class="gin">${p.ans.map((a,i)=>{const r=aRes[i];return `<label class="${st.ac?(r==="ok"?"ok":"no"):""}">${TEX(VAR[a.k][0]+"=")}<input class="numin" inputmode="decimal" autocomplete="off" data-a="${a.k}" value="${esc(st.a[a.k]||"")}" aria-label="${a.label}"><span class="mono muted">${VAR[a.k][2]}</span>
+        ${st.ac?`<p class="fb ${r==="ok"?"ok":"no"}">${CHKMSG[r]}</p>`:""}</label>`}).join("")}</div>
+      <div class="ctrl"><button class="btn y" id="ca">Check answer</button><button class="btn ghost" id="sw">${st.show?"Hide":"Show"} worked solution</button>
+        ${CO.pi<prob.parts.length-1?`<button class="btn ${aDone?"":"ghost"}" id="np">Next part →</button>`:custom||CO.pid==="fr1"?`<button class="btn ${aDone?"":"ghost"}" id="nx">${CO.pid==="fr1"?"On to Free Response 2 →":"Another problem →"}</button>`:`<button class="btn ${aDone?"":"ghost"}" id="nx">Try a new problem →</button>`}</div>
+      ${aDone?`<p class="fb ok" style="font-size:1rem"><b>Nailed it.</b> ${CO.pi<prob.parts.length-1?"On to the next part.":"That's the whole problem."}</p>`:""}
+    </div>
+    ${st.show?workHTML(p):""}
+  </div>
+  <p class="muted" style="font-size:.88rem">Answers within about 2% count, so normal rounding is fine. Givens from earlier parts (like ${TEX("t")}) can be typed rounded too.</p>`;
+  const rr=()=>coachRoom(app);
+  app.querySelectorAll("[data-pid]").forEach(b=>b.onclick=()=>{CO.pid=b.dataset.pid;CO.pi=0;rr()});
+  app.querySelectorAll("[data-gen]").forEach(b=>b.onclick=()=>{const id="gen"+b.dataset.gen;CO.probs[id]=b.dataset.gen==="h"?randH():randA();CO.pid=id;CO.pi=0;Object.keys(CO.st).forEach(k=>{if(k.startsWith(id+"-"))delete CO.st[k]});rr()});
+  app.querySelectorAll("[data-pi]").forEach(b=>b.onclick=()=>{CO.pi=+b.dataset.pi;rr()});
+  app.querySelectorAll("[data-g]").forEach(i=>i.oninput=()=>{st.g[i.dataset.g]=i.value});
+  app.querySelectorAll("[data-a]").forEach(i=>{i.oninput=()=>{st.a[i.dataset.a]=i.value};i.onkeydown=e=>{if(e.key==="Enter"){st.ac=true;rr()}}});
+  $("#cg").onclick=()=>{st.gc=true;rr()};
+  const fg=$("#fillg"); if(fg) fg.onclick=()=>{p.giv.forEach(g=>st.g[g.k]=f3(g.v).replace("−","-"));rr()};
+  app.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{const e=b.dataset.eq;st.eq=st.eq.includes(e)?st.eq.filter(x=>x!==e):[...st.eq,e];rr()});
+  $("#ca").onclick=()=>{st.ac=true;if(p.ans.every(a=>chk(st.a[a.k],a.v)==="ok")){S.coach[CO.pid+"-"+CO.pi]=1;save()}rr()};
+  $("#sw").onclick=()=>{st.show=!st.show;rr()};
+  const np=$("#np"); if(np) np.onclick=()=>{CO.pi++;rr()};
+  const nx=$("#nx"); if(nx) nx.onclick=()=>{if(CO.pid==="fr1"){CO.pid="fr2";CO.pi=0}else{const k=CO.pid==="fr2"?"h":CO.pid.slice(3);const id="gen"+k;CO.probs[id]=k==="h"?randH():randA();CO.pid=id;CO.pi=0;Object.keys(CO.st).forEach(x=>{if(x.startsWith(id+"-"))delete CO.st[x]})}rr();scrollTo(0,0)};
+}
+
+/* ---------- Multiple choice helpers ---------- */
+/* Variant generators: same idea, new numbers. Used by Test Retake and the Quiz Show. Each returns [question,[right,wrong,wrong,wrong],why]. */
+function distinct(a){return new Set(a).size===a.length}
+const GEN={
+  dx(){let v,t,o;do{v=Math.round(rnd(8,26));t=pick([1.5,2.0,2.5,3.0,3.5,4.0]);o=[v*t,v/t,v+t,2*v*t].map(x=>f2(x)+" m")}while(!distinct(o));
+    return [`A toy car leaves a ramp horizontally at ${v} m/s and is in the air for ${t.toFixed(1)} s. How far does it travel horizontally?`,o,`[[d_x = v_x t = (${v})(${t.toFixed(1)}) = ${f2(v*t)}|]] m.`]},
+  dy(){const h=rnd(1.2,8.5,1);return [`A ball falls from a ledge ${h.toFixed(1)} m above the floor. If up is positive, what is its vertical displacement from the ledge to the floor?`,[`−${h.toFixed(1)} m`,`+${h.toFixed(1)} m`,"0 m","−9.8 m"],`It ends up ${h.toFixed(1)} m lower, so [[d_y = -${h.toFixed(1)}|]] m.`]},
+  viy(){let v,th,o;do{v=Math.round(rnd(12,30));th=pick([25,30,35,40,50,55,60,65]);const r=th*Math.PI/180;o=[v*Math.sin(r),v*Math.cos(r),v,0].map(x=>x?"+"+f2(x)+" m/s":"0 m/s")}while(!distinct(o));
+    return [`A ball is kicked at ${v} m/s at ${th}° above the horizontal. What is its initial vertical velocity?`,o,`[[v_{iy} = (${v})\\sin ${th}^\\circ \\approx ${f2(v*Math.sin(th*Math.PI/180))}|]] m/s. Vertical uses sine.`]},
+  vix(){let v,th,o;do{v=Math.round(rnd(12,30));th=pick([25,30,35,40,50,55,60,65]);const r=th*Math.PI/180;o=[v*Math.cos(r),v*Math.sin(r),v,0].map(x=>x?"+"+f2(x)+" m/s":"0 m/s")}while(!distinct(o));
+    return [`A ball is kicked at ${v} m/s at ${th}° above the horizontal. What is its initial horizontal velocity?`,o,`[[v_{ix} = (${v})\\cos ${th}^\\circ \\approx ${f2(v*Math.cos(th*Math.PI/180))}|]] m/s. Horizontal uses cosine.`]},
+  vx(){let vx,t,o;do{vx=Math.round(rnd(3,14));t=pick([2.0,2.5,3.0,3.5,4.0]);o=[vx,t,vx*t-t,vx*t*t].map(x=>"+"+f2(x)+" m/s")}while(!distinct(o));
+    return [`A projectile moves ${f2(vx*t)} m to the right in ${t.toFixed(1)} s. What is its horizontal velocity?`,o,`[[v_x = d_x / t = ${f2(vx*t)} / ${t.toFixed(1)} = +${f2(vx)}|]] m/s.`]},
+  ttot(){const u=rnd(0.6,2.4,1);return [`A ball launched at an angle takes ${u.toFixed(1)} s to reach its highest point and lands at its launch height. What is its total time in the air?`,[(2*u).toFixed(1)+" s",u.toFixed(1)+" s",(u/2).toFixed(2)+" s",(3*u).toFixed(1)+" s"],`Time down = time up, so the total is 2 × ${u.toFixed(1)} = ${(2*u).toFixed(1)} s.`]},
+  tfall(){let h,o;do{h=rnd(1.0,20,1);o=[Math.sqrt(2*h/9.8),2*h/9.8,Math.sqrt(h/9.8),h/9.8].map(x=>f2(x)+" s")}while(!distinct(o));
+    return [`A ball rolls horizontally off a ${h.toFixed(1)} m high ledge. How long does it take to reach the ground?`,o,`[[t = \\sqrt{2d_y/a_y} = \\sqrt{2(-${h.toFixed(1)})/(-9.8)} = ${f2(Math.sqrt(2*h/9.8))}|]] s.`]},
+  hmax(){let vy,o;do{vy=Math.round(rnd(4,20));o=[vy*vy/19.6,vy*vy/9.8,vy/9.8,vy/19.6].map(x=>f2(x)+" m")}while(!distinct(o));
+    return [`A ball is launched with a vertical velocity of +${vy} m/s. How high does it rise above the launch point?`,o,`[[d_y = -v_{iy}^2/(2a_y) = -(${vy})^2/(2 \\cdot -9.8) = ${f2(vy*vy/19.6)}|]] m.`]},
+  vyt(){let vy,t,o;do{vy=Math.round(rnd(5,20));t=pick([0.5,1.0,1.5,2.0,2.5,3.0]);const r=vy+AY*t;o=[r,vy-AY*t,AY*t,-r].map(x=>(x>0?"+":"")+f2(x)+" m/s")}while(!distinct(o));
+    const r=vy+AY*t;return [`A ball leaves with a vertical velocity of +${vy} m/s. What is its vertical velocity ${t.toFixed(1)} s later?`,o,`[[v_{fy} = v_{iy} + a_y t = ${vy} + (-9.8)(${t.toFixed(1)}) = ${f2(r).replace("−","-")}|]] m/s. ${r<0?"Negative means it is already coming down.":"Still going up."}`]}
+};
+const mkQ = q => ({q:q[0],opts:shuffle(q[1].map((o,i)=>({o,right:i===0}))),why:q[2]});
+
+/* Renders one multiple-choice question from a stored pick (null = unanswered). Keeping the pick in state means
+   leaving the tab mid-question and coming back redraws the same state instead of leaving dead buttons. */
+function mcView(opts,pick,why,nextLabel,extra){
+  const o=pick!=null?opts[pick]:null;
+  return `<div class="opts">${opts.map((x,j)=>`<button class="opt ${pick!=null&&x.right?"right":""} ${pick===j&&!x.right?"wrong":""}" data-i="${j}" ${pick!=null?"disabled":""}>${String.fromCharCode(65+j)}. ${md(x.o)}</button>`).join("")}</div>
+    ${o?`<div><p style="margin:0" class="${o.right?"":"why"}"><b style="color:${o.right?"var(--good)":"var(--bad)"}">${o.right?"Correct!":"Not quite."}</b> ${md(why)}</p>
+    <div class="ctrl" style="margin-top:10px"><button class="btn y" id="nq">${nextLabel}</button>${extra(o)}</div></div>`:""}`;
+}
+
+/* ---------- Practice Test: the study guide's 15 multiple choice + both free-response problems ---------- */
+const TP={fr1:FR1(),fr2:FR2()};
+const ITEMS=[...MC.map((q,i)=>({key:"m"+i,lab:String(i+1),mc:i})),
+  ...["fr1","fr2"].flatMap((pid,j)=>TP[pid].parts.map((p,pi)=>({key:`${pid}-${pi}`,lab:`${j+1}${String.fromCharCode(97+pi)}`,pid,pi})))];
+let P=(()=>{try{const p=JSON.parse(localStorage.getItem("pm-test"));return p&&p.ans?p:null}catch(e){return null}})();
+const saveP=()=>{try{localStorage.setItem("pm-test",JSON.stringify(P))}catch(e){}};
+function newTest(){P={ans:{},fr:{},unsure:[],graded:false,warned:false};saveP();if(typeof R!=="undefined")R=null}
+const frRes=(it)=>TP[it.pid].parts[it.pi].ans.map((a,k)=>chk(P.fr[`${it.key}-${k}`],a.v));
+const itemRight=it=>it.mc!=null?P.ans[it.key]===MC[it.mc][2]:frRes(it).every(r=>r==="ok");
+const itemAnswered=it=>it.mc!=null?P.ans[it.key]!=null:TP[it.pid].parts[it.pi].ans.some((a,k)=>(P.fr[`${it.key}-${k}`]||"").trim());
+const pts=it=>it.mc!=null?1:TP[it.pid].parts[it.pi].ans.length;
+const ptsGot=it=>it.mc!=null?(itemRight(it)?1:0):frRes(it).filter(r=>r==="ok").length;
+function testRoom(app){
+  if(!P) newTest();
+  const N=ITEMS.length, answered=ITEMS.filter(itemAnswered).length, uns=new Set(P.unsure||[]);
+  const total=ITEMS.reduce((n,it)=>n+pts(it),0);
+  let summary="";
+  if(P.graded){
+    const got=ITEMS.reduce((n,it)=>n+ptsGot(it),0), pct=Math.round(100*got/total);
+    const letter=pct>=90?"A":pct>=80?"B":pct>=70?"C":pct>=60?"D":"F";
+    const mcR=ITEMS.filter(it=>it.mc!=null&&itemRight(it)).length;
+    const f1=ITEMS.filter(it=>it.pid==="fr1").reduce((n,it)=>n+ptsGot(it),0), f2=ITEMS.filter(it=>it.pid==="fr2").reduce((n,it)=>n+ptsGot(it),0);
+    summary=`<div style="display:grid;gap:10px"><div><span class="grade">${letter} · ${got}/${total} points (${pct}%)</span></div>
+      <p style="margin:0">${pct>=90?"Test-ready. Run a GUESS Coach problem or two in the morning to stay warm.":"Open the worked solutions under anything red, then run Test Retake for fresh numbers on those."}</p>
+      <div class="breakdown"><span class="${mcR>=12?"hi":"lo"}">Multiple choice: ${mcR}/15</span><span class="${f1>=4?"hi":"lo"}">Free Response 1: ${f1}/5</span><span class="${f2>=7?"hi":"lo"}">Free Response 2: ${f2}/8</span></div></div>`;
+  }
+  const frBlock=(pid,j)=>{const prob=TP[pid];
+    return `<div class="frhead"><h2 style="font-size:1.6rem">Free Response ${j} · ${prob.title}</h2><p>${md(prob.story)} Use GUESS for each part. Type numbers only (include a minus sign where it belongs).</p>${sketch(prob)}</div>`+
+    prob.parts.map((p,pi)=>{const it=ITEMS.find(x=>x.key===`${pid}-${pi}`),key=it.key,res=P.graded?frRes(it):null,ok=P.graded&&itemRight(it),i=ITEMS.indexOf(it);
+      return `<fieldset class="mcq ${itemAnswered(it)?"answered":""}" id="q-${i}"><legend>${it.lab}. (${String.fromCharCode(97+pi)}) ${esc(p.ask)}${P.graded?`<span class="src">${pts(it)} pt${pts(it)>1?"s":""}${uns.has(key)?" · marked unsure":""}</span>`:`<button type="button" class="flag" data-flag="${key}" aria-pressed="${uns.has(key)}">? Unsure</button>`}</legend>
+        <div class="frin">${p.ans.map((a,k)=>{const v=P.fr[`${key}-${k}`]||"";return `<label class="${P.graded?(res[k]==="ok"?"is-right":"is-wrong"):v.trim()?"has":""}">${TEX(VAR[a.k][0]+"=")}<input class="numin" inputmode="decimal" autocomplete="off" name="${key}-${k}" value="${esc(v)}" ${P.graded?"disabled":""} aria-label="${a.label}"><span class="mono">${VAR[a.k][2]}</span>${P.graded&&res[k]!=="ok"?`<span class="mono" style="color:#1d7a3a">→ ${f3(a.v)}</span>`:""}</label>`}).join("")}</div>
+        ${P.graded&&!ok?`<details class="expl" ${res.includes("sign")?"open":""}><summary>${res.includes("sign")?"Sign mistake. ":res.every(r=>r==="empty")?"Left blank. ":"Missed. "}Worked solution</summary>${workHTML(p)}<div class="ctrl" style="margin-top:8px"><button type="button" class="btn" style="background:#23312b;color:#f6f1df" data-coach="${key}">Practice this part in the GUESS Coach</button></div></details>`:""}
+      </fieldset>`}).join("")};
+  app.innerHTML=`<form class="paper ${P.graded?"graded":""}" id="paper">
+    <div><h2 style="font-size:1.9rem">Projectile Motion · Practice Test</h2>
+    <p style="margin:6px 0 0">15 multiple choice and two free-response problems (${total} points). Ignore air resistance. Right and up are positive, ${md("[[a_y = -9.8|]]")} m/s². Answers within about 2% count. You'll see your score when you turn it in.</p></div>
+    ${summary}
+    <div style="display:grid;gap:6px"><span style="font-size:.85rem;color:#55625b">${P.graded?"Green = right, red = missed. Tap a number to jump to it.":"Dark = answered. Tap a number to jump to that question."}</span>
+    <div class="qnav" id="qnav">${ITEMS.map((it,i)=>`<button type="button" data-jump="${i}" class="${P.graded?(itemRight(it)?"ok":"no"):itemAnswered(it)?"done":""} ${uns.has(it.key)?"un":""}" aria-label="Question ${it.lab}">${it.lab}</button>`).join("")}</div></div>
+    <h2 style="font-size:1.6rem">Multiple Choice</h2>
+    ${MC.map((q,i)=>{const key="m"+i,a=P.ans[key];return `<fieldset class="mcq ${a!=null?"answered":""}" id="q-${i}"><legend>${i+1}. ${md(q[0])}${P.graded?`<span class="src">${uns.has(key)?"marked unsure":""}</span>`:`<button type="button" class="flag" data-flag="${key}" aria-pressed="${uns.has(key)}">? Unsure</button>`}</legend>
+      <div class="mopts">${q[1].map((o,j)=>{const cls=(P.graded?(j===q[2]?"is-right ":a===j?"is-wrong ":""):"")+(a===j?"sel":"");
+        return `<label class="${cls}"><input type="radio" name="${key}" value="${j}" ${a===j?"checked":""} ${P.graded?"disabled":""}> <span>${String.fromCharCode(65+j)}. ${md(o)}</span></label>`}).join("")}</div>
+      ${P.graded&&a!==q[2]?`<div class="expl"><b>${a==null?"Left blank.":"Missed."}</b> ${md(q[3])}</div>`:""}
+    </fieldset>`}).join("")}
+    ${frBlock("fr1",1)}${frBlock("fr2",2)}
+    <div class="ctrl">${P.graded?`<button class="btn" type="button" id="retake" style="background:#23312b;color:#f6f1df">Clear and take it again</button><button class="btn" type="button" id="tort" style="background:#f2d675;color:#2b2410">Test Retake (new numbers) →</button>`
+      :`<button class="btn" type="submit" style="background:#23312b;color:#f6f1df">${P.warned?"Turn it in anyway":"Turn it in"}</button>
+        ${P.warned?`<span class="warn-line">You left ${N-answered} blank.</span>`:""}`}</div>
+    ${P.graded?"":`<div class="sticky-count" id="count">Answered ${answered}/${N}</div>`}
+  </form>`;
+  $("#qnav").onclick=e=>{const b=e.target.closest("[data-jump]");if(!b)return;const f=$("#q-"+b.dataset.jump);
+    f.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});const r=f.querySelector("input:checked")||f.querySelector("input");if(r&&!r.disabled)r.focus({preventScroll:true})};
+  if(P.graded){
+    $("#retake").onclick=()=>{newTest();testRoom(app);scrollTo(0,0)};
+    $("#tort").onclick=()=>go("retake");
+    app.querySelectorAll("[data-coach]").forEach(b=>b.onclick=()=>{const [pid,pi]=b.dataset.coach.split("-");go("coach",{pid,pi:+pi,show:true})});
+    return;
+  }
+  $("#paper").addEventListener("click",e=>{const b=e.target.closest("[data-flag]");if(!b)return;const k=b.dataset.flag;
+    uns.has(k)?uns.delete(k):uns.add(k);P.unsure=[...uns];saveP();
+    b.setAttribute("aria-pressed",uns.has(k));const i=ITEMS.findIndex(it=>it.key===k);$(`#qnav [data-jump="${i}"]`).classList.toggle("un",uns.has(k))});
+  const mark=it=>{const i=ITEMS.indexOf(it),f=$("#q-"+i),on=itemAnswered(it);f.classList.toggle("answered",on);$(`#qnav [data-jump="${i}"]`).classList.toggle("done",on);
+    $("#count").textContent=`Answered ${ITEMS.filter(itemAnswered).length}/${N}`};
+  $("#paper").onchange=e=>{const n=e.target.name||"";
+    if(/^m\d+$/.test(n)){P.ans[n]=+e.target.value;saveP();const f=e.target.closest("fieldset");f.querySelectorAll("label").forEach(l=>l.classList.toggle("sel",l.contains(e.target)));mark(ITEMS.find(it=>it.key===n))}};
+  $("#paper").oninput=e=>{const n=e.target.name||"";const m=n.match(/^(fr\d-\d)-\d$/);if(!m)return;
+    P.fr[n]=e.target.value;saveP();e.target.closest("label").classList.toggle("has",!!e.target.value.trim());mark(ITEMS.find(it=>it.key===m[1]))};
+  $("#paper").onsubmit=e=>{e.preventDefault();
+    if(ITEMS.filter(itemAnswered).length<N&&!P.warned){P.warned=true;saveP();testRoom(app);return}
+    P.graded=true;R=null;saveP();testRoom(app);scrollTo(0,0);
+    const got=ITEMS.reduce((n,it)=>n+ptsGot(it),0);
+    if(got/total>=.9) confetti();
+  };
+}
+
+/* ---------- Test Retake: missed + unsure items, with new numbers where the question has numbers ---------- */
+let R=null;
+function retakePool(){if(!P||!P.graded)return [];const u=new Set(P.unsure||[]);return ITEMS.filter(it=>!itemRight(it)||u.has(it.key)).map(it=>it.key)}
+function variantFor(key){
+  const it=ITEMS.find(x=>x.key===key);
+  if(it.mc!=null){const q=MC[it.mc];
+    if(q[4]) return {type:"mc",...mkQ(GEN[q[4]]()),fresh:true};
+    return {type:"mc",q:q[0],opts:shuffle(q[1].map((o,j)=>({o,right:j===q[2]}))),why:q[3]}}
+  const prob=it.pid==="fr1"?randH():randA();
+  return {type:"fr",prob,pi:it.pi,vals:{},checked:false,show:false};
+}
+function startRetake(list){R={list:shuffle(list),i:0,right:0,missed:[],pick:null,cur:null}}
+function retakeRoom(app){
+  if(!P||!P.graded){
+    app.innerHTML=`<section class="hero"><h1 style="font-size:2.2rem">Test Retake</h1><p>Take and turn in the Practice Test first. Then this tab gives you another shot at the questions you missed or marked unsure, with new numbers so you can't just remember the answer.</p><div><button class="btn y" id="totest">Go to the Practice Test →</button></div></section>`;
+    $("#totest").onclick=()=>go("test");return;
+  }
+  const u=new Set(P.unsure||[]);
+  if(!R){
+    const pool=retakePool(), missed=ITEMS.filter(it=>!itemRight(it)).length;
+    app.innerHTML=`<section class="hero" style="padding-bottom:0"><h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">Test Retake</h1>
+      <p>The questions you missed on your last practice test, plus the ones you weren't sure about. Calculation questions come back with new numbers, and free-response parts come back as a brand-new problem of the same type.</p></section>
+      <div class="qbox">
+        <div class="muted" style="font-size:.9rem">Red = missed (always included). Yellow = unsure. Tap a green number to add it, or a yellow one to take it out.</div>
+        <div class="qnav rt" id="rgrid">${ITEMS.map(it=>`<button type="button" data-r="${it.key}" class="${!itemRight(it)?"no":u.has(it.key)?"un":"ok"}" ${!itemRight(it)?"disabled":""} aria-label="Question ${it.lab}">${it.lab}</button>`).join("")}</div>
+        <div class="score"><span>Missed <b>${missed}</b></span><span>Unsure <b>${pool.length-missed}</b></span><span>Retake <b>${pool.length}</b> questions</span></div>
+        <div class="ctrl"><button class="btn y" id="rstart" ${pool.length?"":"disabled"}>Start retake →</button></div>
+      </div>`;
+    $("#rgrid").onclick=e=>{const b=e.target.closest("[data-r]");if(!b||b.disabled)return;const k=b.dataset.r;
+      u.has(k)?u.delete(k):u.add(k);P.unsure=[...u];saveP();retakeRoom(app)};
+    $("#rstart").onclick=()=>{startRetake(pool);retakeRoom(app)};
+    return;
+  }
+  if(R.i>=R.list.length){
+    const n=R.list.length;
+    app.innerHTML=`<div class="qbox" style="text-align:center"><h2 style="font-family:var(--f-display);font-size:2rem">Retake score: ${R.right}/${n}</h2>
+      <p class="muted">${R.missed.length?`Still missing ${R.missed.length}. Run just those again (with new numbers), or review the lessons.`:"Every one right this time!"}</p>
+      <div class="ctrl" style="justify-content:center">${R.missed.length?`<button class="btn y" id="again">Retake the ${R.missed.length} I missed</button>`:""}<button class="btn ghost" id="back">Back to the list</button></div></div>`;
+    if(R.missed.length) $("#again").onclick=()=>{startRetake(R.missed);retakeRoom(app)}; else confetti();
+    $("#back").onclick=()=>{R=null;retakeRoom(app)};
+    return;
+  }
+  const key=R.list[R.i], it=ITEMS.find(x=>x.key===key);
+  if(!R.cur) R.cur=variantFor(key);
+  const c=R.cur, nextLabel=R.i+1<R.list.length?"Next question →":"See my score →";
+  const head=`<div class="score"><span>Question <b>${R.i+1}</b>/${R.list.length}</span><span>Right <b>${R.right}</b></span></div>
+    <div class="chips" style="align-items:center">${!itemRight(it)?`<span class="chip" style="border-color:var(--bad);color:var(--bad)">Missed</span>`:`<span class="chip warn">Unsure</span>`}<span class="mono muted" style="font-size:.8rem">#${it.lab} on your test${c.fresh||c.type==="fr"?" · new numbers":""}</span></div>`;
+  if(c.type==="mc"){
+    app.innerHTML=`<div class="qbox">${head}<h2>${md(c.q)}</h2>${mcView(c.opts,R.pick,c.why,nextLabel,()=>"")}</div>`;
+    if(R.pick!=null){$("#nq").onclick=()=>{R.i++;R.pick=null;R.cur=null;retakeRoom(app)};return}
+    app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{R.pick=+b.dataset.i;if(c.opts[R.pick].right)R.right++;else R.missed.push(key);retakeRoom(app);$("#nq").focus()});
+    return;
+  }
+  const p=c.prob.parts[c.pi], res=p.ans.map(a=>chk(c.vals[a.k],a.v)), ok=res.every(r=>r==="ok");
+  const needs=c.pi>0?`<p class="muted" style="margin:0;font-size:.92rem">Earlier parts you'll need: ${c.prob.parts.slice(0,c.pi).map(q=>q.ans.map(a=>`${TEX(VAR[a.k][0])} = ${f3(a.v)} ${VAR[a.k][2]}`).join(", ")).join("; ")}</p>`:"";
+  app.innerHTML=`<div class="qbox">${head}<p class="story">${md(c.prob.story)}</p>${needs}<h2>(${String.fromCharCode(97+c.pi)}) ${esc(p.ask)}</h2>
+    <div class="gin">${p.ans.map((a,k)=>`<label class="${c.checked?(res[k]==="ok"?"ok":"no"):""}">${TEX(VAR[a.k][0]+"=")}<input class="numin" inputmode="decimal" autocomplete="off" data-a="${a.k}" value="${esc(c.vals[a.k]||"")}" ${c.checked?"disabled":""} aria-label="${a.label}"><span class="mono muted">${VAR[a.k][2]}</span>${c.checked?`<p class="fb ${res[k]==="ok"?"ok":"no"}">${res[k]==="ok"?"✓ Right.":res[k]==="sign"?"Wrong sign. Answer: "+f3(a.v):"Answer: "+f3(a.v)}</p>`:""}</label>`).join("")}</div>
+    ${c.checked?`<p style="margin:0"><b style="color:${ok?"var(--good)":"var(--bad)"}">${ok?"Correct!":"Not quite."}</b> Here's the GUESS work:</p>${workHTML(p)}<div class="ctrl"><button class="btn y" id="nq">${nextLabel}</button></div>`
+      :`<div class="ctrl"><button class="btn y" id="rc">Check</button></div>`}</div>`;
+  app.querySelectorAll("[data-a]").forEach(i=>{i.oninput=()=>{c.vals[i.dataset.a]=i.value};i.onkeydown=e=>{if(e.key==="Enter")$("#rc")&&$("#rc").click()}});
+  if(c.checked){$("#nq").onclick=()=>{R.i++;R.cur=null;retakeRoom(app)};return}
+  $("#rc").onclick=()=>{c.checked=true;if(p.ans.every(a=>chk(c.vals[a.k],a.v)==="ok"))R.right++;else R.missed.push(key);retakeRoom(app)};
+}
+
+/* ---------- Flashcards ---------- */
+const EXTRA_CARDS=[
+  ["Horizontal part of a launch velocity","[[v_{ix} = v_i\\cos\\theta|]]"],["Vertical part of a launch velocity","[[v_{iy} = v_i\\sin\\theta|]]"],
+  ["Horizontal motion equation","[[d_x = v_x t|]]"],["Vertical equation with no final velocity","[[d_y = v_{iy}t + \\tfrac12 a_y t^2|]]"],
+  ["Vertical equation with no displacement","[[v_{fy} = v_{iy} + a_y t|]]"],["Vertical equation with no time","[[v_{fy}^2 = v_{iy}^2 + 2a_y d_y|]]"],
+  ["Landing speed from its parts","[[v = \\sqrt{v_x^2 + v_{fy}^2}|]]"],["Landing angle below horizontal","[[\\theta = \\tan^{-1}(\\lvert v_{fy}\\rvert / v_x)|]]"],
+  ["GUESS stands for…","Givens, Unknown, Equation, Substitute, Solve"],["[[v_{iy}|]] for a horizontal launch","0. It leaves moving straight sideways."],
+  ["Time to the top of an angled launch","[[t_{up} = -v_{iy}/a_y|]]. Total time (same height) is double it."]];
+let deck=[], fi=0, flashFilter="all";
+function buildDeck(){
+  const src=flashFilter==="eq"?EXTRA_CARDS.map(c=>({t:"Equations",q:c[0],a:c[1]})):[
+    ...T.filter(t=>flashFilter==="all"||t.id===flashFilter).flatMap(t=>t.terms.map(c=>({t:t.title,q:c[0],a:c[1]}))),
+    ...(flashFilter==="all"?EXTRA_CARDS.map(c=>({t:"Equations",q:c[0],a:c[1]})):[])];
+  deck=shuffle(src);fi=0;
+}
+function flashRoom(app){
+  if(!deck.length) buildDeck();
+  const done=fi>=deck.length, c=deck[fi];
+  app.innerHTML=`<div class="topic-pick"><button data-f="all" aria-pressed="${flashFilter==="all"}">All cards</button><button data-f="eq" aria-pressed="${flashFilter==="eq"}">Equations</button>${T.map((t,i)=>`<button data-f="${t.id}" aria-pressed="${flashFilter===t.id}">${i+1}. ${esc(t.title)}</button>`).join("")}</div>
+  <div class="card-area">
+    ${done?`<div class="qbox" style="text-align:center;width:min(560px,100%)"><h2>Deck cleared!</h2><p class="muted">Every card answered with "Got it."</p><button class="btn y" id="again">Shuffle again</button></div>`:`
+    <p class="mono muted" style="margin:0">${deck.length} cards left</p>
+    <button class="flash" id="card" aria-label="Flip card"><div class="in">
+      <div class="face front"><small>${esc(c.t)}</small><span>${md(c.q)}</span></div>
+      <div class="face back"><small>${esc(c.t)}</small><span>${md(c.a)}</span></div>
+    </div></button>
+    <div class="ctrl"><button class="btn ghost" id="miss">Again</button><button class="btn" id="flip">Flip</button><button class="btn y" id="got">Got it</button></div>
+    <p class="muted" style="font-size:.88rem;margin:0">Say the answer out loud before you flip. "Again" puts the card back in the deck.</p>`}
+  </div>`;
+  app.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{flashFilter=b.dataset.f;buildDeck();flashRoom(app)});
+  if(done){$("#again").onclick=()=>{buildDeck();flashRoom(app)};return}
+  const card=$("#card"); const flip=()=>card.classList.toggle("flipped");
+  card.onclick=flip; $("#flip").onclick=flip;
+  $("#got").onclick=()=>{deck.splice(fi,1);flashRoom(app)};
+  $("#miss").onclick=()=>{const x=deck.splice(fi,1)[0];deck.push(x);flashRoom(app)};
+}
+
+/* ---------- Quiz Show: concept questions + quick calculations with fresh numbers every round ---------- */
+const CONCEPT=[
+ ["At the very top of an angled launch, the vertical velocity is…",["0 m/s","the launch speed","−9.8 m/s","equal to [[v_x|]]"],"[[v_y|]] hits zero at the apex, while [[v_x|]] keeps going."],
+ ["At the very top of the path, the acceleration is…",["9.8 m/s² downward","zero","9.8 m/s² upward","getting smaller"],"The acceleration never turns off."],
+ ["With up as positive, which value of [[a_y|]] do you use?",["−9.8 m/s²","+9.8 m/s²","0 m/s²","−4.9 m/s²"],"Down is negative. (−4.9 is half of it, which only shows up inside the [[\\tfrac12 a_y t^2|]] term.)"],
+ ["A ball rolls off a 2.0 m tall table. What is [[d_y|]] for the fall?",["−2.0 m","+2.0 m","0 m","−9.8 m"],"It ends 2.0 m below where it started."],
+ ["Which trig function gives the HORIZONTAL part of a launch velocity?",["cosine","sine","tangent","inverse tangent"],"Cosine is next to the angle: horizontal."],
+ ["Which trig function gives the VERTICAL part of a launch velocity?",["sine","cosine","tangent","square root"],"Sine is across from the angle: vertical."],
+ ["Your calculator says sin 30 = −0.988. What's wrong?",["It's in radian mode","Nothing, that's right","You need inverse sine","The angle needs units of m/s"],"In degree mode sin 30° = 0.5."],
+ ["Launched and landing at the same height, the time coming down compared with the time going up is…",["the same","twice as long","half as long","zero"],"The path is symmetric."],
+ ["For a launch that lands at the same height, [[d_y|]] for the whole flight is…",["0","the max height","negative the max height","twice the max height"],"It ends at the height it started."],
+ ["Which equation finds the max height without knowing the time?",["[[v_{fy}^2 = v_{iy}^2 + 2a_y d_y|]]","[[d_x = v_x t|]]","[[v_{fy} = v_{iy} + a_y t|]]","[[v_{ix} = v_i\\cos\\theta|]]"],"It's the only vertical equation with no [[t|]]. Set [[v_{fy}=0|]] at the top."],
+ ["During the flight, a projectile's horizontal velocity…",["stays the same","speeds up","slows down","becomes zero at the top"],"[[a_x = 0|]]."],
+ ["What links the horizontal and vertical motions in a problem?",["The time [[t|]]","The acceleration","The launch angle only","Nothing"],"Both happen over the same time."],
+ ["One marble rolls off a table at 2 m/s and another at 6 m/s. Which lands first?",["Same time","The 6 m/s marble","The 2 m/s marble","Depends on mass"],"Same height, same [[v_{iy}=0|]], same fall time. The faster one just lands farther."],
+ ["Just before landing, a horizontally launched object's vertical velocity is…",["negative (downward)","positive (upward)","zero","equal to the launch speed"],"It's moving down, so it's negative."],
+ ["To find the landing angle below the horizontal, use…",["[[\\tan^{-1}(\\lvert v_{fy}\\rvert / v_x)|]]","[[\\tan^{-1}(v_x / \\lvert v_{fy}\\rvert)|]]","[[\\cos(v_x)|]]","[[\\sqrt{v_x^2 + v_{fy}^2}|]]"],"Opposite over adjacent, measured from the horizontal. The square root gives the speed, not the angle."],
+ ["For a horizontal launch, [[v_{iy}|]] is…",["0","the launch speed","−9.8 m/s","unknown until you find t"],"It leaves moving straight sideways."],
+ ["Which is TRUE at the apex of an angled launch?",["The speed equals [[v_x|]]","The speed is 0","[[v_x = 0|]]","The acceleration is 0"],"Only the vertical part is gone, so the speed is just the horizontal part."],
+ ["Your calculator errors on [[t = \\sqrt{2d_y/a_y}|]]. Most likely…",["[[d_y|]] was typed as positive","[[a_y|]] was negative","the launch speed was too high","the calculator was in degrees"],"Both should be negative so the fraction is positive."]
+];
+let Q=null;
+function newQuiz(){
+  const calc=shuffle(Object.keys(GEN)).slice(0,5).map(k=>mkQ(GEN[k]()));
+  Q={items:shuffle([...shuffle(CONCEPT).slice(0,7).map(mkQ),...calc]),i:0,pts:0,streak:0,best:0,right:0,pick:null};
+}
+function quizRoom(app){
+  if(!Q) newQuiz();
+  if(Q.i>=Q.items.length){
+    app.innerHTML=`<div class="qbox" style="text-align:center"><h2 style="font-family:var(--f-display);font-size:2rem">Final score: ${Q.pts}</h2>
+    <p class="score" style="justify-content:center"><span>Correct <b>${Q.right}/${Q.items.length}</b></span><span>Best streak <b>${Q.best}</b></span></p>
+    <p class="muted">${Q.right>=10?"Excellent. Go take the Practice Test.":"Look back at the lessons for the ones you missed, then play again. New numbers every round."}</p>
+    <div class="ctrl" style="justify-content:center"><button class="btn y" id="again">Play again</button><button class="btn ghost" id="totest">Practice Test →</button></div></div>`;
+    $("#again").onclick=()=>{newQuiz();quizRoom(app)}; $("#totest").onclick=()=>go("test"); return;
+  }
+  const it=Q.items[Q.i];
+  app.innerHTML=`<div class="qbox">
+    <div class="score"><span>Question <b>${Q.i+1}</b>/${Q.items.length}</span><span>Points <b>${Q.pts}</b></span><span>Streak <b>${Q.streak}</b>${Q.streak>=3?" 🔥":""}</span></div>
+    <h2>${md(it.q)}</h2>
+    ${mcView(it.opts,Q.pick,it.why,"Next question →",()=>"")}
+  </div><p class="muted" style="font-size:.88rem">100 points per right answer, plus 50 for each answer in your current streak. Calculation questions get new numbers every round.</p>`;
+  if(Q.pick!=null){$("#nq").onclick=()=>{Q.i++;Q.pick=null;quizRoom(app)};return}
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    Q.pick=+b.dataset.i; const o=it.opts[Q.pick];
+    if(o.right){Q.streak++;Q.best=Math.max(Q.best,Q.streak);Q.pts+=100+50*(Q.streak-1);Q.right++}
+    else Q.streak=0;
+    quizRoom(app); $("#nq").focus();
+  });
+}
+
+/* ---------- Projectile Lab ---------- */
+function labRoom(app){
+  app.innerHTML=`<section class="hero"><h1 style="font-size:2.2rem">Projectile Lab</h1><p>The launch simulator is being set up. Use the GUESS Coach and Practice Test for now.</p></section>`;
+}
+
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=document.createElement("canvas");c.id="confetti";document.body.appendChild(c);
+  const x=c.getContext("2d"),W=c.width=innerWidth,H=c.height=innerHeight;
+  const cols=["#f2d675","#9fe0a8","#f2a3a0","#eef0e6","#8ec5ff","#ffb86b"];
+  const P_=Array.from({length:180},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*16,vy:-Math.random()*16-4,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.random()*cols.length|0]}));
+  const t0=performance.now();
+  (function f(now){
+    x.clearRect(0,0,W,H);
+    P_.forEach(p=>{p.vy+=.45;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;
+      x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore()});
+    if(now-t0<3000)requestAnimationFrame(f);else c.remove();
+  })(t0);
+}
+
+renderTabs(); render();
+</script>
+
+</body></html>
