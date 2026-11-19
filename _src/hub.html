@@ -1,0 +1,105 @@
+<title>Blaze's Study Guides</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@400;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Same chalkboard classroom as the guides themselves. Deliberately single-theme (dark board). */
+:root{
+  --board:#1d362f; --board-2:#25443b; --board-3:#2d5146;
+  --chalk:#eef0e6; --chalk-dim:#b4c2b8; --line:rgba(238,240,230,.16);
+  --yellow:#f2d675; --good:#9fe0a8; --bad:#f2a3a0; --wood:#6b4a2f;
+  --f-display:"Cabin Sketch","Comic Sans MS",cursive;
+  --f-body:"Atkinson Hyperlegible",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--board);color:var(--chalk);font:16px/1.55 var(--f-body);
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(255,255,255,.05),transparent 60%),radial-gradient(ellipse at 90% 100%,rgba(0,0,0,.25),transparent 60%);min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--wood)}
+.wrap{max-width:1000px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;text-wrap:balance;margin:0;line-height:1.15}
+a{color:inherit}
+a:focus-visible{outline:2px dashed var(--yellow);outline-offset:3px}
+header.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--wood);border-bottom:4px solid #4f361f;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.rail .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
+.brand{font-family:var(--f-display);font-size:1.35rem;color:#fff4dc}
+.hero{padding-block:40px 18px;display:grid;gap:12px}
+.hero h1{font-size:clamp(2.3rem,7vw,3.8rem)}
+.hero p{max-width:60ch;margin:0;color:var(--chalk-dim)}
+.section-h{font-size:1.6rem;margin-top:30px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-top:14px}
+.card{display:grid;gap:10px;align-content:start;background:var(--board-2);border:1px solid var(--line);border-radius:12px;padding:18px;text-decoration:none;transition:border-color .15s,transform .15s}
+a.card:hover{border-color:var(--yellow);transform:translateY(-2px)}
+.card.soon{border-style:dashed;background:transparent}
+.card .subj{font-family:var(--f-mono);font-size:.78rem;color:var(--chalk-dim);letter-spacing:.06em;text-transform:uppercase}
+.card h3{font-size:1.5rem}
+.card p{margin:0;color:var(--chalk-dim);font-size:.95rem}
+.card .go{font-weight:700;color:var(--yellow)}
+.card.soon .go{color:var(--chalk-dim);font-weight:400}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:.78rem;border-radius:999px;padding:1px 9px;border:1px solid var(--line);color:var(--chalk-dim)}
+.chip.hot{border-color:var(--bad);color:var(--bad);font-weight:700}
+.chip.warn{border-color:var(--yellow);color:var(--yellow)}
+.chip.ok{border-color:var(--good);color:var(--good)}
+.inside{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.85rem;color:var(--chalk);margin:0;padding:0;list-style:none}
+.inside li::before{content:"✓ ";color:var(--good)}
+.foot{margin-top:36px;color:var(--chalk-dim);font-size:.85rem}
+@media (prefers-reduced-motion:reduce){a.card:hover{transform:none}}
+</style>
+
+<header class="rail"><div class="wrap"><div class="brand">Blaze's Study Guides</div></div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Blaze's Study Guides</h1>
+    <p>Chalkboard classrooms for each test: short narrated lessons, flashcards, a quiz show, and practice tests that grade themselves. Pick the next test below.</p>
+  </section>
+  <h2 class="section-h">Coming up</h2>
+  <div class="cards" id="up"></div>
+  <h2 class="section-h">Review &amp; retakes</h2>
+  <div class="cards" id="past"></div>
+  <p class="foot">Progress is saved in your own browser on each device.</p>
+</main>
+
+<script>
+/* date: test day (YYYY-MM-DD) or null. status chips are worked out from today's date so they never go stale. */
+const GUIDES=[
+  {subj:"Physics",title:"Projectile Motion",href:"physics/",date:"2026-11-20",
+   blurb:"Horizontal and angled launches, max height, landing velocity, and the GUESS method.",
+   inside:["7 narrated lessons","Projectile Lab","Formula sheet","GUESS Coach","Practice test","Retake with new numbers"]},
+  {subj:"History",title:"New History Unit",date:"2026-11-23",soon:true,blurb:"Lessons, flashcards and a practice test for the next unit."},
+  {subj:"Math",title:"Trig Test Retake",soon:true,retake:true,blurb:"Practice for the trig retake."},
+  {subj:"History · Writing",title:"Early Republic Writing Retake",href:"https://mcgee2262.github.io/early-republic-writing-retake/",retake:true,
+   blurb:"Practice for the Early Republic writing retake."},
+  {subj:"History",title:"Early Republic · Unit 3",href:"early-republic-unit3/",review:true,
+   blurb:"Articles of Confederation through Andrew Jackson.",inside:["10 narrated lessons","Flashcards","Quiz Show","President Lineup","40-question test","Test Retake"]}
+];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=new Date();today.setHours(0,0,0,0);
+function when(g){
+  if(!g.date) return null;
+  const d=new Date(g.date+"T00:00:00"), n=Math.round((d-today)/864e5);
+  const label=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+  if(n<0) return {past:true,chip:`<span class="chip ok">Done · ${label}</span>`};
+  if(n===0) return {chip:`<span class="chip hot">Test today</span>`};
+  if(n===1) return {chip:`<span class="chip hot">Test tomorrow · ${label}</span>`};
+  return {chip:`<span class="chip warn">Test ${label} · in ${n} days</span>`};
+}
+function card(g){
+  const w=when(g), chips=[];
+  if(w) chips.push(w.chip);
+  if(g.retake) chips.push(`<span class="chip warn">Retake</span>`);
+  if(g.review) chips.push(`<span class="chip ok">Review</span>`);
+  if(g.soon) chips.push(`<span class="chip">Coming soon</span>`);
+  const ext=/^https?:/.test(g.href||"");
+  const body=`<span class="subj">${esc(g.subj)}</span><h3>${esc(g.title)}</h3><div class="chips">${chips.join("")}</div><p>${esc(g.blurb)}</p>
+    ${g.inside?`<ul class="inside">${g.inside.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    <span class="go">${g.soon?"Being built. Check back soon.":"Open the classroom →"}</span>`;
+  return g.soon?`<div class="card soon">${body}</div>`:`<a class="card" href="${esc(g.href)}"${ext?' rel="noopener"':""}>${body}</a>`;
+}
+const isUp=g=>{const w=when(g);return (g.date&&!w.past)||(g.soon&&!g.date)};
+const ord=g=>g.date?new Date(g.date).getTime():9e15;
+const up=GUIDES.filter(isUp).sort((a,b)=>ord(a)-ord(b)), past=GUIDES.filter(g=>!isUp(g));
+document.getElementById("up").innerHTML=up.map(card).join("");
+document.getElementById("past").innerHTML=past.map(card).join("");
+</script>
