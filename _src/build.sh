@@ -8,7 +8,7 @@ wrap(){ { printf '<!doctype html><html lang="en"><head><meta charset="utf-8"><me
 wrap "$SRC/physics-classroom.html" "$OUT/physics/index.html"
 mkdir -p "$OUT/history-road-to-war"; wrap "$SRC/history-classroom.html" "$OUT/history-road-to-war/index.html"
 [ -d "$SRC/history-audio" ] && rsync -a "$SRC/history-audio/" "$OUT/history-road-to-war/audio/"
-wrap "$SRC/early-republic-classroom.html" "$OUT/early-republic-unit3/index.html"
+[ -f "$SRC/early-republic-classroom.html" ] && wrap "$SRC/early-republic-classroom.html" "$OUT/early-republic-unit3/index.html"
 [ -f "$SRC/hub.html" ] && wrap "$SRC/hub.html" "$OUT/index.html"
 [ -d "$SRC/physics-audio" ] && rsync -a --delete "$SRC/physics-audio/" "$OUT/physics/audio/"
 rsync -a "$SRC/katex/" "$OUT/physics/katex/"
@@ -20,4 +20,15 @@ wrap "$SRC/history-classroom.html" "$SHARE/index.html"; sed -i '' -E 's#<!--HUB-
 [ -d "$SRC/history-audio" ] && rsync -a --delete "$SRC/history-audio/" "$SHARE/audio/"
 # Keep the editable sources in the repo too (Jekyll skips folders starting with _).
 mkdir -p "$OUT/_src/tools"; cp "$SRC"/physics-classroom.html "$SRC"/history-classroom.html "$SRC"/hub.html "$SRC"/build.sh "$OUT/_src/"; cp "$SRC"/tools/*.js "$SRC"/tools/*.py "$OUT/_src/tools/"
+# PS5 / game controller support on every page (idempotent: replaces any older copy).
+for f in "$OUT/index.html" "$OUT/physics/index.html" "$OUT/history-road-to-war/index.html" "$OUT/early-republic-unit3/index.html" "$SHARE/index.html"; do
+  python3 -I - "$f" "$SRC/tools/gamepad.js" <<'PY'
+import sys,re
+f,js=sys.argv[1],open(sys.argv[2]).read()
+h=open(f).read()
+h=re.sub(r'<script id="ps5pad">.*?</script>\n?','',h,flags=re.S)
+h=h.replace('</body></html>','<script id="ps5pad">'+js+'</script>\n</body></html>',1)
+open(f,'w').write(h)
+PY
+done
 echo built
